@@ -1,0 +1,45 @@
+{
+  "name": "pansar-store",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node src/scripts/seed.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.111.0",
+    "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.6.1",
+    "jose": "^6.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^0.408.0",
+    "mongoose": "^8.5.1",
+    "nanoid": "^5.0.7",
+    "next": "14.2.5",
+    "nodemailer": "^9.0.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.4.1",
+    "react-icons": "^5.7.0",
+    "recharts": "^2.12.7",
+    "slugify": "^1.6.6",
+    "tailwind-merge": "^2.4.0",
+    "zod": "^3.23.8",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7"
+  }
+}
