@@ -1,5 +1,7 @@
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
+import "@/models/Category";
+import "@/models/Brand";
 import { ok, serverError } from "@/lib/apiResponse";
 
 export async function GET(request) {
