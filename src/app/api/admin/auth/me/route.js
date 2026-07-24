@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/session";
 import { ok, unauthorized, serverError } from "@/lib/apiResponse";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
