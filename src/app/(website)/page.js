@@ -63,7 +63,7 @@ export default function HomePage() {
               {!categories.length
                 ? Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className="flex flex-col items-center gap-2.5">
-                      <div className="h-16 w-16 shrink-0 animate-pulse rounded-full bg-primary-50 sm:h-20 sm:w-20" />
+                      <div className="h-16 w-16 shrink-0 animate-pulse rounded-full bg-slate-50 sm:h-20 sm:w-20" />
                       <div className="h-3 w-12 animate-pulse rounded-full bg-primary/10" />
                     </div>
                   ))
@@ -193,7 +193,7 @@ export default function HomePage() {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-square animate-pulse rounded-2xl bg-primary-50"
+                    className="aspect-square animate-pulse rounded-2xl bg-slate-50"
                   />
                 ))}
               </div>
@@ -220,7 +220,7 @@ export default function HomePage() {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-square animate-pulse rounded-2xl bg-primary-50"
+                    className="aspect-square animate-pulse rounded-2xl bg-slate-50"
                   />
                 ))}
               </div>
@@ -247,7 +247,7 @@ export default function HomePage() {
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-square animate-pulse rounded-2xl bg-primary-50"
+                    className="aspect-square animate-pulse rounded-2xl bg-slate-50"
                   />
                 ))}
               </div>

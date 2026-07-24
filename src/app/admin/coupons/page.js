@@ -122,7 +122,7 @@ export default function CouponsPage() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-12 animate-pulse rounded-lg bg-primary-50"
+                className="h-12 animate-pulse rounded-lg bg-slate-50"
               />
             ))}
           </div>
@@ -133,7 +133,7 @@ export default function CouponsPage() {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="border-b border-primary-100 bg-primary-50">
+            <thead className="border-b bg-slate-100 bg-slate-50">
               <tr>
                 {[
                   "Code",
@@ -170,7 +170,7 @@ export default function CouponsPage() {
                 return (
                   <tr
                     key={c._id}
-                    className="border-b border-slate-50 hover:bg-primary-50"
+                    className="border-b border-slate-50 hover:bg-slate-50"
                   >
                     <td className="px-4 py-3 font-mono font-bold text-slate-800">
                       {c.code}
@@ -205,7 +205,7 @@ export default function CouponsPage() {
                         </button>
                         <button
                           onClick={() => setDel(c)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-primary-700"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-primary-700"
                         >
                           <Trash2 size={15} />
                         </button>

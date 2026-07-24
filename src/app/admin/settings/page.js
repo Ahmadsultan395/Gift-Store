@@ -64,7 +64,7 @@ export default function SettingsPage() {
   if (settingsLoading || !form)
     return (
       <div className="flex justify-center py-20">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-green-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
       </div>
     );
 
@@ -88,7 +88,7 @@ export default function SettingsPage() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`flex w-full px-4 py-3 text-sm font-medium text-left transition-colors border-b border-slate-100 last:border-0 ${tab === t ? "bg-green-50 text-green-700" : "text-slate-600 hover:bg-slate-50"}`}
+                className={`flex w-full px-4 py-3 text-sm font-medium text-left transition-colors border-b border-slate-100 last:border-0 ${tab === t ? "bg-primary-50 text-primary-600" : "text-slate-600 hover:bg-slate-50"}`}
               >
                 {t}
               </button>

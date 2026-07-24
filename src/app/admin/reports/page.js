@@ -142,7 +142,7 @@ export default function ReportsPage() {
             <button
               key={t}
               onClick={() => setType(t)}
-              className={`px-4 py-2 text-sm font-medium capitalize transition-colors ${type === t ? "bg-green-600 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+              className={`px-4 py-2 text-sm font-medium capitalize transition-colors ${type === t ? "bg-primary-600 text-white" : "text-slate-600 hover:bg-slate-50"}`}
             >
               {t}
             </button>

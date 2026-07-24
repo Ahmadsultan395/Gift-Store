@@ -14,7 +14,7 @@ export default function CategoriesPage() {
   }, [fetchCategories]);
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-white">
       <PageHeroHeader
         icon="🗂️"
         eyebrow="Browse"
@@ -29,7 +29,7 @@ export default function CategoriesPage() {
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-square animate-pulse rounded-[28px] bg-white shadow-sm"
+                className="aspect-square animate-pulse rounded-[28px] bg-slate-50 shadow-sm"
               />
             ))}
           </div>
