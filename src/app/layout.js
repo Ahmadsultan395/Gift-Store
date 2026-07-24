@@ -1,5 +1,6 @@
 import StoreHydrate from "@/components/admin/StoreHydrate";
 import "./globals.css";
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: { default: "Pansar Store", template: "%s | Pansar Store" },
