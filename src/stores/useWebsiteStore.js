@@ -190,7 +190,6 @@ export const useWebsiteStore = create(
       newArrivals: [],
       flashSaleProducts: [],
       homeProductsLoading: false,
-
       fetchHomeProducts: async () => {
         set({ homeProductsLoading: true });
 
@@ -200,24 +199,27 @@ export const useWebsiteStore = create(
               featured: true,
               limit: 8,
             }),
-
             productsApi.getList({
               newArrival: true,
               limit: 8,
             }),
-
             productsApi.getList({
               flashSale: true,
               limit: 8,
             }),
           ]);
 
+          console.log("HOME FEATURED", featured);
+          console.log("HOME ARRIVAL", arrivals);
+          console.log("HOME FLASH", flash);
+
           set({
             featuredProducts: featured.products || [],
             newArrivals: arrivals.products || [],
             flashSaleProducts: flash.products || [],
           });
-        } catch {
+        } catch (e) {
+          console.log("HOME ERROR", e);
         } finally {
           set({ homeProductsLoading: false });
         }

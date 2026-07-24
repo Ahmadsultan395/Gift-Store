@@ -44,9 +44,9 @@ export const useAdminStore = create((set, get) => ({
   login: async (body) => {
     const data = await adminAuthApi.login(body);
 
-    if (!data.success) {
-      throw new Error(data.message || "Login failed");
-    }
+    // if (!data.success) {
+    //   throw new Error(data.message || "Login failed");
+    // }
 
     set({
       admin: data.user,

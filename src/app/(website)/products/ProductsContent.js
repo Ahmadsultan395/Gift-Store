@@ -7,7 +7,7 @@ import PageHeroHeader from "@/components/website/PageHeroHeader";
 import { useEffect, useState } from "react";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 
-export default function ProductsPage() {
+export default function ProductsContentPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const {

@@ -43,8 +43,11 @@ export default function HomePage() {
   useEffect(() => {
     fetchCategories();
     fetchBanners();
+  }, [fetchCategories, fetchBanners]);
+
+  useEffect(() => {
     fetchHomeProducts();
-  }, [fetchCategories, fetchBanners, fetchHomeProducts]);
+  }, []);
 
   return (
     <div>
