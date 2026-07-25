@@ -18,6 +18,7 @@ import {
   couponsApi,
   newsletterApi,
   bannersApi,
+  brandsApi,
 } from "@/services/api";
 
 export const useWebsiteStore = create(
@@ -122,6 +123,23 @@ export const useWebsiteStore = create(
         } catch {
         } finally {
           set({ categoriesLoading: false });
+        }
+      },
+
+      // ── Brands ───────────────────────────────────────────────
+      brands: [],
+      brandsLoaded: false,
+      brandsLoading: false,
+
+      fetchBrands: async () => {
+        if (get().brandsLoaded) return;
+        set({ brandsLoading: true });
+        try {
+          const data = await brandsApi.getAll();
+          set({ brands: data || [], brandsLoaded: true });
+        } catch {
+        } finally {
+          set({ brandsLoading: false });
         }
       },
 

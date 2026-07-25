@@ -80,6 +80,7 @@ export const categoriesApi = {
 // BRANDS
 // ─────────────────────────────────────────────────────────────────
 export const brandsApi = {
+  getAll: () => req("/api/brands"),
   adminGetAll: () => req("/api/admin/brands"),
   create: (body) =>
     req("/api/admin/brands", { method: "POST", body: JSON.stringify(body) }),

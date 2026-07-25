@@ -230,7 +230,7 @@ export default function AboutPage() {
           {(settings?.socialLinks?.facebook ||
             settings?.socialLinks?.instagram ||
             settings?.socialLinks?.whatsapp) && (
-            <div className="mt-6 flex justify-center gap-4">
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
               {settings.socialLinks.facebook && (
                 <a
                   href={settings.socialLinks.facebook}

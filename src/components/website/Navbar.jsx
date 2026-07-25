@@ -74,19 +74,21 @@ export default function Navbar() {
       return pathname === "/";
     }
 
+    if (href === "/account") {
+      return pathname === "/account";
+    }
+
     return pathname.startsWith(href);
   };
 
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/90 backdrop-blur-xl shadow-lg border-b border-slate-200"
-          : "bg-white/80 backdrop-blur-md border-b border-slate-100"
+        scrolled ? "bg-primary-700 " : "bg-primary-700"
       }`}
     >
       <div className="mx-auto max-w-7xl px-4">
-        <div className="flex h-20 items-center gap-5">
+        <div className="flex h-20 items-center gap-1 sm:gap-5">
           {/* LOGO */}
 
           <Link
@@ -95,18 +97,19 @@ export default function Navbar() {
           >
             <div
               className="
-              flex h-11 w-11 items-center justify-center 
-              rounded-2xl 
-              bg-gradient-to-r from-primary to-emerald-500
+              flex  h-7 w-7  sm:h-11 sm:w-11 items-center justify-center 
+              rounded-lg
+              sm:rounded-2xl 
+              bg-gradient-to-r from-primary to-primary-500
               text-white shadow-md
               transition
               group-hover:scale-105
               "
             >
-              <Store size={21} />
+              <Store size={21} className="h-4 w-4  sm:h-6 sm:w-6" />
             </div>
 
-            <span className="text-xl font-extrabold tracking-tight text-slate-800">
+            <span className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
               {storeSettings?.storeName || "Store"}
             </span>
           </Link>
@@ -129,7 +132,7 @@ export default function Navbar() {
             max-w-lg
             "
           >
-            <Search size={18} className="text-slate-400" />
+            <Search size={18} className="text-white" />
 
             <input
               value={search}
@@ -161,8 +164,8 @@ export default function Navbar() {
 
                   ${
                     isActive(l.href)
-                      ? "bg-primary text-white shadow-md"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-primary"
+                      ? "bg-white text-primary shadow-md"
+                      : "bg-transparent text-white hover:bg-slate-200/50 hover:text-primary"
                   }
                   `}
               >
@@ -175,35 +178,45 @@ export default function Navbar() {
 
           {/* ICONS */}
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0 sm:gap-1">
             <Link
               href="/account/wishlist"
-              className="
-              hidden sm:flex
+              className={`
               rounded-full
-              p-2.5
-              text-slate-500
-              hover:bg-primary/10
-              hover:text-primary
+              px-1
+              sm:px-2.5
+              py-2.5
               transition
-              "
+
+               ${
+                 isActive("/account/wishlist")
+                   ? "bg-white text-primary hover:bg-slate-200/50 hover:text-primary"
+                   : "text-white hover:bg-slate-200/50 hover:text-primary"
+               }
+              `}
             >
-              <Heart size={20} />
+              <Heart size={20} className="h-4 w-4  sm:h-6 sm:w-6" />
             </Link>
 
             <Link
               href="/cart"
-              className="
+              className={`
               relative
               rounded-full
-              p-2.5
-              text-slate-500
-              hover:bg-primary/10
-              hover:text-primary
+              px-1
+              sm:px-2.5
+              py-2.5
               transition
-              "
+
+               ${
+                 isActive("/cart")
+                   ? "bg-white text-primary hover:bg-slate-200/50 hover:text-primary"
+                   : "text-white hover:bg-slate-200/50 hover:text-primary"
+               }
+                  
+              `}
             >
-              <ShoppingCart size={21} />
+              <ShoppingCart size={21} className="h-4 w-4  sm:h-6 sm:w-6" />
 
               {cartCount > 0 && (
                 <span
@@ -233,16 +246,21 @@ export default function Navbar() {
 
             <Link
               href="/account"
-              className="
+              className={`
               rounded-full
-              p-2.5
-              text-slate-500
-              hover:bg-primary/10
-              hover:text-primary
+              px-1
+              sm:px-2.5
+              py-2.5
               transition
-              "
+
+               ${
+                 isActive("/account")
+                   ? "bg-white text-primary hover:bg-slate-200/50 hover:text-primary"
+                   : "text-white hover:bg-slate-200/50 hover:text-primary"
+               }
+              `}
             >
-              <User size={21} />
+              <User size={21} className="h-4 w-4  sm:h-6 sm:w-6" />
             </Link>
 
             <button

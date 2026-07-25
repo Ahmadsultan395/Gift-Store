@@ -68,7 +68,7 @@ export default function AccountPage() {
       >
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 rounded-xl border-2 border-white/40 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-white/15"
+          className="flex items-center gap-2 rounded-xl border-2 border-red-500/40 px-5 py-2.5 text-sm font-bold text-red-500 transition-colors hover:bg-red-500/35"
         >
           <LogOut size={15} /> Logout
         </button>
