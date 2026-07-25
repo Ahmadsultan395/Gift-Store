@@ -178,14 +178,15 @@ export default function Navbar() {
 
           {/* ICONS */}
 
-          <div className="flex items-center gap-0 sm:gap-1">
+          <div className="flex items-center gap-1">
             <Link
               href="/account/wishlist"
               className={`
               rounded-full
-              px-1
+               px-1.5
+              py-1.5
               sm:px-2.5
-              py-2.5
+               sm:py-2.5
               transition
 
                ${
@@ -203,9 +204,10 @@ export default function Navbar() {
               className={`
               relative
               rounded-full
-              px-1
+              px-1.5
+              py-1.5
               sm:px-2.5
-              py-2.5
+               sm:py-2.5
               transition
 
                ${
@@ -248,9 +250,10 @@ export default function Navbar() {
               href="/account"
               className={`
               rounded-full
-              px-1
+              px-1.5
+              py-1.5
               sm:px-2.5
-              py-2.5
+               sm:py-2.5
               transition
 
                ${
