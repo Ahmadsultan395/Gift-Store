@@ -13,11 +13,14 @@ import {
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+import Image from "next/image";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { storeSettings, fetchStoreSettings, cart } = useWebsiteStore();
+
+  console.log(storeSettings);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
@@ -97,16 +100,27 @@ export default function Navbar() {
           >
             <div
               className="
-              flex  h-7 w-7  sm:h-11 sm:w-11 items-center justify-center 
-              rounded-lg
-              sm:rounded-2xl 
-              bg-gradient-to-r from-primary to-primary-500
-              text-white shadow-md
-              transition
-              group-hover:scale-105
-              "
+    flex h-7 w-7 sm:h-11 sm:w-11 
+    items-center justify-center 
+    overflow-hidden
+    rounded-lg sm:rounded-2xl 
+    bg-gradient-to-r from-primary to-primary-500
+    text-white shadow-md
+    transition
+    group-hover:scale-105
+  "
             >
-              <Store size={21} className="h-4 w-4  sm:h-6 sm:w-6" />
+              {storeSettings?.logo?.url ? (
+                <Image
+                  src={storeSettings.logo.url}
+                  alt={storeSettings?.storeName || "Store Logo"}
+                  width={44}
+                  height={44}
+                  className="h-full w-full rounded-lg object-contain"
+                />
+              ) : (
+                <Store size={21} className="h-4 w-4 sm:h-6 sm:w-6" />
+              )}
             </div>
 
             <span className="text-lg sm:text-xl font-extrabold tracking-tight text-white">

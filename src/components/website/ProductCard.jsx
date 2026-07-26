@@ -64,7 +64,7 @@ export default function ProductCard({ product }) {
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {product.discountPercent > 0 && (
             <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              -{product.discountPercent}%
+              {product.discountPercent}% off
             </span>
           )}
           {product.isNewArrival && (
@@ -79,7 +79,7 @@ export default function ProductCard({ product }) {
           )}
           {isOutOfStock && (
             <span className="rounded-full bg-slate-500 px-2 py-0.5 text-[10px] font-bold text-white">
-              OUT
+              SOLD
             </span>
           )}
         </div>

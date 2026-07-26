@@ -87,7 +87,7 @@ export default function NotificationsPage() {
                   </Badge>
 
                   {!n.isRead && (
-                    <span className="h-2 w-2 rounded-full bg-green-600 flex-shrink-0" />
+                    <span className="h-2 w-2 rounded-full bg-primary-600 flex-shrink-0" />
                   )}
                 </div>
 

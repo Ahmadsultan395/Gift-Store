@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+import Image from "next/image";
 
 const quickLinks = [
   ["Home", "/"],
@@ -110,7 +111,17 @@ group-hover:scale-110
 group-hover:rotate-6
 "
               >
-                <Store size={22} />
+                {storeSettings?.logo?.url ? (
+                  <Image
+                    src={storeSettings.logo.url}
+                    alt={storeSettings?.storeName || "Store Logo"}
+                    width={44}
+                    height={44}
+                    className="h-full w-full rounded-lg object-contain"
+                  />
+                ) : (
+                  <Store size={21} className="h-4 w-4 sm:h-6 sm:w-6" />
+                )}
               </span>
 
               <span

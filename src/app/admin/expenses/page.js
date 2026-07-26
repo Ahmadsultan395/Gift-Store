@@ -311,7 +311,7 @@ export default function ExpensesPage() {
       />
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-green-600"}`}
+          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-primary-600"}`}
         >
           {toast.msg}
         </div>

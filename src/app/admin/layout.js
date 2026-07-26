@@ -5,14 +5,17 @@ import { usePathname, useRouter } from "next/navigation";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTopbar from "@/components/admin/AdminTopbar";
 import AdminProvider from "../../providers/AdminProvider";
+import { useAdminStore } from "@/stores/useAdminStore";
 
 export default function AdminLayout({ children }) {
+  const { settings } = useAdminStore();
   const [user, setUser] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [checking, setChecking] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const isLoginPage = pathname === "/admin/login";
+  console.log(settings);
 
   useEffect(() => {
     if (isLoginPage) {
@@ -55,6 +58,7 @@ export default function AdminLayout({ children }) {
     <AdminProvider>
       <div className="flex h-screen overflow-hidden bg-slate-50">
         <AdminSidebar
+          settings={settings}
           mobileOpen={mobileOpen}
           onClose={() => setMobileOpen(false)}
         />

@@ -78,7 +78,7 @@ export default function InventoryPage() {
           <button
             key={v.key}
             onClick={() => setView(v.key)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${view === v.key ? "bg-green-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-green-400"}`}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${view === v.key ? "bg-primary-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-green-400"}`}
           >
             <v.icon size={14} /> {v.label}
           </button>

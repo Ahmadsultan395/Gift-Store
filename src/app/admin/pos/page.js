@@ -11,12 +11,12 @@ import {
   CheckCircle,
   Scale,
   CreditCard,
+  UserPlus,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { useAdminStore } from "@/stores/useAdminStore";
 
 // ── Unit converter helper ───────────────────────────────────────────
-// e.g. user types "250" gm → converts to 0.25 kg for a kg-based product
 const UNIT_CONVERSIONS = {
   kg: { sub: "g", factor: 0.001, label: "gm → kg" },
   litre: { sub: "ml", factor: 0.001, label: "ml → litre" },
@@ -39,10 +39,19 @@ export default function POSPage() {
   const [amountPaid, setAmountPaid] = useState("");
   const [payMethod, setPayMethod] = useState("cash");
   const [receipt, setReceipt] = useState(null);
-  const [qtyModal, setQtyModal] = useState(null); // {product} for custom qty entry
+  const [qtyModal, setQtyModal] = useState(null);
   const [customQty, setCustomQty] = useState("");
-  const [subUnit, setSubUnit] = useState(false); // toggle gm vs kg
+  const [subUnit, setSubUnit] = useState(false);
   const searchRef = useRef();
+
+  // ── Quick-add customer state ──────────────────────────────────
+  const [showAddCustomer, setShowAddCustomer] = useState(false);
+  const [newCustName, setNewCustName] = useState("");
+  const [newCustPhone, setNewCustPhone] = useState("");
+  const [newCustAddress, setNewCustAddress] = useState("");
+  const [addingCustomer, setAddingCustomer] = useState(false);
+  const [addCustError, setAddCustError] = useState("");
+
   const {
     products,
     fetchProducts,
@@ -50,6 +59,7 @@ export default function POSPage() {
     fetchCategories,
     customers,
     fetchCustomers,
+    addCustomer,
     createPOSSale,
     posLoading,
   } = useAdminStore();
@@ -91,7 +101,6 @@ export default function POSPage() {
     return ms && mc;
   });
 
-  // Open qty modal for products sold by weight/volume
   function handleProductClick(product) {
     if (product.stock <= 0) return;
     const needsQtyModal = ["kg", "litre", "g", "ml"].includes(product.unit);
@@ -109,11 +118,9 @@ export default function POSPage() {
     let qty = parseFloat(customQty);
     if (isNaN(qty) || qty <= 0) return;
 
-    // Convert sub-unit to base unit
     const conv = UNIT_CONVERSIONS[qtyModal.unit];
     if (subUnit && conv) qty = qty * conv.factor;
 
-    // Round to 4 decimal places
     qty = Math.round(qty * 10000) / 10000;
 
     if (qty > qtyModal.stock) {
@@ -174,6 +181,51 @@ export default function POSPage() {
     setAmountPaid("");
     setCustomer(null);
     setCustSearch("");
+  }
+
+  // Customer select karte hi search dropdown band ho jaye (customers list
+  // ko store me clear karne ki zaroorat nahi — dropdown custSearch pe depend karta hai)
+  function selectCustomer(c) {
+    setCustomer(c);
+    setCustSearch("");
+  }
+
+  // ── Quick-add customer ────────────────────────────────────────
+  function openAddCustomer() {
+    // agar search me number type kiya hai to phone field prefill, warna name
+    const isPhoneLike = /^[\d+\-\s]+$/.test(custSearch.trim());
+    setNewCustName(isPhoneLike ? "" : custSearch);
+    setNewCustPhone(isPhoneLike ? custSearch : "");
+    setNewCustAddress("");
+    setAddCustError("");
+    setShowAddCustomer(true);
+  }
+
+  async function handleAddCustomer() {
+    if (!newCustName.trim() || !newCustPhone.trim()) {
+      setAddCustError("Name aur phone dono zaroori hain");
+      return;
+    }
+    setAddingCustomer(true);
+    setAddCustError("");
+    try {
+      const created = await addCustomer({
+        name: newCustName.trim(),
+        phone: newCustPhone.trim(),
+        addresses: newCustAddress.trim()
+          ? [{ address: newCustAddress.trim(), isDefault: true }]
+          : [],
+      });
+      selectCustomer(created);
+      setShowAddCustomer(false);
+      setNewCustName("");
+      setNewCustPhone("");
+      setNewCustAddress("");
+    } catch (err) {
+      setAddCustError(err.message || "Customer add nahi ho saka");
+    } finally {
+      setAddingCustomer(false);
+    }
   }
 
   const subTotal = cart.reduce(
@@ -368,11 +420,7 @@ export default function POSPage() {
                   {customers.map((c) => (
                     <button
                       key={c._id}
-                      onClick={() => {
-                        setCustomer(c);
-                        setCustomers([]);
-                        setCustSearch("");
-                      }}
+                      onClick={() => selectCustomer(c)}
                       className="flex w-full flex-col px-3 py-2 text-left hover:bg-slate-50"
                     >
                       <span className="text-xs font-medium">{c.name}</span>
@@ -381,6 +429,21 @@ export default function POSPage() {
                       </span>
                     </button>
                   ))}
+                </div>
+              )}
+              {/* Search me kuch type hua, koi match nahi mila → quick add */}
+              {custSearch.length >= 2 && customers.length === 0 && (
+                <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 bg-white p-2 shadow-lg">
+                  <p className="mb-1.5 px-1 text-[11px] text-slate-400">
+                    No customer found
+                  </p>
+                  <button
+                    onClick={openAddCustomer}
+                    className="flex w-full items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-left text-xs font-semibold text-primary-700 hover:bg-primary-100"
+                  >
+                    <UserPlus size={13} />"{custSearch}" ko naye customer ke
+                    taur par add karein
+                  </button>
                 </div>
               )}
             </div>
@@ -429,7 +492,6 @@ export default function POSPage() {
                   >
                     <Minus size={11} />
                   </button>
-                  {/* Editable qty input */}
                   <input
                     type="number"
                     value={item.qty}
@@ -504,7 +566,6 @@ export default function POSPage() {
             </div>
           </div>
 
-          {/* Payment method */}
           <div className="flex gap-1.5">
             {["cash", "card", "bank_transfer"].map((m) => (
               <button
@@ -517,7 +578,6 @@ export default function POSPage() {
             ))}
           </div>
 
-          {/* Amount paid */}
           <div>
             <label className="block text-[10px] font-medium text-slate-500 mb-1">
               Amount Received (PKR)
@@ -531,7 +591,6 @@ export default function POSPage() {
             />
           </div>
 
-          {/* Change / Balance */}
           {amountPaid > 0 && (
             <div className="grid grid-cols-2 gap-2 text-xs">
               {change > 0 && (
@@ -598,7 +657,6 @@ export default function POSPage() {
               </span>
             </p>
 
-            {/* Sub-unit toggle */}
             {UNIT_CONVERSIONS[qtyModal.unit] && (
               <div className="mb-3 flex rounded-lg border border-slate-200 overflow-hidden text-sm">
                 <button
@@ -628,7 +686,6 @@ export default function POSPage() {
               onKeyDown={(e) => e.key === "Enter" && confirmQtyModal()}
             />
 
-            {/* Preview total */}
             {customQty > 0 && (
               <div className="mb-3 rounded-lg bg-primary-50 p-2 text-center text-sm">
                 <p className="text-slate-500">
@@ -660,6 +717,79 @@ export default function POSPage() {
                 className="flex-1 rounded-xl bg-primary-600 py-2.5 text-sm font-bold text-white hover:bg-primary-700"
               >
                 Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick-add Customer Modal */}
+      {showAddCustomer && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-80 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-bold text-slate-800">Add New Customer</h3>
+              <button onClick={() => setShowAddCustomer(false)}>
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">
+                  Name *
+                </label>
+                <input
+                  value={newCustName}
+                  onChange={(e) => setNewCustName(e.target.value)}
+                  placeholder="Customer name"
+                  autoFocus
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">
+                  Phone *
+                </label>
+                <input
+                  value={newCustPhone}
+                  onChange={(e) => setNewCustPhone(e.target.value)}
+                  placeholder="03xx-xxxxxxx"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-500">
+                  Address (optional)
+                </label>
+                <input
+                  value={newCustAddress}
+                  onChange={(e) => setNewCustAddress(e.target.value)}
+                  placeholder="Address"
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-500"
+                />
+              </div>
+              {addCustError && (
+                <p className="text-xs font-medium text-red-600">
+                  {addCustError}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={() => setShowAddCustomer(false)}
+                disabled={addingCustomer}
+                className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddCustomer}
+                disabled={addingCustomer}
+                className="flex-1 rounded-xl bg-primary-600 py-2.5 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-50"
+              >
+                {addingCustomer ? "Adding..." : "Add & Select"}
               </button>
             </div>
           </div>

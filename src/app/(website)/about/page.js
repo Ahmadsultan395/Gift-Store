@@ -186,7 +186,7 @@ export default function AboutPage() {
                 label: "Phone / WhatsApp",
                 value: settings?.phone || "0300-0000000",
                 href: `tel:${settings?.phone || ""}`,
-                color: "bg-green-600",
+                color: "bg-primary-600",
                 desc: "Mon-Sat, 9am - 9pm",
               },
               {

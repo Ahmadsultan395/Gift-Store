@@ -6,6 +6,7 @@ import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import { useAdminStore } from "@/stores/useAdminStore";
+import ImageUpload from "@/components/ui/ImageUpload";
 
 const TABS = ["Store Info", "Social Links", "Shipping & Tax", "SEO", "CMS"];
 
@@ -119,6 +120,20 @@ export default function SettingsPage() {
                   onChange={set("storeName")}
                   placeholder="Pansar Store"
                 />
+                <ImageUpload
+                  label="Store Logo"
+                  value={form.logo}
+                  onChange={(img) =>
+                    useAdminStore.setState({
+                      settings: {
+                        ...form,
+                        logo: img,
+                      },
+                    })
+                  }
+                  folder="pansar-store/settings"
+                  aspect="logo"
+                />
                 <Input
                   label="Phone"
                   value={form.phone || ""}
@@ -138,12 +153,55 @@ export default function SettingsPage() {
                   placeholder="Full store address"
                   rows={2}
                 />
-                <Input
+                {/* <Input
                   label="Currency"
                   value={form.currency || "PKR"}
                   onChange={set("currency")}
                   placeholder="PKR"
-                />
+                /> */}
+                {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Primary Color
+                    </label>
+
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={form.themeColors?.primary || "#0F4C39"}
+                        onChange={set("themeColors.primary")}
+                        className="h-11 w-16 cursor-pointer rounded-lg border border-slate-300"
+                      />
+
+                      <Input
+                        value={form.themeColors?.primary || ""}
+                        onChange={set("themeColors.primary")}
+                        placeholder="#0F4C39"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-slate-700">
+                      Secondary Color
+                    </label>
+
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={form.themeColors?.secondary || "#0f172a"}
+                        onChange={set("themeColors.secondary")}
+                        className="h-11 w-16 cursor-pointer rounded-lg border border-slate-300"
+                      />
+
+                      <Input
+                        value={form.themeColors?.secondary || ""}
+                        onChange={set("themeColors.secondary")}
+                        placeholder="#0f172a"
+                      />
+                    </div>
+                  </div>
+                </div> */}
               </>
             )}
 
@@ -257,7 +315,7 @@ export default function SettingsPage() {
 
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-green-600"}`}
+          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-primary-600"}`}
         >
           {toast.msg}
         </div>

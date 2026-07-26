@@ -3,6 +3,7 @@ import { Bell, Sun, Moon, Menu, Search } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useAdminStore } from "@/stores/useAdminStore";
+import Image from "next/image";
 
 export default function AdminTopbar({ onMenuToggle }) {
   const { admin, unreadCount } = useAdminStore();
@@ -63,8 +64,14 @@ export default function AdminTopbar({ onMenuToggle }) {
         <div className="mx-2 h-6 w-px bg-slate-200" />
 
         <div className="flex items-center gap-2.5">
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-600 text-xs font-bold text-white select-none">
-            {initials}
+          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-600 text-xs font-bold text-white select-none">
+            <Image
+              src="/maleDefaultDp.avif"
+              alt="Store Logo"
+              width={40}
+              height={40}
+              className="h-full w-full object-cover"
+            />
           </div>
           <div className="hidden sm:block">
             <p className="text-sm font-semibold text-slate-700 leading-tight">

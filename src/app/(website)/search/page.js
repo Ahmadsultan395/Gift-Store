@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, PackageX } from "lucide-react";
+import ProductCard from "@/components/website/ProductCard";
 
 export default function SearchPage() {
   const params = useSearchParams();
@@ -77,34 +78,7 @@ export default function SearchPage() {
       {!loading && products.length > 0 && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {products.map((p) => (
-            <Link
-              key={p._id}
-              href={`/products/${p.slug}`}
-              className="group rounded-xl border border-slate-100 bg-primary-0 p-3 transition-shadow hover:shadow-md"
-            >
-              <div className="aspect-square w-full overflow-hidden rounded-lg bg-primary-50">
-                {p.images?.[0]?.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={p.images[0].url}
-                    alt={p.name}
-                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs text-primary-300">
-                    No image
-                  </div>
-                )}
-              </div>
-              <p className="mt-3 line-clamp-2 text-sm font-medium text-slate-700">
-                {p.name}
-              </p>
-              {p.sellingPrice != null && (
-                <p className="mt-1 text-sm font-semibold text-primary-700">
-                  PKR {p.sellingPrice}
-                </p>
-              )}
-            </Link>
+            <ProductCard product={p} />
           ))}
         </div>
       )}

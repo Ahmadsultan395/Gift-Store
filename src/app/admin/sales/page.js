@@ -148,7 +148,7 @@ export default function SalesHistoryPage() {
               onClick={() => setStatusF(v)}
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                 statusF === v
-                  ? "bg-green-600 text-white"
+                  ? "bg-primary-600 text-white"
                   : "border border-slate-200 bg-white text-slate-600 hover:border-green-400"
               }`}
             >
@@ -511,7 +511,7 @@ export default function SalesHistoryPage() {
                 <button
                   key={m}
                   onClick={() => setPayMethod(m)}
-                  className={`flex-1 rounded-lg py-1.5 text-xs font-medium capitalize ${payMethod === m ? "bg-green-600 text-white" : "bg-slate-100 text-slate-600"}`}
+                  className={`flex-1 rounded-lg py-1.5 text-xs font-medium capitalize ${payMethod === m ? "bg-primary-600 text-white" : "bg-slate-100 text-slate-600"}`}
                 >
                   {m.replace("_", " ")}
                 </button>
@@ -669,7 +669,7 @@ export default function SalesHistoryPage() {
 
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg max-w-sm ${toast.type === "error" ? "bg-red-600" : "bg-green-600"}`}
+          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg max-w-sm ${toast.type === "error" ? "bg-red-600" : "bg-primary-600"}`}
         >
           {toast.msg}
         </div>

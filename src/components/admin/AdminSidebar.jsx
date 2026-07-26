@@ -16,10 +16,10 @@ import {
   Wallet,
   ClipboardCheck,
   Ticket,
-  Image,
   BarChart3,
   Settings,
   LogOut,
+  Image as ImageIcon,
   Store,
   ChevronDown,
   ChevronRight,
@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Mail } from "lucide-react";
+import Image from "next/image";
 
 const navGroups = [
   {
@@ -70,7 +71,7 @@ const navGroups = [
     label: "Marketing",
     items: [
       { href: "/admin/coupons", label: "Coupons", icon: Ticket },
-      { href: "/admin/banners", label: "Banners & Offers", icon: Image },
+      { href: "/admin/banners", label: "Banners & Offers", icon: ImageIcon },
       { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
     ],
   },
@@ -140,7 +141,7 @@ function NavGroup({ group, defaultOpen = true, onNav }) {
   );
 }
 
-export default function AdminSidebar({ mobileOpen, onClose }) {
+export default function AdminSidebar({ settings, mobileOpen, onClose }) {
   const router = useRouter();
 
   async function handleLogout() {
@@ -151,13 +152,23 @@ export default function AdminSidebar({ mobileOpen, onClose }) {
 
   const content = (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white">
-          <Store size={18} />
+      <div className="flex items-center gap-3 border-b border-slate-200 px-5 py-4 ">
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary-600 text-white p-1">
+          {settings?.logo?.url ? (
+            <Image
+              src={settings.logo.url}
+              alt={settings?.storeName || "Store Logo"}
+              width={40}
+              height={40}
+              className="h-full w-full rounded-lg object-cover"
+            />
+          ) : (
+            <Store size={18} className="text-white" />
+          )}
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-bold text-slate-800">
-            Pansar Store
+            {settings?.storeName ? settings?.storeName : "Pansar Store"}
           </p>
           <p className="text-[11px] text-slate-400">Management System</p>
         </div>

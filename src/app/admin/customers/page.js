@@ -156,7 +156,9 @@ export default function CustomersPage() {
                     "Phone",
                     "Email",
                     "Orders",
-                    "Spending",
+                    "Order Spending",
+                    "POS Count",
+                    "POS Spending",
                     "Status",
                     "Actions",
                   ].map((h) => (
@@ -186,10 +188,14 @@ export default function CustomersPage() {
                       {c.email || "—"}
                     </td>
                     <td className="px-5 py-3 text-center">
-                      {c.totalOrders || 0}
+                      {c.ordersCount || 0}
                     </td>
                     <td className="px-5 py-3 font-medium text-slate-800">
-                      PKR {(c.totalSpending || 0).toLocaleString()}
+                      PKR {(c.ordersSpending || 0).toLocaleString()}
+                    </td>
+                    <td className="px-5 py-3 text-center">{c.posCount || 0}</td>
+                    <td className="px-5 py-3 font-medium text-slate-800">
+                      PKR {(c.posSpending || 0).toLocaleString()}
                     </td>
                     <td className="px-5 py-3">
                       <Badge
@@ -299,7 +305,7 @@ export default function CustomersPage() {
       />
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-green-600"}`}
+          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-primary-600"}`}
         >
           {toast.msg}
         </div>

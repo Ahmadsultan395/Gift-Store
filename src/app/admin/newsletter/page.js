@@ -222,7 +222,7 @@ export default function NewsletterPage() {
             </button>
             <button
               onClick={() => openCompose("all")}
-              className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
             >
               <Send size={15} /> Email All
             </button>
@@ -330,7 +330,7 @@ export default function NewsletterPage() {
             </button>
             <button
               onClick={() => openCompose("selected")}
-              className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
+              className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
             >
               <Send size={13} /> Email Selected
             </button>
@@ -545,7 +545,7 @@ export default function NewsletterPage() {
 
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-green-600"}`}
+          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-primary-600"}`}
         >
           {toast.msg}
         </div>
