@@ -29,3 +29,25 @@ export async function deleteModelImage(Model, id, field = "image") {
 
   return data;
 }
+
+// ================= PRODUCT IMAGES =================
+
+// Product update ke waqt removed images delete
+export async function updateProductImages(oldImages = [], newImages = []) {
+  const newPublicIds = newImages.map((img) => img.publicId);
+
+  for (const oldImg of oldImages) {
+    if (oldImg?.publicId && !newPublicIds.includes(oldImg.publicId)) {
+      await deleteImage(oldImg.publicId);
+    }
+  }
+}
+
+// Product delete ke waqt sari images delete
+export async function deleteProductImages(images = []) {
+  for (const img of images) {
+    if (img?.publicId) {
+      await deleteImage(img.publicId);
+    }
+  }
+}

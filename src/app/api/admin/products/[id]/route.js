@@ -1,18 +1,26 @@
 import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 import { ok, fail, notFound, serverError } from "@/lib/apiResponse";
+
 import slugify from "slugify";
-import { deleteModelImage, updateImage } from "@/lib/cloudinaryDelete";
+import { deleteImage } from "@/lib/cloudinaryDelete";
 
 export async function GET(_, { params }) {
   try {
     await connectDB();
+
     const product = await Product.findById(params.id)
       .populate("category", "name slug")
       .populate("brand", "name");
-    if (!product) return notFound("Product not found");
+
+    if (!product) {
+      return notFound("Product not found");
+    }
+
     return ok(product);
   } catch (e) {
+    console.error(e);
+
     return serverError(e);
   }
 }
@@ -20,57 +28,86 @@ export async function GET(_, { params }) {
 export async function PUT(request, { params }) {
   try {
     await connectDB();
+
     const body = await request.json();
 
     const product = await Product.findById(params.id);
-    if (!product) return notFound("Product not found");
 
-    // Cloudinary old product images delete
-    if (body.images) {
+    if (!product) {
+      return notFound("Product not found");
+    }
+
+    // SKU check
+    if (body.sku && body.sku !== product.sku) {
+      const skuExists = await Product.findOne({
+        sku: body.sku,
+        _id: {
+          $ne: params.id,
+        },
+      });
+
+      if (skuExists) {
+        return fail("SKU already in use by another product");
+      }
+    }
+
+    // slug update
+    if (body.name && body.name !== product.name) {
+      let slug = slugify(body.name, {
+        lower: true,
+        strict: true,
+      });
+
+      const slugExists = await Product.findOne({
+        slug,
+        _id: {
+          $ne: params.id,
+        },
+      });
+
+      if (slugExists) {
+        slug = `${slug}-${Date.now()}`;
+      }
+
+      body.slug = slug;
+    }
+
+    // discount update
+
+    const sellingPrice = body.sellingPrice ?? product.sellingPrice;
+
+    const oldPrice = body.oldPrice ?? product.oldPrice;
+
+    if (oldPrice && oldPrice > sellingPrice) {
+      body.discountPercent = Math.round(
+        ((oldPrice - sellingPrice) / oldPrice) * 100,
+      );
+    }
+
+    // PRODUCT IMAGES UPDATE
+
+    if (body.images && Array.isArray(body.images)) {
       const oldImages = product.images || [];
 
       const newIds = body.images.map((img) => img.publicId);
 
-      for (const img of oldImages) {
-        if (img.publicId && !newIds.includes(img.publicId)) {
-          await deleteImage(img.publicId);
+      for (const oldImg of oldImages) {
+        if (oldImg?.publicId && !newIds.includes(oldImg.publicId)) {
+          await deleteImage(oldImg.publicId);
         }
       }
     }
 
-    // If SKU changed, check uniqueness
-    if (body.sku && body.sku !== product.sku) {
-      const skuExists = await Product.findOne({
-        sku: body.sku,
-        _id: { $ne: params.id },
-      });
-      if (skuExists) return fail("SKU already in use by another product");
-    }
-
-    // Recompute slug if name changed
-    if (body.name && body.name !== product.name) {
-      let slug = slugify(body.name, { lower: true, strict: true });
-      const slugExists = await Product.findOne({
-        slug,
-        _id: { $ne: params.id },
-      });
-      if (slugExists) slug = `${slug}-${Date.now()}`;
-      body.slug = slug;
-    }
-
-    // Recompute discount percent
-    const sp = body.sellingPrice ?? product.sellingPrice;
-    const op = body.oldPrice ?? product.oldPrice;
-    if (op && op > sp) {
-      body.discountPercent = Math.round(((op - sp) / op) * 100);
-    }
-
     Object.assign(product, body);
+
     await product.save();
+
     await product.populate(["category", "brand"]);
 
     return ok(product, "Product updated successfully");
   } catch (e) {
+    console.error(e);
+
     return serverError(e);
   }
 }
@@ -78,20 +115,27 @@ export async function PUT(request, { params }) {
 export async function DELETE(_, { params }) {
   try {
     await connectDB();
-    const oldProduct = await Product.findById(params.id);
 
-    if (!oldProduct) return notFound("Product not found");
+    const product = await Product.findById(params.id);
 
-    for (const img of oldProduct.images || []) {
-      if (img.publicId) {
+    if (!product) {
+      return notFound("Product not found");
+    }
+
+    // delete all product images
+
+    for (const img of product.images || []) {
+      if (img?.publicId) {
         await deleteImage(img.publicId);
       }
     }
 
-    const product = await Product.findByIdAndDelete(params.id);
-    if (!product) return notFound("Product not found");
+    await Product.findByIdAndDelete(params.id);
+
     return ok(null, "Product deleted");
   } catch (e) {
+    console.error(e);
+
     return serverError(e);
   }
 }
