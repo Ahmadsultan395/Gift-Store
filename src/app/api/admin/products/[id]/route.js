@@ -20,20 +20,23 @@ export async function GET(_, { params }) {
 export async function PUT(request, { params }) {
   try {
     await connectDB();
-
-    const oldProduct = await updateImage(
-      Product,
-      params.id,
-      body.image,
-      "image",
-    );
-
-    if (!oldProduct) return notFound("Product not found");
-
     const body = await request.json();
 
     const product = await Product.findById(params.id);
     if (!product) return notFound("Product not found");
+
+    // Cloudinary old product images delete
+    if (body.images) {
+      const oldImages = product.images || [];
+
+      const newIds = body.images.map((img) => img.publicId);
+
+      for (const img of oldImages) {
+        if (img.publicId && !newIds.includes(img.publicId)) {
+          await deleteImage(img.publicId);
+        }
+      }
+    }
 
     // If SKU changed, check uniqueness
     if (body.sku && body.sku !== product.sku) {
@@ -75,9 +78,15 @@ export async function PUT(request, { params }) {
 export async function DELETE(_, { params }) {
   try {
     await connectDB();
+    const oldProduct = await Product.findById(params.id);
 
-    const oldProduct = await deleteModelImage(Product, params.id, "image");
     if (!oldProduct) return notFound("Product not found");
+
+    for (const img of oldProduct.images || []) {
+      if (img.publicId) {
+        await deleteImage(img.publicId);
+      }
+    }
 
     const product = await Product.findByIdAndDelete(params.id);
     if (!product) return notFound("Product not found");
