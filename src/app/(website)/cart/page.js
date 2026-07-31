@@ -81,56 +81,65 @@ export default function CartPage() {
             {cart.map((item) => (
               <div
                 key={item._id}
-                className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm"
+                className="flex flex-col min-[400px]:flex-row items-start min-[400px]:items-center justify-start min-[400px]:justify-between gap-2 sm:gap-4 rounded-2xl border border-slate-100 bg-white p-2.5 sm:p-4 shadow-sm"
               >
-                <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center">
-                      <Package size={20} className="text-slate-300" />
-                    </div>
-                  )}
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+                    {item.image ? (
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center">
+                        <Package size={20} className="text-slate-300" />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs sm:text-sm font-semibold text-slate-800 line-clamp-2 break-words">
+                      {item.name}
+                    </p>
+
+                    <p className="text-xs sm:text-sm font-bold text-primary-600 mt-1">
+                      PKR {item.price?.toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-slate-800 truncate">
-                    {item.name}
-                  </p>
-                  <p className="text-sm font-bold text-primary-600 mt-0.5">
-                    PKR {item.price?.toLocaleString()}
-                  </p>
+
+                <div className="flex justify-between w-full min-[400px]:w-auto">
+                  <div className="flex items-center  gap-0 sm:gap-2">
+                    <button
+                      onClick={() => updateCartQty(item._id, item.qty - 1)}
+                      className="flex h-6 w-6 sm:w-7 sm:h-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-500"
+                    >
+                      <Minus size={13} />
+                    </button>
+                    <span className="w-8 text-center text-sm font-bold">
+                      {item.qty}
+                    </span>
+                    <button
+                      onClick={() => updateCartQty(item._id, item.qty + 1)}
+                      disabled={item.qty >= item.stock}
+                      className="flex h-6 w-6 sm:w-7 sm:h-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-primary-300 hover:text-primary-600 disabled:opacity-40"
+                    >
+                      <Plus size={13} />
+                    </button>
+                  </div>
+                  <div className="flex gap-2 items-center">
+                    <p className="w-24 text-right text-sm font-bold text-slate-800">
+                      PKR {(item.price * item.qty).toLocaleString()}
+                    </p>
+                    <button
+                      onClick={() => removeFromCart(item._id)}
+                      className="text-slate-300 hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => updateCartQty(item._id, item.qty - 1)}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-500"
-                  >
-                    <Minus size={13} />
-                  </button>
-                  <span className="w-8 text-center text-sm font-bold">
-                    {item.qty}
-                  </span>
-                  <button
-                    onClick={() => updateCartQty(item._id, item.qty + 1)}
-                    disabled={item.qty >= item.stock}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-primary-300 hover:text-primary-600 disabled:opacity-40"
-                  >
-                    <Plus size={13} />
-                  </button>
-                </div>
-                <p className="w-24 text-right text-sm font-bold text-slate-800">
-                  PKR {(item.price * item.qty).toLocaleString()}
-                </p>
-                <button
-                  onClick={() => removeFromCart(item._id)}
-                  className="text-slate-300 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
               </div>
             ))}
           </div>
