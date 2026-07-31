@@ -203,7 +203,7 @@ export default function POSPage() {
 
   async function handleAddCustomer() {
     if (!newCustName.trim() || !newCustPhone.trim()) {
-      setAddCustError("Name aur phone dono zaroori hain");
+      setAddCustError("Name and phone are required");
       return;
     }
     setAddingCustomer(true);
@@ -222,7 +222,7 @@ export default function POSPage() {
       setNewCustPhone("");
       setNewCustAddress("");
     } catch (err) {
-      setAddCustError(err.message || "Customer add nahi ho saka");
+      setAddCustError(err.message || "Customer could not be added");
     } finally {
       setAddingCustomer(false);
     }
@@ -282,9 +282,9 @@ export default function POSPage() {
     );
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden -m-4 md:-m-6">
+    <div className="flex h-[calc(100vh+10rem)] sm:h-[calc(100vh-3.5rem)] overflow-hidden -m-4 md:-m-6 max-[600px]:flex-col">
       {/* LEFT — Products */}
-      <div className="flex flex-1 flex-col border-r border-slate-200 bg-slate-50 overflow-hidden">
+      <div className="flex flex-1 min-h-0 flex-col border-r border-slate-200 bg-slate-50 overflow-hidden max-[600px]:h-[55vh] max-[600px]:flex-none">
         <div className="border-b border-slate-200 bg-white p-3 space-y-2">
           <div className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 bg-slate-50">
             <Search size={15} className="text-slate-400 flex-shrink-0" />
@@ -320,8 +320,8 @@ export default function POSPage() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-3">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
+          <div className="grid min-[300px]:grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {filtered.map((p) => (
               <button
                 key={p._id}
@@ -366,7 +366,7 @@ export default function POSPage() {
       </div>
 
       {/* RIGHT — Cart */}
-      <div className="flex w-80 flex-col bg-white xl:w-96">
+      <div className="flex w-80 min-h-0 flex-col bg-white xl:w-96 max-[600px]:w-full max-[600px]:h-[45vh] max-[600px]:flex-none">
         <div className="border-b border-slate-100 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShoppingCart size={18} className="text-primary-600" />
@@ -441,8 +441,7 @@ export default function POSPage() {
                     onClick={openAddCustomer}
                     className="flex w-full items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-2 text-left text-xs font-semibold text-primary-700 hover:bg-primary-100"
                   >
-                    <UserPlus size={13} />"{custSearch}" ko naye customer ke
-                    taur par add karein
+                    <UserPlus size={13} /> Add "{custSearch}" as a new customer
                   </button>
                 </div>
               )}
@@ -451,7 +450,7 @@ export default function POSPage() {
         </div>
 
         {/* Cart Items */}
-        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
+        <div className="flex-1 min-h-[9rem] overflow-y-auto px-4 py-2 space-y-2">
           {cart.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-16 text-slate-300">
               <ShoppingCart size={40} />

@@ -272,7 +272,8 @@ export const bannersApi = {
 // NOTIFICATIONS
 // ─────────────────────────────────────────────────────────────────
 export const notificationsApi = {
-  getAll: (limit = 20) => req(`/api/admin/notifications?limit=${limit}`),
+  getAll: (page = 1, limit = 20) =>
+    req(`/api/admin/notifications?page=${page}&limit=${limit}`),
   getUnreadCount: () => req("/api/admin/notifications/unread-count"),
   markAllRead: () => req("/api/admin/notifications", { method: "PUT" }),
 };

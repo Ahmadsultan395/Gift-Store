@@ -20,7 +20,8 @@ export async function POST(request, { params }) {
     }
 
     const addAmount = Number(amount);
-    if (!addAmount || addAmount <= 0) return fail("Valid amount enter karein");
+    if (!addAmount || addAmount <= 0)
+      return fail("Please enter a valid amount");
 
     // ── Calculate remaining balance ─────────────────────────────
     const alreadyPaid = sale.amountPaid || 0;

@@ -2,14 +2,18 @@ import mongoose from "mongoose";
 
 const OrderItemSchema = new mongoose.Schema(
   {
-    product: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
     name: String,
     image: String,
     quantity: { type: Number, required: true },
     price: { type: Number, required: true },
     total: { type: Number, required: true },
   },
-  { _id: false }
+  { _id: false },
 );
 
 const OrderSchema = new mongoose.Schema(
@@ -39,11 +43,23 @@ const OrderSchema = new mongoose.Schema(
       enum: ["cod", "bank_transfer"],
       default: "cod",
     },
-    paymentStatus: { type: String, enum: ["pending", "paid", "failed"], default: "pending" },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "partial", "paid", "failed", "refunded"],
+      default: "pending",
+    },
 
     status: {
       type: String,
-      enum: ["pending", "confirmed", "packed", "shipped", "delivered", "cancelled"],
+      enum: [
+        "pending",
+        "confirmed",
+        "packed",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "refunded",
+      ],
       default: "pending",
     },
     statusHistory: [
@@ -53,8 +69,13 @@ const OrderSchema = new mongoose.Schema(
         note: String,
       },
     ],
+
+    // ── Single source of truth: true = stock is currently deducted ──
+    // Toggled on every forward/back crossing, so it works no matter
+    // how many times the order bounces between states.
+    stockDeducted: { type: Boolean, default: false },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 OrderSchema.index({ customer: 1, createdAt: -1 });

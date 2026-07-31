@@ -21,6 +21,8 @@ export default function AboutPage() {
 
   const settings = storeSettings || {};
 
+  console.log(settings);
+
   const storeName = settings?.storeName || "Pansar Store";
   const aboutText = settings?.cms?.aboutPage;
 
@@ -56,7 +58,7 @@ export default function AboutPage() {
         {/* ── Our Story ─────────────────────────────────────────── */}
         <section className="grid grid-cols-1 gap-10 md:grid-cols-2 items-center">
           <div>
-            <span className="inline-block rounded-full bg-green-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-600 mb-4">
+            <span className="inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-600 mb-4">
               Our Story
             </span>
             <h2 className="text-3xl font-extrabold text-slate-800 leading-tight">
@@ -125,7 +127,7 @@ export default function AboutPage() {
         {/* ── Why Choose Us ─────────────────────────────────────── */}
         <section>
           <div className="text-center mb-10">
-            <span className="inline-block rounded-full bg-green-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-500 mb-3">
+            <span className="inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-500 mb-3">
               Why Choose Us
             </span>
             <h2 className="text-3xl font-extrabold text-slate-800">
@@ -138,7 +140,7 @@ export default function AboutPage() {
                 icon: "🛡️",
                 title: "Quality Assured",
                 desc: "Every product is carefully checked and packed. Expiry dates are always verified.",
-                color: "from-green-50 to-emerald-50 border-green-100",
+                color: "from-primary-50 to-emerald-50 border-primary-100",
               },
               {
                 icon: "⚡",
@@ -172,7 +174,7 @@ export default function AboutPage() {
         {/* ── Contact ───────────────────────────────────────────── */}
         <section>
           <div className="text-center mb-10">
-            <span className="inline-block rounded-full bg-green-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-500 mb-3">
+            <span className="inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-500 mb-3">
               Get In Touch
             </span>
             <h2 className="text-3xl font-extrabold text-slate-800">

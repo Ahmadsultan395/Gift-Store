@@ -18,12 +18,11 @@ export async function GET() {
     const monthStart = startOfMonth(now);
     const yearStart = startOfYear(now);
 
-    // ── Sales totals ───────────────────────────────────────────────
-    // ── Combined Sales (Sale + Delivered Orders) ─────────────────────
+    // ── Combined Sales (Sale + Delivered Orders) — plain paid amounts,
+    // refunded sales/orders are excluded here; they have their own boxes ──
 
-    const deliveredOrdersMatch = {
-      status: "delivered",
-    };
+    const deliveredOrdersMatch = { status: "delivered" };
+    const netOrderTotal = "$grandTotal";
 
     const [
       todayOrderSales,
@@ -31,7 +30,6 @@ export async function GET() {
       yearOrderSales,
       totalDeliveredSales,
     ] = await Promise.all([
-      // Today Delivered Orders
       Order.aggregate([
         {
           $match: {
@@ -42,13 +40,12 @@ export async function GET() {
         {
           $group: {
             _id: null,
-            total: { $sum: "$grandTotal" },
+            total: { $sum: netOrderTotal },
             count: { $sum: 1 },
           },
         },
       ]),
 
-      // Monthly Delivered Orders
       Order.aggregate([
         {
           $match: {
@@ -56,15 +53,9 @@ export async function GET() {
             createdAt: { $gte: monthStart },
           },
         },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$grandTotal" },
-          },
-        },
+        { $group: { _id: null, total: { $sum: netOrderTotal } } },
       ]),
 
-      // Yearly Delivered Orders
       Order.aggregate([
         {
           $match: {
@@ -72,95 +63,68 @@ export async function GET() {
             createdAt: { $gte: yearStart },
           },
         },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$grandTotal" },
-          },
-        },
+        { $group: { _id: null, total: { $sum: netOrderTotal } } },
       ]),
 
-      // All delivered orders
       Order.aggregate([
-        {
-          $match: deliveredOrdersMatch,
-        },
-        {
-          $group: {
-            _id: null,
-            total: { $sum: "$grandTotal" },
-          },
-        },
+        { $match: deliveredOrdersMatch },
+        { $group: { _id: null, total: { $sum: netOrderTotal } } },
       ]),
     ]);
 
-    // Existing Sale Collection
-    const [saleToday, saleMonth, saleYear, saleTotal] = await Promise.all([
-      Sale.aggregate([
-        {
-          $match: {
-            saleDate: {
-              $gte: todayStart,
-            },
-          },
-        },
-        {
-          $group: {
-            _id: null,
-            total: {
-              $sum: "$amountPaid",
-            },
-          },
-        },
-      ]),
+    // Sale totals — exclude refunded sales from revenue (they have their own box)
+    const notRefundedMatch = { paymentStatus: { $ne: "refunded" } };
+    const netSaleTotal = "$amountPaid";
 
-      Sale.aggregate([
-        {
-          $match: {
-            saleDate: {
-              $gte: monthStart,
+    const [saleToday, saleMonth, saleYear, saleTotal, refundedSalesStats] =
+      await Promise.all([
+        Sale.aggregate([
+          {
+            $match: {
+              ...notRefundedMatch,
+              saleDate: { $gte: todayStart },
             },
           },
-        },
-        {
-          $group: {
-            _id: null,
-            total: {
-              $sum: "$amountPaid",
-            },
-          },
-        },
-      ]),
+          { $group: { _id: null, total: { $sum: netSaleTotal } } },
+        ]),
 
-      Sale.aggregate([
-        {
-          $match: {
-            saleDate: {
-              $gte: yearStart,
+        Sale.aggregate([
+          {
+            $match: {
+              ...notRefundedMatch,
+              saleDate: { $gte: monthStart },
             },
           },
-        },
-        {
-          $group: {
-            _id: null,
-            total: {
-              $sum: "$amountPaid",
-            },
-          },
-        },
-      ]),
+          { $group: { _id: null, total: { $sum: netSaleTotal } } },
+        ]),
 
-      Sale.aggregate([
-        {
-          $group: {
-            _id: null,
-            total: {
-              $sum: "$amountPaid",
+        Sale.aggregate([
+          {
+            $match: {
+              ...notRefundedMatch,
+              saleDate: { $gte: yearStart },
             },
           },
-        },
-      ]),
-    ]);
+          { $group: { _id: null, total: { $sum: netSaleTotal } } },
+        ]),
+
+        Sale.aggregate([
+          { $match: notRefundedMatch },
+          { $group: { _id: null, total: { $sum: netSaleTotal } } },
+        ]),
+
+        // ── Refunded Sales — separate dashboard box (all-time) ──
+        Sale.aggregate([
+          { $match: { paymentStatus: "refunded" } },
+          {
+            $group: {
+              _id: null,
+              total: { $sum: { $ifNull: ["$refundedAmount", 0] } },
+              count: { $sum: 1 },
+            },
+          },
+        ]),
+      ]);
 
     const todaySales =
       (todayOrderSales[0]?.total || 0) + (saleToday[0]?.total || 0);
@@ -195,7 +159,19 @@ export async function GET() {
       },
     ]);
 
-    // ── Purchase cost ─────────────────────────────────────────────
+    // ── Refunded Orders — separate dashboard box (all-time) ──
+    // Order model has no refundedAmount field — "refunded" is a status
+    const [refundedOrdersStats] = await Order.aggregate([
+      { $match: { status: "refunded" } },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$grandTotal" },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
     // ── Purchase cost + Payment ─────────────────────────────────────
     const [purchaseStats] = await Purchase.aggregate([
       {
@@ -210,6 +186,7 @@ export async function GET() {
     const totalPurchase = purchaseStats?.totalCost || 0;
     const totalPaid = purchaseStats?.totalPaid || 0;
     const totalDue = totalPurchase - totalPaid;
+
     // ── Expenses ──────────────────────────────────────────────────
     const [expenseStats] = await Expense.aggregate([
       { $group: { _id: null, total: { $sum: "$amount" } } },
@@ -240,24 +217,50 @@ export async function GET() {
       },
     ]);
 
-    // ── Monthly sales graph (last 6 months) ───────────────────────
+    // ── Monthly sales graph (last 6 months) — Sale (non-refunded) +
+    // delivered Orders combined, refunded excluded from both ──
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
     sixMonthsAgo.setDate(1);
 
-    const monthlySalesGraph = await Sale.aggregate([
-      { $match: { saleDate: { $gte: sixMonthsAgo } } },
-      {
-        $group: {
-          _id: {
-            year: { $year: "$saleDate" },
-            month: { $month: "$saleDate" },
+    const [saleMonthlyGraph, orderMonthlyGraph] = await Promise.all([
+      Sale.aggregate([
+        {
+          $match: {
+            ...notRefundedMatch,
+            saleDate: { $gte: sixMonthsAgo },
           },
-          sales: { $sum: "$amountPaid" },
-          orders: { $sum: 1 },
         },
-      },
-      { $sort: { "_id.year": 1, "_id.month": 1 } },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$saleDate" },
+              month: { $month: "$saleDate" },
+            },
+            sales: { $sum: netSaleTotal },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
+
+      Order.aggregate([
+        {
+          $match: {
+            ...deliveredOrdersMatch,
+            createdAt: { $gte: sixMonthsAgo },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              year: { $year: "$createdAt" },
+              month: { $month: "$createdAt" },
+            },
+            sales: { $sum: netOrderTotal },
+            count: { $sum: 1 },
+          },
+        },
+      ]),
     ]);
 
     const monthNames = [
@@ -274,14 +277,44 @@ export async function GET() {
       "Nov",
       "Dec",
     ];
-    const salesChartData = monthlySalesGraph.map((m) => ({
-      month: monthNames[m._id.month - 1],
-      sales: m.sales,
-      orders: m.orders,
-    }));
 
-    // ── Category wise sales ───────────────────────────────────────
+    const monthlyMap = new Map();
+    for (const m of saleMonthlyGraph) {
+      const key = `${m._id.year}-${m._id.month}`;
+      monthlyMap.set(key, {
+        year: m._id.year,
+        month: m._id.month,
+        sales: m.sales,
+        orders: m.count,
+      });
+    }
+    for (const m of orderMonthlyGraph) {
+      const key = `${m._id.year}-${m._id.month}`;
+      const existing = monthlyMap.get(key);
+      if (existing) {
+        existing.sales += m.sales;
+        existing.orders += m.count;
+      } else {
+        monthlyMap.set(key, {
+          year: m._id.year,
+          month: m._id.month,
+          sales: m.sales,
+          orders: m.count,
+        });
+      }
+    }
+
+    const salesChartData = Array.from(monthlyMap.values())
+      .sort((a, b) => a.year - b.year || a.month - b.month)
+      .map((m) => ({
+        month: monthNames[m.month - 1],
+        sales: m.sales,
+        orders: m.orders,
+      }));
+
+    // ── Category wise sales — excludes refunded sales ───────────────
     const categoryWiseSales = await Sale.aggregate([
+      { $match: notRefundedMatch },
       { $unwind: "$items" },
       {
         $lookup: {
@@ -311,25 +344,67 @@ export async function GET() {
       { $limit: 6 },
     ]);
 
-    // ── Top selling products ──────────────────────────────────────
-    const topProducts = await Sale.aggregate([
-      { $unwind: "$items" },
-      {
-        $group: {
-          _id: "$items.product",
-          name: { $first: "$items.name" },
-          totalQty: { $sum: "$items.quantity" },
-          totalRevenue: { $sum: "$items.total" },
+    // ── Top selling products — Sale (non-refunded) + delivered Orders ──
+    const [saleTopProducts, orderTopProducts] = await Promise.all([
+      Sale.aggregate([
+        { $match: notRefundedMatch },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.product",
+            name: { $first: "$items.name" },
+            totalQty: { $sum: "$items.quantity" },
+            totalRevenue: { $sum: "$items.total" },
+          },
         },
-      },
-      { $sort: { totalQty: -1 } },
-      { $limit: 5 },
+      ]),
+
+      Order.aggregate([
+        { $match: deliveredOrdersMatch },
+        { $unwind: "$items" },
+        {
+          $group: {
+            _id: "$items.product",
+            name: { $first: "$items.name" },
+            totalQty: { $sum: "$items.quantity" },
+            totalRevenue: { $sum: "$items.total" },
+          },
+        },
+      ]),
     ]);
 
+    const topProductsMap = new Map();
+    for (const p of saleTopProducts) {
+      const key = String(p._id);
+      topProductsMap.set(key, {
+        _id: p._id,
+        name: p.name,
+        totalQty: p.totalQty,
+        totalRevenue: p.totalRevenue,
+      });
+    }
+    for (const p of orderTopProducts) {
+      const key = String(p._id);
+      const existing = topProductsMap.get(key);
+      if (existing) {
+        existing.totalQty += p.totalQty;
+        existing.totalRevenue += p.totalRevenue;
+      } else {
+        topProductsMap.set(key, {
+          _id: p._id,
+          name: p.name,
+          totalQty: p.totalQty,
+          totalRevenue: p.totalRevenue,
+        });
+      }
+    }
+
+    const topProducts = Array.from(topProductsMap.values())
+      .sort((a, b) => b.totalQty - a.totalQty)
+      .slice(0, 5);
+
     // ── Totals ────────────────────────────────────────────────────
-
     const totalCost = totalPurchase;
-
     const totalExpenses = expenseStats?.total || 0;
 
     const totalProfit = totalRevenue - totalCost - totalExpenses;
@@ -350,6 +425,14 @@ export async function GET() {
         yearlySales,
 
         totalRevenue,
+
+        // ── Separate refund boxes ──
+        totalRefundedSales: refundedSalesStats[0]?.total || 0,
+        refundedSalesCount: refundedSalesStats[0]?.count || 0,
+
+        totalRefundedOrders: refundedOrdersStats?.total || 0,
+        refundedOrdersCount: refundedOrdersStats?.count || 0,
+
         totalOrders: orderStats?.total || 0,
         pendingOrders: orderStats?.pending || 0,
         deliveredOrders: orderStats?.delivered || 0,

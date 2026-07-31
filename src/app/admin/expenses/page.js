@@ -143,7 +143,7 @@ export default function ExpensesPage() {
           </p>
         </div>
         {/* Filters */}
-        <div className="col-span-1 sm:col-span-3 grid grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="col-span-1 sm:col-span-3 grid grid-cols-1 min-[450px]:grid-cols-2 sm:grid-cols-3 gap-3 rounded-xl border border-slate-200 bg-white p-4">
           <Select
             value={catFilter}
             onChange={(e) => setCatF(e.target.value)}
@@ -166,85 +166,89 @@ export default function ExpensesPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        {expensesLoading ? (
-          <div className="space-y-3 p-5">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-12 animate-pulse rounded-lg bg-slate-100"
-              />
-            ))}
-          </div>
-        ) : expenses.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-            <Wallet size={40} className="opacity-20" />
-            <p>No expenses found.</p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50">
-              <tr>
-                {[
-                  "#",
-                  "Title",
-                  "Category",
-                  "Amount",
-                  "Date",
-                  "Notes",
-                  "Actions",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {expenses.map((e, i) => (
-                <tr
-                  key={e._id}
-                  className="border-b border-slate-50 hover:bg-slate-50"
-                >
-                  <td className="px-4 py-3 text-slate-400">{i + 1}</td>
-                  <td className="px-4 py-3 font-medium text-slate-800">
-                    {e.title}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={CAT_COLOR[e.category]}>{e.category}</Badge>
-                  </td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">
-                    PKR {e.amount?.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">
-                    {new Date(e.date).toLocaleDateString("en-PK")}
-                  </td>
-                  <td className="px-4 py-3 text-slate-400 max-w-[150px] truncate">
-                    {e.notes || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        onClick={() => openEdit(e)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => setDel(e)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+        <div className="overflow-x-auto">
+          {expensesLoading ? (
+            <div className="space-y-3 p-5">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
+                />
               ))}
-            </tbody>
-          </table>
-        )}
+            </div>
+          ) : expenses.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+              <Wallet size={40} className="opacity-20" />
+              <p>No expenses found.</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b border-slate-100 bg-slate-50">
+                <tr>
+                  {[
+                    "#",
+                    "Title",
+                    "Category",
+                    "Amount",
+                    "Date",
+                    "Notes",
+                    "Actions",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {expenses.map((e, i) => (
+                  <tr
+                    key={e._id}
+                    className="border-b border-slate-50 hover:bg-slate-50"
+                  >
+                    <td className="px-4 py-3 text-slate-400">{i + 1}</td>
+                    <td className="px-4 py-3 font-medium text-slate-800">
+                      {e.title}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={CAT_COLOR[e.category]}>
+                        {e.category}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-800">
+                      PKR {e.amount?.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">
+                      {new Date(e.date).toLocaleDateString("en-PK")}
+                    </td>
+                    <td className="px-4 py-3 text-slate-400 max-w-[150px] truncate">
+                      {e.notes || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button
+                          onClick={() => openEdit(e)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => setDel(e)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       <Modal

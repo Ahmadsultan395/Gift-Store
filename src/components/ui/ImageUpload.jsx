@@ -149,9 +149,9 @@ export default function ImageUpload({
         onDragLeave={() => setDragOver(false)}
         className={`
           flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-6 text-center transition-all
-          ${dragOver ? "border-green-500 bg-green-50 scale-[1.01]" : ""}
-          ${uploading ? "border-green-300 bg-green-50 cursor-wait" : ""}
-          ${!dragOver && !uploading ? "border-slate-200 hover:border-green-400 hover:bg-green-50" : ""}
+          ${dragOver ? "border-primary-500 bg-primary-50 scale-[1.01]" : ""}
+          ${uploading ? "border-primary-300 bg-primary-50 cursor-wait" : ""}
+          ${!dragOver && !uploading ? "border-slate-200 hover:border-primary-400 hover:bg-primary-50" : ""}
         `}
       >
         <input
@@ -165,12 +165,12 @@ export default function ImageUpload({
 
         {uploading ? (
           <>
-            <Loader2 size={30} className="animate-spin text-green-600" />
+            <Loader2 size={30} className="animate-spin text-primary-600" />
             <div>
               <p className="text-sm font-semibold text-primary-700">
                 Uploading...
               </p>
-              <p className="text-xs text-green-500">Please wait</p>
+              <p className="text-xs text-primary-500">Please wait</p>
             </div>
           </>
         ) : (

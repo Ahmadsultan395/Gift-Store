@@ -137,109 +137,117 @@ export default function SuppliersPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        {suppliersLoading ? (
-          <div className="space-y-3 p-5">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-16 animate-pulse rounded-lg bg-slate-100"
-              />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-            <Truck size={40} className="opacity-30" />
-            <p className="text-sm">
-              {search ? "No suppliers found" : "No suppliers yet."}
-            </p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50">
-              <tr>
-                {[
-                  "#",
-                  "Supplier",
-                  "Contact",
-                  "City",
-                  "Balance",
-                  "Status",
-                  "Actions",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((s, i) => (
-                <tr
-                  key={s._id}
-                  className="border-b border-slate-50 hover:bg-slate-50"
-                >
-                  <td className="px-4 py-3 text-slate-400">{i + 1}</td>
-                  <td className="px-4 py-3">
-                    <p className="font-medium text-slate-800">{s.name}</p>
-                    {s.companyName && (
-                      <p className="text-xs text-slate-400">{s.companyName}</p>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="flex items-center gap-1 text-slate-600">
-                        <Phone size={11} />
-                        {s.phone}
-                      </span>
-                      {s.email && (
-                        <span className="flex items-center gap-1 text-slate-400 text-xs">
-                          <Mail size={11} />
-                          {s.email}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-slate-500">{s.city || "—"}</td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={
-                        s.outstandingBalance > 0
-                          ? "font-semibold text-red-600"
-                          : "text-slate-500"
-                      }
-                    >
-                      PKR {(s.outstandingBalance || 0).toLocaleString()}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={s.status === "active" ? "green" : "slate"}>
-                      {s.status}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        onClick={() => openEdit(s)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => setDeleteTarget(s)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+        <div className="overflow-x-auto">
+          {suppliersLoading ? (
+            <div className="space-y-3 p-5">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-16 animate-pulse rounded-lg bg-slate-200"
+                />
               ))}
-            </tbody>
-          </table>
-        )}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+              <Truck size={40} className="opacity-30" />
+              <p className="text-sm">
+                {search ? "No suppliers found" : "No suppliers yet."}
+              </p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b border-slate-100 bg-slate-50">
+                <tr>
+                  {[
+                    "#",
+                    "Supplier",
+                    "Contact",
+                    "City",
+                    "Balance",
+                    "Status",
+                    "Actions",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((s, i) => (
+                  <tr
+                    key={s._id}
+                    className="border-b border-slate-50 hover:bg-slate-50"
+                  >
+                    <td className="px-4 py-3 text-slate-400">{i + 1}</td>
+                    <td className="px-4 py-3">
+                      <p className="font-medium text-slate-800">{s.name}</p>
+                      {s.companyName && (
+                        <p className="text-xs text-slate-400">
+                          {s.companyName}
+                        </p>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="flex items-center gap-1 text-slate-600">
+                          <Phone size={11} />
+                          {s.phone}
+                        </span>
+                        {s.email && (
+                          <span className="flex items-center gap-1 text-slate-400 text-xs">
+                            <Mail size={11} />
+                            {s.email}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-slate-500">
+                      {s.city || "—"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span
+                        className={
+                          s.outstandingBalance > 0
+                            ? "font-semibold text-red-600"
+                            : "text-slate-500"
+                        }
+                      >
+                        PKR {(s.outstandingBalance || 0).toLocaleString()}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge
+                        variant={s.status === "active" ? "green" : "slate"}
+                      >
+                        {s.status}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button
+                          onClick={() => openEdit(s)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteTarget(s)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       <Modal

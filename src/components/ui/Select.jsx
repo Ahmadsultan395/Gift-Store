@@ -23,7 +23,7 @@ export default function Select({
         id={id}
         className={cn(
           "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none transition-colors bg-white",
-          "focus:border-green-600 focus:ring-1 focus:ring-green-600",
+          "focus:border-primary-600 focus:ring-1 focus:ring-primary-600",
           error && "border-red-500",
           className,
         )}

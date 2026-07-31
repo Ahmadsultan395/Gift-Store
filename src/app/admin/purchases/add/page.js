@@ -100,6 +100,11 @@ export default function AddPurchasePage() {
     setSuccess("");
     if (!form.supplier) return setError("Select a supplier");
     if (!items[0].product) return setError("Add at least one product");
+    if (Number(form.amountPaid || 0) > grandTotal) {
+      return setError(
+        `Amount paid can't exceed grand total (PKR ${grandTotal.toLocaleString()})`,
+      );
+    }
 
     setSaving(true);
     try {
@@ -141,7 +146,7 @@ export default function AddPurchasePage() {
           </div>
         )}
         {success && (
-          <div className="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700">
+          <div className="rounded-lg bg-primary-50 border border-primary-200 px-4 py-3 text-sm text-primary-700">
             {success}
           </div>
         )}
@@ -207,7 +212,7 @@ export default function AddPurchasePage() {
                         onChange={(e) =>
                           updateItem(i, "product", e.target.value)
                         }
-                        className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-green-600"
+                        className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-primary-600"
                       >
                         <option value="">Select product</option>
                         {products.map((p) => (
@@ -261,7 +266,7 @@ export default function AddPurchasePage() {
                         className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none"
                       />
                     </td>
-                    <td className="py-2 text-right font-semibold text-green-700">
+                    <td className="py-2 text-right font-semibold text-primary-700">
                       PKR {item.total.toLocaleString()}
                     </td>
                     <td className="py-2 pl-2">
@@ -293,7 +298,7 @@ export default function AddPurchasePage() {
               onChange={setField("notes")}
               rows={4}
               placeholder="Any notes for this purchase..."
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-green-600 resize-none"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-600 resize-none"
             />
           </div>
 
@@ -326,7 +331,7 @@ export default function AddPurchasePage() {
               </div>
               <div className="flex justify-between border-t border-slate-100 pt-2 font-bold text-base">
                 <span>Grand Total</span>
-                <span className="text-green-700">
+                <span className="text-primary-700">
                   PKR {grandTotal.toLocaleString()}
                 </span>
               </div>
@@ -335,7 +340,13 @@ export default function AddPurchasePage() {
                 <input
                   type="number"
                   value={form.amountPaid}
-                  onChange={setField("amountPaid")}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || Number(val) <= grandTotal) {
+                      setForm((p) => ({ ...p, amountPaid: val }));
+                    }
+                  }}
+                  max={grandTotal}
                   className="w-28 rounded-lg border border-slate-200 px-2 py-1 text-right text-sm outline-none"
                 />
               </div>

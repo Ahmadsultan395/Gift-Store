@@ -102,6 +102,12 @@ export const useAdminStore = create((set, get) => ({
   notifications: [],
   unreadCount: 0,
   notifLoading: false,
+  pagination: {
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 1,
+  },
 
   fetchUnreadCount: async () => {
     try {
@@ -110,15 +116,25 @@ export const useAdminStore = create((set, get) => ({
     } catch {}
   },
 
-  fetchNotifications: async () => {
+  fetchNotifications: async (page = 1, limit = 20) => {
     set({ notifLoading: true });
+
     try {
-      const data = await notificationsApi.getAll(50);
+      console.log("REQUEST PAGE:", page);
+
+      const data = await notificationsApi.getAll(page, limit);
+
+      console.log("RESPONSE:", data);
+
       set({
-        notifications: data || [],
-        unreadCount: (data || []).filter((n) => !n.isRead).length,
+        notifications: data.notifications || [],
+        pagination: {
+          page: page,
+          limit: limit,
+          total: data.pagination.total,
+          totalPages: data.pagination.totalPages,
+        },
       });
-    } catch {
     } finally {
       set({ notifLoading: false });
     }
@@ -126,12 +142,17 @@ export const useAdminStore = create((set, get) => ({
 
   markAllRead: async () => {
     await notificationsApi.markAllRead();
+
     set((s) => ({
-      notifications: s.notifications.map((n) => ({ ...n, isRead: true })),
+      notifications: s.notifications.map((n) => ({
+        ...n,
+        isRead: true,
+      })),
       unreadCount: 0,
     }));
-  },
 
+    await get().fetchUnreadCount();
+  },
   // ── POS ─────────────────────────────────────────────────────
   posLoading: false,
 

@@ -68,7 +68,7 @@ export default function AccountPage() {
       >
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 rounded-xl border-2 border-red-500/40 px-5 py-2.5 text-sm font-bold text-red-500 transition-colors hover:bg-red-500/35"
+          className="flex items-center gap-2 rounded-xl border-2 border-red-500/40 px-5 py-2.5 text-sm font-bold bg-red-500 text-white transition-colors hover:bg-red-500/35"
         >
           <LogOut size={15} /> Logout
         </button>
@@ -131,7 +131,7 @@ export default function AccountPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-12 animate-pulse rounded-lg bg-slate-100"
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
                 />
               ))}
             </div>

@@ -1,26 +1,34 @@
 import connectDB from "@/lib/db";
-import { Notification } from "@/models/index";
+import { Notification } from "@/models";
 import { ok, serverError } from "@/lib/apiResponse";
 
 export async function GET(request) {
   try {
     await connectDB();
+
     const { searchParams } = new URL(request.url);
+
+    const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
-    const notifications = await Notification.find()
-      .sort({ createdAt: -1 })
-      .limit(limit);
+    const skip = (page - 1) * limit;
 
-    return ok(notifications);
-  } catch (e) { return serverError(e); }
-}
+    const [notifications, total] = await Promise.all([
+      Notification.find().sort({ createdAt: -1 }).skip(skip).limit(limit),
 
-// Mark all as read
-export async function PUT() {
-  try {
-    await connectDB();
-    await Notification.updateMany({ isRead: false }, { isRead: true });
-    return ok(null, "All notifications marked as read");
-  } catch (e) { return serverError(e); }
+      Notification.countDocuments(),
+    ]);
+
+    return ok({
+      notifications,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (e) {
+    return serverError(e);
+  }
 }

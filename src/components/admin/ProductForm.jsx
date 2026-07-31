@@ -319,6 +319,7 @@ export default function ProductForm({ product, onSave }) {
         </h2>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <Input
+            disabled={true}
             label="Stock Quantity *"
             type="number"
             value={form.stock}
@@ -375,7 +376,7 @@ export default function ProductForm({ product, onSave }) {
               }
             }}
             placeholder="Type a tag and press Enter"
-            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-green-600"
+            className="flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-primary-600"
           />
           <Button type="button" onClick={addTag} variant="outline" size="sm">
             <Plus size={14} />
@@ -385,7 +386,7 @@ export default function ProductForm({ product, onSave }) {
           {form.tags.map((t) => (
             <span
               key={t}
-              className="flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-primary-700"
+              className="flex items-center gap-1 rounded-full bg-primary-50 px-3 py-1 text-xs font-medium text-primary-700"
             >
               {t}
               <button type="button" onClick={() => removeTag(t)}>
@@ -412,7 +413,7 @@ export default function ProductForm({ product, onSave }) {
                 type="checkbox"
                 checked={form[k]}
                 onChange={setCheck(k)}
-                className="h-4 w-4 rounded accent-green-600"
+                className="h-4 w-4 rounded accent-primary-600"
               />
               <span className="text-sm font-medium text-slate-700">{lbl}</span>
             </label>

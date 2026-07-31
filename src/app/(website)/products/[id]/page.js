@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import ProductCard from "@/components/website/ProductCard";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+import ReviewSection from "@/components/website/ReviewSection";
 
 export default function ProductDetailPage() {
   const {
@@ -27,6 +28,7 @@ export default function ProductDetailPage() {
 
   const data = currentProduct;
   const loading = currentProductLoading;
+  console.log(data);
 
   useEffect(() => {
     if (id) {
@@ -70,7 +72,7 @@ export default function ProductDetailPage() {
       ? "text-primary-700"
       : p.stock <= p.lowStockThreshold
         ? "text-yellow-600"
-        : "text-green-600";
+        : "text-primary-600";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -112,7 +114,7 @@ export default function ProductDetailPage() {
         {/* Details */}
         <div>
           {p.category && (
-            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-green-600">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-primary-600">
               {p.category.name}
             </p>
           )}
@@ -174,7 +176,7 @@ export default function ProductDetailPage() {
             <button
               onClick={handleAddToCart}
               disabled={isOutOfStock}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${added ? "bg-green-700 text-white" : isOutOfStock ? "bg-primary-50 text-slate-400 cursor-not-allowed" : "bg-primary text-white hover:bg-green-700"}`}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${added ? "bg-primary-700 text-white" : isOutOfStock ? "bg-primary-50 text-slate-400 cursor-not-allowed" : "bg-primary text-white hover:bg-primary-700"}`}
             >
               <ShoppingCart size={18} />
               {added
@@ -211,7 +213,7 @@ export default function ProductDetailPage() {
                 key={i}
                 className="flex flex-col items-center gap-1.5 text-center"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-50">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50">
                   <Icon size={18} className="text-primary-400" />
                 </div>
                 <p className="text-[10px] text-slate-500 leading-tight">
@@ -234,6 +236,9 @@ export default function ProductDetailPage() {
           </p>
         </div>
       )}
+
+      {/* Reviews */}
+      <ReviewSection productId={id} />
 
       {/* Related */}
       {data.related?.length > 0 && (

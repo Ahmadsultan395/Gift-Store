@@ -1,7 +1,7 @@
 "use client";
 export const dynamic = "force-dynamic";
 import { useSearchParams, useRouter } from "next/navigation";
-import { SlidersHorizontal, Package } from "lucide-react";
+import { SlidersHorizontal, Package, Search } from "lucide-react";
 import ProductCard from "@/components/website/ProductCard";
 import PageHeroHeader from "@/components/website/PageHeroHeader";
 import { useEffect, useState } from "react";
@@ -21,13 +21,36 @@ export default function ProductsContentPage() {
   } = useWebsiteStore();
   const [page, setPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
-
   const q = searchParams.get("q") || searchParams.get("search") || "";
   const category = searchParams.get("category") || "";
   const sort = searchParams.get("sort") || "createdAt";
   const featured = searchParams.get("featured") || "";
   const newArr = searchParams.get("newArrival") || "";
   const flash = searchParams.get("flashSale") || "";
+
+  const [search, setSearch] = useState(q);
+
+  useEffect(() => {
+    setSearch(q);
+  }, [q]);
+
+  function handleSearch(e) {
+    const value = e.target.value;
+
+    setSearch(value);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value.trim()) {
+      params.set("q", value);
+    } else {
+      params.delete("q");
+    }
+
+    params.delete("page");
+
+    router.push(`/products?${params.toString()}`);
+  }
 
   useEffect(() => {
     fetchCategories();
@@ -74,32 +97,49 @@ export default function ProductsContentPage() {
       />
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="mb-6 flex flex-wrap items-center justify-end gap-3">
-          <select
-            value={sort}
-            onChange={(e) => updateParam("sort", e.target.value)}
-            className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-300/30"
-          >
-            <option value="createdAt">Latest</option>
-            <option value="popular">Popular</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </select>
-          <button
-            onClick={() => setShowFilters((p) => !p)}
-            className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:border-primary-300 hover:text-primary-600"
-          >
-            <SlidersHorizontal size={15} /> Filters
-          </button>
+        <div className="mb-6 flex flex-wrap items-center justify-center min-[500px]:justify-end gap-3">
+          {/* Search */}
+          <div className="relative w-[200px]">
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            />
+
+            <input
+              type="text"
+              value={search}
+              onChange={handleSearch}
+              placeholder="Search products..."
+              className="w-full rounded-xl border border-slate-200 py-2 pl-10 pr-4 text-sm outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-300/30"
+            />
+          </div>
+
+          {/* Right Controls */}
+          <div className="flex flex-wrap  items-center justify-center min-[500px]:justify-end gap-3 ">
+            <select
+              value={sort}
+              onChange={(e) => updateParam("sort", e.target.value)}
+              className="rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-300 focus:ring-2 focus:ring-primary-300/30 w-[200px]"
+            >
+              <option value="createdAt">Latest</option>
+              <option value="popular">Popular</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
+
+            <button
+              onClick={() => setShowFilters((p) => !p)}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:border-primary-300 hover:text-primary-600  w-[200px]"
+            >
+              <SlidersHorizontal size={15} />
+              Filters
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-6">
           {/* Sidebar */}
-          <aside
-            className={`${
-              showFilters ? "block" : "hidden"
-            } md:block w-56 flex-shrink-0`}
-          >
+          <aside className="hidden w-56 flex-shrink-0 md:block">
             <div className="sticky top-20 rounded-2xl border border-slate-200 bg-white p-4 space-y-6">
               <div>
                 <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
@@ -198,6 +238,102 @@ export default function ProductsContentPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Filters */}
+      {showFilters && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 md:hidden"
+          onClick={() => setShowFilters(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="absolute left-0 top-0 h-full w-[85%] max-w-[320px] overflow-y-auto bg-white shadow-xl"
+          >
+            <div className="sticky top-0 flex items-center justify-between border-b bg-white p-4">
+              <h2 className="text-lg font-semibold">Filters</h2>
+
+              <button
+                onClick={() => setShowFilters(false)}
+                className="rounded-lg p-2 hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-6 p-4">
+              {/* Categories */}
+              <div>
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
+                  Categories
+                </h3>
+
+                <div className="space-y-1">
+                  <button
+                    onClick={() => {
+                      updateParam("category", "");
+                      setShowFilters(false);
+                    }}
+                    className={`flex w-full rounded-lg px-3 py-2 text-left text-sm ${
+                      !category
+                        ? "bg-[#F3FBEA] font-medium text-primary-600"
+                        : "hover:bg-slate-50"
+                    }`}
+                  >
+                    All Categories
+                  </button>
+
+                  {categories.map((c) => (
+                    <button
+                      key={c._id}
+                      onClick={() => {
+                        updateParam("category", c._id);
+                        setShowFilters(false);
+                      }}
+                      className={`flex w-full rounded-lg px-3 py-2 text-left text-sm ${
+                        category === c._id
+                          ? "bg-[#F3FBEA] font-medium text-primary-600"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Special */}
+              <div>
+                <h3 className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-400">
+                  Special
+                </h3>
+
+                <div className="space-y-1">
+                  {[
+                    ["Featured", "featured"],
+                    ["New Arrivals", "newArrival"],
+                    ["Flash Sale", "flashSale"],
+                  ].map(([label, key]) => (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        updateParam(key, searchParams.get(key) ? "" : "true");
+                        setShowFilters(false);
+                      }}
+                      className={`flex w-full rounded-lg px-3 py-2 text-left text-sm ${
+                        searchParams.get(key)
+                          ? "bg-[#F3FBEA] font-medium text-primary-600"
+                          : "hover:bg-slate-50"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

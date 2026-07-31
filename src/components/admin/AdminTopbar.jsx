@@ -42,12 +42,12 @@ export default function AdminTopbar({ onMenuToggle }) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-1">
-        <button
+        {/* <button
           onClick={toggleDark}
           className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 transition-colors"
         >
           {dark ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
+        </button> */}
 
         <Link
           href="/admin/notifications"

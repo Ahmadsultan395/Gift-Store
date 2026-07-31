@@ -20,6 +20,8 @@ import Modal from "@/components/ui/Modal";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default function NewsletterPage() {
   const [data, setData] = useState({
@@ -104,25 +106,69 @@ export default function NewsletterPage() {
     });
   }
 
-  // Export as CSV
-  function exportCSV() {
-    const rows = [
-      ["Email", "Status", "Subscribed On"],
-      ...data.subscribers.map((s) => [
-        s.email,
-        s.isActive ? "Active" : "Inactive",
-        new Date(s.createdAt).toLocaleDateString("en-PK"),
+  // Export as PDF
+  function exportPDF() {
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Newsletter Subscribers", 14, 18);
+
+    doc.setFontSize(10);
+    doc.text(`Generated: ${new Date().toLocaleString("en-PK")}`, 14, 26);
+
+    autoTable(doc, {
+      startY: 34,
+
+      head: [["#", "Email", "Status", "Subscribed On"]],
+
+      body: subscribers.map((sub, index) => [
+        index + 1,
+        sub.email,
+        sub.isActive ? "Active" : "Inactive",
+        new Date(sub.createdAt).toLocaleDateString("en-PK"),
       ]),
-    ];
-    const csv = rows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `newsletter-subscribers-${Date.now()}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    showToast("CSV exported!");
+
+      theme: "grid",
+
+      headStyles: {
+        fillColor: [22, 163, 74],
+        textColor: 255,
+        fontStyle: "bold",
+        halign: "left",
+        valign: "middle",
+      },
+
+      styles: {
+        fontSize: 10,
+        cellPadding: 4,
+        valign: "middle",
+        halign: "left",
+        overflow: "linebreak",
+      },
+
+      columnStyles: {
+        0: {
+          cellWidth: 15,
+          halign: "left",
+        },
+        1: {
+          cellWidth: 90,
+          halign: "left",
+        },
+        2: {
+          cellWidth: 30,
+          halign: "left",
+        },
+        3: {
+          cellWidth: 45,
+          halign: "left",
+        },
+      },
+    });
+
+    doc.save(`newsletter-subscribers-${Date.now()}.pdf`);
+
+    showToast("PDF exported!");
   }
 
   // ── Selection helpers ────────────────────────────────────────
@@ -200,29 +246,30 @@ export default function NewsletterPage() {
     <div>
       <PageHeader
         title="Newsletter Subscribers"
-        subtitle="Website se jo log subscribe kar chuke hain"
+        subtitle="Manage website newsletter subscribers"
         action={
-          <div className="flex gap-2">
+          <div className="flex  flex-wrap gap-2">
             <button
               onClick={copyAllEmails}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:border-green-400 hover:text-green-700 transition-colors"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:border-primary-400 hover:text-primary-700 transition-colors"
             >
               {copied ? (
-                <CheckCircle size={15} className="text-green-600" />
+                <CheckCircle size={15} className="text-primary-600" />
               ) : (
                 <Copy size={15} />
               )}
               {copied ? "Copied!" : "Copy All Emails"}
             </button>
             <button
-              onClick={exportCSV}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:border-green-400 hover:text-green-700 transition-colors"
+              onClick={exportPDF}
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:border-primary-400 hover:text-primary-700 transition-colors"
             >
-              <Download size={15} /> Export CSV
+              <Download size={15} />
+              Export PDF
             </button>
             <button
               onClick={() => openCompose("all")}
-              className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors"
+              className="flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
             >
               <Send size={15} /> Email All
             </button>
@@ -231,14 +278,14 @@ export default function NewsletterPage() {
       />
 
       {/* Stats cards */}
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 min-[450px]:grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           {
             label: "Total Subscribers",
             value: stats.total || 0,
             icon: Users,
-            color: "text-green-600",
-            bg: "bg-green-50",
+            color: "text-primary-600",
+            bg: "bg-primary-50",
           },
           {
             label: "Active",
@@ -286,20 +333,20 @@ export default function NewsletterPage() {
       {/* IS PAGE KA FAIDA EXPLAIN */}
       <div className="mb-5 rounded-xl border border-blue-100 bg-blue-50 p-4">
         <p className="text-sm font-semibold text-blue-800 mb-1">
-          📧 Newsletter se aap kya kar sakte hain?
+          📧 What can you do with Newsletter?
         </p>
         <ul className="text-xs text-blue-700 space-y-1 list-disc list-inside">
           <li>
-            <b>Email All</b> ya checkboxes se select karke{" "}
-            <b>chuninda logo ko</b> seedha email bhejo
+            <b>Email All</b> → Send emails to all <b>subscribers or selected</b>{" "}
+            subscribers
           </li>
           <li>
-            <b>Copy All Emails</b> → WhatsApp Broadcast ya email client mein
-            paste karo
+            <b>Copy all emails</b> → WhatsApp Broadcast and use them in your
+            email campaigns
           </li>
           <li>
-            <b>Export CSV</b> → Excel mein open karo ya Mailchimp, Brevo jaise
-            tools mein import karo
+            <b>Export CSV</b> → Export subscriber data and use it with email
+            marketing tools
           </li>
         </ul>
       </div>
@@ -310,15 +357,15 @@ export default function NewsletterPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Email search karein..."
+          placeholder="Search email..."
           className="flex-1 text-sm outline-none text-slate-600"
         />
       </div>
 
       {/* Selection bar */}
       {selected.size > 0 && (
-        <div className="mb-4 flex items-center justify-between rounded-xl border border-green-200 bg-green-50 px-4 py-2.5">
-          <p className="text-sm font-medium text-green-800">
+        <div className="mb-4 flex items-center justify-between rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5">
+          <p className="text-sm font-medium text-primary-800">
             {selected.size} subscriber{selected.size === 1 ? "" : "s"} selected
           </p>
           <div className="flex items-center gap-2">
@@ -330,7 +377,7 @@ export default function NewsletterPage() {
             </button>
             <button
               onClick={() => openCompose("selected")}
-              className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-700"
+              className="flex items-center gap-1.5 rounded-lg bg-primary-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-700"
             >
               <Send size={13} /> Email Selected
             </button>
@@ -346,7 +393,7 @@ export default function NewsletterPage() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className="h-12 animate-pulse rounded-lg bg-slate-100"
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
                 />
               ))}
             </div>
@@ -354,12 +401,10 @@ export default function NewsletterPage() {
             <div className="flex flex-col items-center gap-3 py-20 text-slate-400">
               <Mail size={48} className="opacity-20" />
               <p className="font-medium">
-                {search
-                  ? "Koi email nahi mila"
-                  : "Abhi tak koi subscriber nahi"}
+                {search ? "No email found" : "No subscribers yet"}
               </p>
               <p className="text-xs">
-                Website pe newsletter form se log subscribe karein ge
+                Subscribers will appear here after joining the newsletter
               </p>
             </div>
           ) : (
@@ -371,7 +416,7 @@ export default function NewsletterPage() {
                       type="checkbox"
                       checked={allSelected}
                       onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                      className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                     />
                   </th>
                   {[
@@ -394,14 +439,14 @@ export default function NewsletterPage() {
                 {subscribers.map((sub, i) => (
                   <tr
                     key={sub._id}
-                    className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${selected.has(sub._id) ? "bg-green-50/50" : ""}`}
+                    className={`border-b border-slate-50 hover:bg-slate-50 transition-colors ${selected.has(sub._id) ? "bg-primary-50/50" : ""}`}
                   >
                     <td className="px-5 py-3">
                       <input
                         type="checkbox"
                         checked={selected.has(sub._id)}
                         onChange={() => toggleSelect(sub._id)}
-                        className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
+                        className="h-4 w-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500"
                       />
                     </td>
                     <td className="px-5 py-3 text-slate-400 text-xs">
@@ -409,7 +454,7 @@ export default function NewsletterPage() {
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-700">
+                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary-100 text-xs font-bold text-primary-700">
                           {sub.email.charAt(0).toUpperCase()}
                         </div>
                         <span className="font-medium text-slate-700">
@@ -436,7 +481,7 @@ export default function NewsletterPage() {
                           className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
                             sub.isActive
                               ? "bg-slate-100 text-slate-600 hover:bg-yellow-100 hover:text-yellow-700"
-                              : "bg-green-50 text-green-600 hover:bg-green-100"
+                              : "bg-primary-50 text-primary-600 hover:bg-primary-100"
                           }`}
                         >
                           {sub.isActive ? "Deactivate" : "Activate"}
@@ -540,7 +585,7 @@ export default function NewsletterPage() {
         onConfirm={handleDelete}
         isLoading={deleting}
         title="Remove Subscriber?"
-        message={`"${del?.email}" ko list se hata dein?`}
+        message={`"${del?.email}" from subscriber list?`}
       />
 
       {toast && (

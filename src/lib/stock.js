@@ -29,7 +29,7 @@ export async function adjustStock({
   const newStock = product.stock + quantityChange;
   if (newStock < 0) {
     throw new Error(
-      `Insufficient stock for "${product.name}". Available: ${product.stock}, requested: ${-quantityChange}`
+      `Insufficient stock for "${product.name}". Available: ${product.stock}, requested: ${-quantityChange}`,
     );
   }
 
@@ -43,7 +43,7 @@ export async function adjustStock({
     stockAfter: newStock,
     reference,
     note,
-    createdBy: userId,
+    createdBy: userId || undefined,
   });
 
   // Auto notifications

@@ -64,7 +64,7 @@ export default function InventoryPage() {
               {label}
             </p>
             <p
-              className={`mt-1 text-2xl font-bold ${color === "red" ? "text-red-600" : color === "yellow" ? "text-yellow-600" : color === "green" ? "text-green-600" : "text-slate-800"}`}
+              className={`mt-1 text-2xl font-bold ${color === "red" ? "text-red-600" : color === "yellow" ? "text-yellow-600" : color === "green" ? "text-primary-600" : "text-slate-800"}`}
             >
               {value}
             </p>
@@ -78,7 +78,7 @@ export default function InventoryPage() {
           <button
             key={v.key}
             onClick={() => setView(v.key)}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${view === v.key ? "bg-primary-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-green-400"}`}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${view === v.key ? "bg-primary-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-primary-400"}`}
           >
             <v.icon size={14} /> {v.label}
           </button>
@@ -93,7 +93,7 @@ export default function InventoryPage() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-12 animate-pulse rounded-lg bg-slate-100"
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
                 />
               ))}
             </div>
@@ -156,23 +156,23 @@ export default function InventoryPage() {
                       <td className="px-4 py-3 text-slate-500">
                         {p.category?.name || "—"}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                      <td className="px-4 py-3 font-mono text-xs text-slate-400 whitespace-nowrap">
                         {p.sku}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <Badge variant={sb.color}>{sb.label}</Badge>
                       </td>
                       <td className="px-4 py-3 text-slate-500">
                         {p.lowStockThreshold} {p.unit}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         {eb ? (
                           <Badge variant={eb.color}>{eb.label}</Badge>
                         ) : (
                           <span className="text-slate-300 text-xs">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 whitespace-nowrap">
                         <Badge
                           variant={p.status === "active" ? "green" : "slate"}
                         >

@@ -1,7 +1,7 @@
 import connectDB from "@/lib/db";
 import Sale from "@/models/Sale";
 import Product from "@/models/Product";
-import { StockHistory, Expense } from "@/models/index";
+import { StockHistory } from "@/models/index";
 import { ok, notFound, fail, serverError } from "@/lib/apiResponse";
 
 export async function POST(request, { params }) {
@@ -16,17 +16,11 @@ export async function POST(request, { params }) {
     const sale = await Sale.findById(params.id).populate("items.product");
     if (!sale) return notFound("Sale not found");
 
-    // ── Initialize refundedAmount if old document ───────────────
-    if (typeof sale.refundedAmount !== "number") {
-      sale.refundedAmount = 0;
-    }
-
     const amountPaid = sale.amountPaid || 0;
     const alreadyRefunded = sale.refundedAmount || 0;
     const maxRefundable = amountPaid - alreadyRefunded;
 
-    // ── Block: fully refunded already ──────────────────────────
-    if (sale.isRefunded || maxRefundable <= 0) {
+    if (sale.paymentStatus === "refunded" || maxRefundable <= 0) {
       return fail(
         `This sale has already been fully refunded. ` +
           `Total paid: PKR ${amountPaid.toFixed(2)}, ` +
@@ -34,7 +28,6 @@ export async function POST(request, { params }) {
       );
     }
 
-    // ── Block: nothing was paid ─────────────────────────────────
     if (amountPaid <= 0) {
       return fail(
         "No payment was made for this sale, so it cannot be refunded.",
@@ -43,9 +36,8 @@ export async function POST(request, { params }) {
 
     const refundAmount = Number(amount);
 
-    // ── Validate amount ─────────────────────────────────────────
     if (!refundAmount || refundAmount <= 0) {
-      return fail("Valid refund amount enter karein");
+      return fail("Please enter a valid refund amount");
     }
 
     if (refundAmount > maxRefundable) {
@@ -57,7 +49,6 @@ export async function POST(request, { params }) {
 
     const userId = request.headers.get("x-user-id");
 
-    // ── Restore stock ───────────────────────────────────────────
     if (restoreStock) {
       for (const item of sale.items) {
         const productId = item.product?._id || item.product;
@@ -85,29 +76,17 @@ export async function POST(request, { params }) {
       }
     }
 
-    // ── Record expense for THIS refund only ─────────────────────
-    await Expense.create({
-      title: `Refund — ${sale.invoiceNumber}`,
-      category: "other",
-      amount: refundAmount,
-      date: new Date(),
-      notes: `Reason: ${reason}. Invoice: ${sale.invoiceNumber}. Customer ko wapas kiya.`,
-      createdBy: userId || undefined,
-    });
-
-    // ── Update sale ─────────────────────────────────────────────
     const newTotalRefunded = alreadyRefunded + refundAmount;
     const isFullyRefunded = newTotalRefunded >= amountPaid;
 
     sale.refundedAmount = newTotalRefunded;
-    sale.isRefunded = isFullyRefunded;
-    sale.refund = {
-      amount: newTotalRefunded,
-      reason,
-      refundedAt: new Date(),
-      refundedBy: userId || undefined,
-      stockRestored: restoreStock,
-    };
+    sale.refundReason = reason;
+    sale.refundedAt = new Date();
+
+    // ── Sale's own status is the single source of truth ──
+    if (isFullyRefunded) {
+      sale.paymentStatus = "refunded";
+    }
 
     await sale.save();
 
@@ -120,12 +99,12 @@ export async function POST(request, { params }) {
         totalRefunded: newTotalRefunded,
         stillRefundable: Math.max(0, stillRefundable),
         isFullyRefunded,
+        paymentStatus: sale.paymentStatus,
         stockRestored: restoreStock,
       },
       isFullyRefunded
         ? `Refund of PKR ${refundAmount.toFixed(2)} processed successfully. The sale has been fully refunded.${restoreStock ? " Stock has also been restored." : ""}`
-        : // Success (partial refund)
-          `Refund of PKR ${refundAmount.toFixed(2)} processed successfully. PKR ${stillRefundable.toFixed(2)} is still available for refund.`,
+        : `Refund of PKR ${refundAmount.toFixed(2)} processed successfully. PKR ${stillRefundable.toFixed(2)} is still available for refund.`,
     );
   } catch (e) {
     console.error("Refund error:", e);

@@ -117,106 +117,108 @@ export default function CouponsPage() {
         }
       />
       <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        {couponsLoading ? (
-          <div className="space-y-3 p-5">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-12 animate-pulse rounded-lg bg-slate-50"
-              />
-            ))}
-          </div>
-        ) : coupons.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-            <Ticket size={40} className="opacity-20" />
-            <p>No coupons yet.</p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b bg-slate-100 bg-slate-50">
-              <tr>
-                {[
-                  "Code",
-                  "Type",
-                  "Value",
-                  "Min Purchase",
-                  "Used/Limit",
-                  "Expiry",
-                  "Status",
-                  "Actions",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {coupons.map((c) => {
-                const expired = new Date(c.expiryDate) < new Date();
-                const exhausted = c.usedCount >= c.usageLimit;
-                const statusColor =
-                  c.status === "active" && !expired && !exhausted
-                    ? "green"
-                    : "red";
-                const statusLabel = expired
-                  ? "Expired"
-                  : exhausted
-                    ? "Exhausted"
-                    : c.status;
-                return (
-                  <tr
-                    key={c._id}
-                    className="border-b border-slate-50 hover:bg-slate-50"
-                  >
-                    <td className="px-4 py-3 font-mono font-bold text-slate-800">
-                      {c.code}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant="blue">{c.type}</Badge>
-                    </td>
-                    <td className="px-4 py-3 font-medium text-primary-700">
-                      {c.type === "percentage"
-                        ? `${c.value}%`
-                        : `PKR ${c.value}`}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">
-                      {c.minPurchase > 0 ? `PKR ${c.minPurchase}` : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {c.usedCount}/{c.usageLimit}
-                    </td>
-                    <td className="px-4 py-3 text-slate-500">
-                      {new Date(c.expiryDate).toLocaleDateString("en-PK")}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant={statusColor}>{statusLabel}</Badge>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          onClick={() => openEdit(c)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          onClick={() => setDel(c)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-primary-700"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+        <div className="overflow-x-auto">
+          {couponsLoading ? (
+            <div className="space-y-3 p-5">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
+                />
+              ))}
+            </div>
+          ) : coupons.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+              <Ticket size={40} className="opacity-20" />
+              <p>No coupons yet.</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b bg-slate-100 bg-slate-50">
+                <tr>
+                  {[
+                    "Code",
+                    "Type",
+                    "Value",
+                    "Min Purchase",
+                    "Used/Limit",
+                    "Expiry",
+                    "Status",
+                    "Actions",
+                  ].map((h) => (
+                    <th
+                      key={h}
+                      className={`px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {coupons.map((c) => {
+                  const expired = new Date(c.expiryDate) < new Date();
+                  const exhausted = c.usedCount >= c.usageLimit;
+                  const statusColor =
+                    c.status === "active" && !expired && !exhausted
+                      ? "green"
+                      : "red";
+                  const statusLabel = expired
+                    ? "Expired"
+                    : exhausted
+                      ? "Exhausted"
+                      : c.status;
+                  return (
+                    <tr
+                      key={c._id}
+                      className="border-b border-slate-50 hover:bg-slate-50"
+                    >
+                      <td className="px-4 py-3 font-mono font-bold text-slate-800">
+                        {c.code}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant="blue">{c.type}</Badge>
+                      </td>
+                      <td className="px-4 py-3 font-medium text-primary-700">
+                        {c.type === "percentage"
+                          ? `${c.value}%`
+                          : `PKR ${c.value}`}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {c.minPurchase > 0 ? `PKR ${c.minPurchase}` : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600">
+                        {c.usedCount}/{c.usageLimit}
+                      </td>
+                      <td className="px-4 py-3 text-slate-500">
+                        {new Date(c.expiryDate).toLocaleDateString("en-PK")}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={statusColor}>{statusLabel}</Badge>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() => openEdit(c)}
+                            className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                          <button
+                            onClick={() => setDel(c)}
+                            className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-50 hover:text-primary-700"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       <Modal

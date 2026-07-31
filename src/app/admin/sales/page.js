@@ -14,7 +14,12 @@ import Badge from "@/components/ui/Badge";
 import Modal from "@/components/ui/Modal";
 import Button from "@/components/ui/Button";
 
-const PAY_COLOR = { paid: "green", partial: "yellow", unpaid: "red" };
+const PAY_COLOR = {
+  paid: "green",
+  partial: "yellow",
+  unpaid: "red",
+  refunded: "gray",
+};
 
 export default function SalesHistoryPage() {
   const [data, setData] = useState({ sales: [], pagination: {} });
@@ -133,7 +138,7 @@ export default function SalesHistoryPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by invoice, customer..."
-          className="w-full md:w-80 rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-500"
+          className="w-full md:w-80 rounded-xl border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-primary-500"
         />
 
         <div className="flex gap-2">
@@ -149,7 +154,7 @@ export default function SalesHistoryPage() {
               className={`rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                 statusF === v
                   ? "bg-primary-600 text-white"
-                  : "border border-slate-200 bg-white text-slate-600 hover:border-green-400"
+                  : "border border-slate-200 bg-white text-slate-600 hover:border-primary-400"
               }`}
             >
               {l}
@@ -165,7 +170,7 @@ export default function SalesHistoryPage() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <div
                   key={i}
-                  className="h-12 animate-pulse rounded-lg bg-slate-100"
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
                 />
               ))}
             </div>
@@ -202,29 +207,21 @@ export default function SalesHistoryPage() {
                 {sales.map((s) => (
                   <tr
                     key={s._id}
-                    className={`border-b border-slate-50 hover:bg-slate-50 ${s.isRefunded || ((s.refundedAmount || 0) >= (s.amountPaid || 0) && (s.amountPaid || 0) > 0) ? "opacity-60 bg-red-50" : ""}`}
+                    className={`border-b border-slate-50 hover:bg-slate-50 ${s.paymentStatus === "refunded" ? "opacity-60 bg-red-50" : ""}`}
                   >
                     <td className="px-4 py-3">
                       <p className="font-mono text-xs font-medium text-slate-700">
                         {s.invoiceNumber}
                       </p>
-                      {(() => {
-                        const fullyRefunded =
-                          s.isRefunded ||
-                          ((s.refundedAmount || 0) >= (s.amountPaid || 0) &&
-                            (s.amountPaid || 0) > 0);
-                        const partialRefund =
-                          !fullyRefunded && (s.refundedAmount || 0) > 0;
-                        return fullyRefunded ? (
-                          <span className="text-[9px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded-full">
-                            ✕ REFUNDED
-                          </span>
-                        ) : partialRefund ? (
-                          <span className="text-[9px] font-bold text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded-full">
-                            ↩ Refunded: PKR {(s.refundedAmount || 0).toFixed(0)}
-                          </span>
-                        ) : null;
-                      })()}
+                      {s.paymentStatus === "refunded" ? (
+                        <span className="text-[9px] font-bold text-red-600 bg-red-100 px-1.5 py-0.5 rounded-full">
+                          ✕ REFUNDED
+                        </span>
+                      ) : (s.refundedAmount || 0) > 0 ? (
+                        <span className="text-[9px] font-bold text-orange-600 bg-orange-100 px-1.5 py-0.5 rounded-full">
+                          ↩ Refunded: PKR {(s.refundedAmount || 0).toFixed(0)}
+                        </span>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {s.customer?.name || (
@@ -240,7 +237,7 @@ export default function SalesHistoryPage() {
                     <td className="px-4 py-3 text-slate-600">
                       {s.items?.length} items
                     </td>
-                    <td className="px-4 py-3 font-semibold text-green-700">
+                    <td className="px-4 py-3 font-semibold text-primary-700">
                       PKR {s.grandTotal?.toFixed(2)}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
@@ -252,7 +249,9 @@ export default function SalesHistoryPage() {
                           PKR {s.balanceDue?.toFixed(2)}
                         </span>
                       ) : (
-                        <span className="text-green-600 text-xs">✅ Paid</span>
+                        <span className="text-primary-600 text-xs">
+                          ✅ Paid
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
@@ -269,19 +268,20 @@ export default function SalesHistoryPage() {
                         >
                           <Eye size={14} />
                         </button>
-                        {!s.isRefunded && s.paymentStatus !== "paid" && (
-                          <button
-                            onClick={() => {
-                              setPayModal(s);
-                              setNewPay("");
-                            }}
-                            title="Add Payment"
-                            className="rounded-lg p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600"
-                          >
-                            <CreditCard size={14} />
-                          </button>
-                        )}
-                        {!s.isRefunded &&
+                        {s.paymentStatus !== "refunded" &&
+                          s.paymentStatus !== "paid" && (
+                            <button
+                              onClick={() => {
+                                setPayModal(s);
+                                setNewPay("");
+                              }}
+                              title="Add Payment"
+                              className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-primary-600"
+                            >
+                              <CreditCard size={14} />
+                            </button>
+                          )}
+                        {s.paymentStatus !== "refunded" &&
                           (s.amountPaid || 0) > 0 &&
                           (s.amountPaid || 0) - (s.refundedAmount || 0) > 0 && (
                             <button
@@ -347,21 +347,21 @@ export default function SalesHistoryPage() {
       >
         {viewing && (
           <div className="space-y-4 text-sm">
-            {(viewing.isRefunded || (viewing.refundedAmount || 0) > 0) && (
+            {(viewing.paymentStatus === "refunded" ||
+              (viewing.refundedAmount || 0) > 0) && (
               <div
-                className={`rounded-xl border px-4 py-3 ${viewing.isRefunded || (viewing.refundedAmount || 0) >= (viewing.amountPaid || 0) ? "bg-red-50 border-red-200 text-red-700" : "bg-orange-50 border-orange-200 text-orange-700"}`}
+                className={`rounded-xl border px-4 py-3 ${viewing.paymentStatus === "refunded" ? "bg-red-50 border-red-200 text-red-700" : "bg-orange-50 border-orange-200 text-orange-700"}`}
               >
                 <p className="font-bold">
-                  {viewing.isRefunded ||
-                  (viewing.refundedAmount || 0) >= (viewing.amountPaid || 0)
+                  {viewing.paymentStatus === "refunded"
                     ? "✕ Fully Refunded"
                     : "↩ Partial Refund"}
                 </p>
                 <p className="text-xs mt-0.5">
                   PKR {(viewing.refundedAmount || 0).toFixed(2)} refunded
-                  {viewing.refund?.reason ? ` — ${viewing.refund.reason}` : ""}
-                  {viewing.refund?.refundedAt
-                    ? ` on ${new Date(viewing.refund.refundedAt).toLocaleDateString("en-PK")}`
+                  {viewing.refundReason ? ` — ${viewing.refundReason}` : ""}
+                  {viewing.refundedAt
+                    ? ` on ${new Date(viewing.refundedAt).toLocaleDateString("en-PK")}`
                     : ""}
                 </p>
               </div>
@@ -398,7 +398,7 @@ export default function SalesHistoryPage() {
                     <td className="py-1.5 text-right">
                       PKR {item.price?.toFixed(2)}
                     </td>
-                    <td className="py-1.5 text-right font-medium text-green-700">
+                    <td className="py-1.5 text-right font-medium text-primary-700">
                       PKR {item.total?.toFixed(2)}
                     </td>
                   </tr>
@@ -408,7 +408,7 @@ export default function SalesHistoryPage() {
             <div className="space-y-1 border-t border-slate-100 pt-3 text-xs">
               <div className="flex justify-between font-bold text-sm">
                 <span>Grand Total</span>
-                <span className="text-green-700">
+                <span className="text-primary-700">
                   PKR {viewing.grandTotal?.toFixed(2)}
                 </span>
               </div>
@@ -433,14 +433,14 @@ export default function SalesHistoryPage() {
                   {viewing.paymentHistory.map((ph, i) => (
                     <div
                       key={i}
-                      className="flex items-center justify-between rounded-lg bg-green-50 px-3 py-2 text-xs"
+                      className="flex items-center justify-between rounded-lg bg-primary-50 px-3 py-2 text-xs"
                     >
                       <div className="flex items-center gap-2">
-                        <CheckCircle size={12} className="text-green-600" />
-                        <span className="font-medium text-green-700">
+                        <CheckCircle size={12} className="text-primary-600" />
+                        <span className="font-medium text-primary-700">
                           PKR {ph.amount?.toFixed(2)}
                         </span>
-                        <span className="text-green-500 capitalize">
+                        <span className="text-primary-500 capitalize">
                           ({ph.method})
                         </span>
                       </div>
@@ -477,7 +477,7 @@ export default function SalesHistoryPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Total</span>
-                <span className="font-semibold text-green-700">
+                <span className="font-semibold text-primary-700">
                   PKR {payModal.grandTotal?.toFixed(2)}
                 </span>
               </div>
@@ -503,7 +503,7 @@ export default function SalesHistoryPage() {
                   (payModal.grandTotal || 0) - (payModal.amountPaid || 0),
                 )}
                 placeholder={`Remaining Balance: PKR ${((payModal.grandTotal || 0) - (payModal.amountPaid || 0)).toFixed(2)}`}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-bold outline-none focus:border-green-500"
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-bold outline-none focus:border-primary-500"
               />
             </div>
             <div className="flex gap-2">
@@ -518,7 +518,7 @@ export default function SalesHistoryPage() {
               ))}
             </div>
             {newPay > 0 && (
-              <div className="rounded-lg bg-green-50 px-3 py-2 text-xs text-green-700">
+              <div className="rounded-lg bg-primary-50 px-3 py-2 text-xs text-primary-700">
                 {Number(newPay) >
                 (payModal.grandTotal || 0) - (payModal.amountPaid || 0) ? (
                   <span className="text-red-600 font-bold">
@@ -583,7 +583,7 @@ export default function SalesHistoryPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Amount Paid</span>
-                <span className="font-bold text-green-700">
+                <span className="font-bold text-primary-700">
                   PKR {refModal.amountPaid?.toFixed(2)}
                 </span>
               </div>
@@ -593,32 +593,17 @@ export default function SalesHistoryPage() {
                   PKR {(refModal.refundedAmount || 0).toFixed(2)}
                 </span>
               </div>
-              <div className="flex justify-between border-t pt-1.5 font-bold text-red-700">
-                <span>Max Refundable</span>
-                <span>
-                  PKR{" "}
-                  {Math.max(
-                    0,
-                    (refModal.amountPaid || 0) - (refModal.refundedAmount || 0),
-                  ).toFixed(2)}
-                </span>
+              <div className="flex justify-between border-t pt-1.5 font-bold text-red-700 text-base">
+                <span>Refund Amount</span>
+                <span>PKR {Number(refAmount || 0).toFixed(2)}</span>
               </div>
             </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Refund Amount (PKR) *
-              </label>
-              <input
-                type="number"
-                value={refAmount}
-                onChange={(e) => setRefAmount(e.target.value)}
-                max={Math.max(
-                  0,
-                  (refModal.amountPaid || 0) - (refModal.refundedAmount || 0),
-                )}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm font-bold outline-none focus:border-red-500"
-              />
-            </div>
+
+            <p className="text-xs text-slate-500">
+              Poori available amount (paid minus jo pehle refund ho chuki hai)
+              automatically refund hogi — koi manual amount enter nahi karni.
+            </p>
+
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Reason
@@ -635,14 +620,14 @@ export default function SalesHistoryPage() {
                 type="checkbox"
                 checked={restoreStk}
                 onChange={(e) => setRestoreSt(e.target.checked)}
-                className="h-4 w-4 accent-green-600"
+                className="h-4 w-4 accent-primary-600"
               />
               <span className="text-sm text-slate-700">
                 Restore stock (returned items will be added back to inventory)
               </span>
             </label>
             <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">
-              ⚠ This refund will automatically be recorded as an Expense. This
+              ⚠ This refund will update the sale's status to "Refunded". This
               action cannot be undone.
             </div>
             <div className="flex gap-3">
@@ -660,7 +645,8 @@ export default function SalesHistoryPage() {
                 onClick={handleRefund}
                 isLoading={actLoading}
               >
-                <RotateCcw size={14} /> Process Refund
+                <RotateCcw size={14} /> Refund PKR{" "}
+                {Number(refAmount || 0).toFixed(2)}
               </Button>
             </div>
           </div>

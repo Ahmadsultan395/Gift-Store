@@ -65,7 +65,7 @@ function MessageBubble({ msg }) {
       >
         {msg.text}
         <p
-          className={`mt-1 text-[10px] ${isBot ? "text-slate-400" : "text-green-200"}`}
+          className={`mt-1 text-[10px] ${isBot ? "text-slate-400" : "text-primary-200"}`}
         >
           {msg.time}
         </p>
@@ -236,7 +236,7 @@ export default function ChatWidget() {
             <p className="font-bold text-white leading-tight">
               Pansar AI Assistant
             </p>
-            <p className="text-xs text-green-100 flex items-center gap-1">
+            <p className="text-xs text-primary-100 flex items-center gap-1">
               <Sparkles size={10} /> Online — hamesha ready!
             </p>
           </div>
@@ -305,7 +305,7 @@ export default function ChatWidget() {
               <button
                 key={i}
                 onClick={() => sendMessage(qr.text)}
-                className="flex-shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-medium text-slate-600 hover:border-primary-400 hover:bg-green-50 hover:text-primary-500 transition-colors"
+                className="flex-shrink-0 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-medium text-slate-600 hover:border-primary-400 hover:bg-primary-50 hover:text-primary-500 transition-colors"
               >
                 {qr.label}
               </button>

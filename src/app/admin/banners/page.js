@@ -140,7 +140,7 @@ export default function BannersPage() {
           Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="h-52 animate-pulse rounded-2xl bg-slate-100"
+              className="h-52 animate-pulse rounded-2xl bg-slate-200"
             />
           ))
         ) : banners.length === 0 ? (
@@ -152,7 +152,7 @@ export default function BannersPage() {
           banners.map((b) => (
             <div
               key={b._id}
-              className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+              className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 shadow-sm"
             >
               <div className="relative aspect-video bg-slate-100">
                 {b.image?.url ? (
@@ -177,7 +177,7 @@ export default function BannersPage() {
                   </Badge>
                 </div>
               </div>
-              <div className="p-3">
+              <div className="p-3 h-full flex flex-col">
                 <p className="font-semibold text-slate-800 truncate">
                   {b.title || "Untitled Banner"}
                 </p>
@@ -191,7 +191,7 @@ export default function BannersPage() {
                     {b.link}
                   </p>
                 )}
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-auto flex items-center gap-2 pt-3">
                   <button
                     onClick={() => toggleStatus(b)}
                     className={`flex-1 rounded-lg py-1.5 text-xs font-medium transition-colors ${b.status === "active" ? "bg-primary-50 text-primary-700 hover:bg-red-100" : "bg-primary-50 text-primary-600 hover:bg-primary-100"}`}

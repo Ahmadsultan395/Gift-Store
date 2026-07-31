@@ -1,9 +1,35 @@
 "use client";
 import Link from "next/link";
-import { ShoppingCart, Heart, Package } from "lucide-react";
+import { ShoppingCart, Heart, Package, Star } from "lucide-react";
 import { useState, useEffect } from "react";
 import { wishlistApi } from "@/services/api";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+
+// ── Rating stars helper ────────────────────────────────────────────
+function StarRating({ rating = 0, count = 0 }) {
+  if (!rating || rating === 0) return null;
+  return (
+    <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <Star
+            key={i}
+            size={10}
+            className={
+              i <= Math.round(rating)
+                ? "fill-amber-400 text-amber-400"
+                : "text-slate-200"
+            }
+          />
+        ))}
+      </div>
+      <span className="text-[10px] text-slate-400">
+        {rating.toFixed(1)}
+        {count > 0 ? ` (${count})` : ""}
+      </span>
+    </div>
+  );
+}
 
 export default function ProductCard({ product }) {
   const { addToCart } = useWebsiteStore();
@@ -14,29 +40,29 @@ export default function ProductCard({ product }) {
     async function checkWishlist() {
       try {
         const data = await wishlistApi.get();
-
         const exists = data.some((item) => item._id === product._id);
-
         setWished(exists);
       } catch {}
     }
-
     checkWishlist();
   }, [product._id]);
 
   async function toggleWishlist(e) {
     e.preventDefault();
-
     try {
       const data = await wishlistApi.toggle(product._id);
-
       setWished(data?.added ?? false);
-
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (error) {
-      console.log(error);
       alert(error.message || "Something went wrong");
     }
+  }
+
+  function handleAddToCart(e) {
+    e.preventDefault();
+    addToCart(product, 1);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
   }
 
   const image = product.images?.[0]?.url;
@@ -60,6 +86,7 @@ export default function ProductCard({ product }) {
             <Package size={40} className="text-slate-200" />
           </div>
         )}
+
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {product.discountPercent > 0 && (
@@ -83,6 +110,7 @@ export default function ProductCard({ product }) {
             </span>
           )}
         </div>
+
         {/* Wishlist */}
         <button
           onClick={(e) => {
@@ -105,9 +133,14 @@ export default function ProductCard({ product }) {
             {product.category.name}
           </p>
         )}
+
         <p className="text-sm font-semibold text-slate-800 line-clamp-2 leading-snug">
           {product.name}
         </p>
+
+        {/* ⭐ Rating — avgRating aur reviewCount product se auto aata hai */}
+        <StarRating rating={product.avgRating} count={product.reviewCount} />
+
         <div className="mt-auto pt-2 flex items-center justify-between gap-2">
           <div>
             <p className="text-base font-bold text-primary-700">
@@ -120,14 +153,14 @@ export default function ProductCard({ product }) {
             )}
           </div>
           <button
-            onClick={() => addToCart(product, 1)}
+            onClick={handleAddToCart}
             disabled={isOutOfStock}
             className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-all ${
               added
                 ? "bg-primary-500 text-white scale-90"
                 : isOutOfStock
                   ? "bg-slate-100 text-slate-300 cursor-not-allowed"
-                  : "bg-green-50 text-primary-500 hover:bg-primary-500 hover:text-white"
+                  : "bg-primary-50 text-primary-500 hover:bg-primary-500 hover:text-white"
             }`}
           >
             <ShoppingCart size={15} />

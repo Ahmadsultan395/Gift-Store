@@ -41,7 +41,7 @@ export default function AdminLoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center px-4">
       {/* Background pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-green-500 opacity-5 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-primary-500 opacity-5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-blue-500 opacity-5 rounded-full blur-3xl" />
       </div>
 
@@ -49,12 +49,12 @@ export default function AdminLoginPage() {
         {/* Card */}
         <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
           {/* Top green banner */}
-          <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-8 text-center">
+          <div className="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-8 text-center">
             <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
               <Store size={28} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">Pansar Store</h1>
-            <p className="mt-1 text-green-100 text-sm">
+            <p className="mt-1 text-primary-100 text-sm">
               Admin Management Panel
             </p>
           </div>
@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
           {/* Form */}
           <div className="px-8 py-8">
             <div className="mb-6 flex items-center gap-2 text-slate-500 text-sm">
-              <ShieldCheck size={16} className="text-green-600" />
+              <ShieldCheck size={16} className="text-primary-600" />
               <span>Secure admin access only</span>
             </div>
 
@@ -85,7 +85,7 @@ export default function AdminLoginPage() {
                     placeholder="admin@pansarstore.com"
                     required
                     className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm outline-none
-                               focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-all"
+                               focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
                   />
                 </div>
               </div>
@@ -108,7 +108,7 @@ export default function AdminLoginPage() {
                     placeholder="••••••••"
                     required
                     className="w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-xl text-sm outline-none
-                               focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-all"
+                               focus:border-primary-500 focus:ring-2 focus:ring-primary-100 transition-all"
                   />
                   <button
                     type="button"
@@ -132,8 +132,8 @@ export default function AdminLoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold
-                           py-3 rounded-xl hover:from-green-700 hover:to-green-800 transition-all
+                className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold
+                           py-3 rounded-xl hover:from-primary-700 hover:to-primary-800 transition-all
                            disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
               >
                 {loading ? (

@@ -29,12 +29,15 @@ export default function NotificationsPage() {
     notifLoading,
     unreadCount,
     fetchNotifications,
+    fetchUnreadCount,
     markAllRead,
+    pagination,
   } = useAdminStore();
 
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+    fetchNotifications(1, 20);
+    fetchUnreadCount();
+  }, []);
 
   return (
     <div>
@@ -70,7 +73,7 @@ export default function NotificationsPage() {
               key={n._id}
               className={`flex items-start gap-4 rounded-xl border px-5 py-4 transition-colors ${
                 !n.isRead
-                  ? "border-green-200 bg-green-50"
+                  ? "border-primary-200 bg-primary-50"
                   : "border-slate-200 bg-white"
               }`}
             >
@@ -101,6 +104,31 @@ export default function NotificationsPage() {
           ))
         )}
       </div>
+
+      {pagination && pagination.totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-4">
+          <Button
+            disabled={pagination.page === 1}
+            onClick={() => fetchNotifications(pagination.page - 1, 20)}
+          >
+            Previous
+          </Button>
+
+          <span className="text-sm text-slate-500">
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+
+          <Button
+            disabled={pagination.page === pagination.totalPages}
+            onClick={() => {
+              console.log("CURRENT PAGINATION", pagination);
+              fetchNotifications(pagination.page + 1, 20);
+            }}
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

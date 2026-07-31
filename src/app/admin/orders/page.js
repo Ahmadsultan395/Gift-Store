@@ -14,6 +14,7 @@ const STATUS_OPTS = [
   "shipped",
   "delivered",
   "cancelled",
+  "refunded",
 ];
 const STATUS_COLOR = {
   pending: "yellow",
@@ -76,7 +77,7 @@ export default function OrdersPage() {
       <PageHeader title="Orders" subtitle="Website customer orders" />
 
       {/* Stats */}
-      <div className="mb-5 grid grid-cols-3 gap-4 sm:grid-cols-6">
+      <div className="mb-5 grid grid-cols-2  min-[450px]:grid-cols-3 gap-4 sm:grid-cols-6">
         {[
           ["Total", stats.total || 0, "slate"],
           ["Pending", stats.pending || 0, "yellow"],
@@ -88,7 +89,7 @@ export default function OrdersPage() {
           <button
             key={l}
             onClick={() => setSF(l === "Total" ? "" : l.toLowerCase())}
-            className={`rounded-xl border p-3 text-left transition-all hover:shadow-sm ${statusFilter === (l === "Total" ? "" : l.toLowerCase()) ? "border-green-400 bg-green-50" : "border-slate-200 bg-white"}`}
+            className={`rounded-xl border p-3 text-left transition-all hover:shadow-sm ${statusFilter === (l === "Total" ? "" : l.toLowerCase()) ? "border-primary-400 bg-primary-50" : "border-slate-200 bg-white"}`}
           >
             <p className="text-xs text-slate-400">{l}</p>
             <p className="mt-0.5 text-xl font-bold text-slate-800">{v}</p>
@@ -103,7 +104,7 @@ export default function OrdersPage() {
               {[1, 2, 3, 4].map((i) => (
                 <div
                   key={i}
-                  className="h-14 animate-pulse rounded-lg bg-slate-100"
+                  className="h-14 animate-pulse rounded-lg bg-slate-200"
                 />
               ))}
             </div>
@@ -139,7 +140,11 @@ export default function OrdersPage() {
                 {orders.map((o) => (
                   <tr
                     key={o._id}
-                    className="border-b border-slate-50 hover:bg-slate-50"
+                    className={`border-b border-slate-50 ${
+                      o.status === "refunded"
+                        ? "bg-red-50 hover:bg-red-100"
+                        : "hover:bg-slate-50"
+                    }`}
                   >
                     <td className="px-4 py-3 font-mono text-xs font-medium">
                       {o.orderNumber}
@@ -158,7 +163,7 @@ export default function OrdersPage() {
                     <td className="px-4 py-3 text-slate-600">
                       {o.items?.length}
                     </td>
-                    <td className="px-4 py-3 font-semibold text-green-700">
+                    <td className="px-4 py-3 font-semibold text-primary-700">
                       PKR {o.grandTotal?.toLocaleString()}
                     </td>
                     <td className="px-4 py-3">
@@ -178,8 +183,12 @@ export default function OrdersPage() {
                           onChange={(e) =>
                             handleStatusChange(o._id, e.target.value)
                           }
-                          disabled={updating}
-                          className="rounded-lg border border-slate-200 px-2 py-1 text-xs outline-none"
+                          disabled={updating || o.status === "refunded"}
+                          className={`rounded-lg border px-2 py-1 text-xs outline-none ${
+                            o.status === "refunded"
+                              ? "bg-red-100 text-red-700 cursor-not-allowed border-red-200"
+                              : "border-slate-200"
+                          }`}
                         >
                           {STATUS_OPTS.filter(Boolean).map((s) => (
                             <option key={s} value={s}>
@@ -272,7 +281,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Total</span>
-                    <span className="font-bold text-green-700">
+                    <span className="font-bold text-primary-700">
                       PKR {viewing.grandTotal?.toLocaleString()}
                     </span>
                   </div>
@@ -298,7 +307,7 @@ export default function OrdersPage() {
                       <td className="py-1.5 text-right text-slate-500">
                         {item.quantity}
                       </td>
-                      <td className="py-1.5 text-right font-medium text-green-700">
+                      <td className="py-1.5 text-right font-medium text-primary-700">
                         PKR {item.total?.toLocaleString()}
                       </td>
                     </tr>

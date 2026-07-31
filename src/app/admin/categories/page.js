@@ -119,88 +119,92 @@ export default function CategoriesPage() {
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-        {categoriesLoading ? (
-          <div className="space-y-3 p-5">
-            {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-12 animate-pulse rounded-lg bg-slate-100"
-              />
-            ))}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
-            <Tags size={40} className="opacity-30" />
-            <p className="text-sm">No categories found.</p>
-          </div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead className="border-b border-slate-100 bg-slate-50">
-              <tr>
-                {["#", "Name", "Slug", "Status", "Actions"].map((h) => (
-                  <th
-                    key={h}
-                    className={`px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((c, i) => (
-                <tr
-                  key={c._id}
-                  className="border-b border-slate-50 hover:bg-slate-50"
-                >
-                  <td className="px-5 py-3 text-slate-400">{i + 1}</td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      {c.image?.url ? (
-                        <img
-                          src={c.image.url}
-                          className="h-8 w-8 rounded-lg object-cover flex-shrink-0"
-                          alt=""
-                        />
-                      ) : (
-                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100">
-                          🛒
-                        </div>
-                      )}
-                      <span className="font-medium text-slate-800">
-                        {c.name}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-5 py-3 font-mono text-xs text-slate-400">
-                    {c.slug}
-                  </td>
-                  <td className="px-5 py-3">
-                    <Badge variant={c.status === "active" ? "green" : "slate"}>
-                      {c.status}
-                    </Badge>
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <div className="flex justify-end gap-1">
-                      <button
-                        onClick={() => openEdit(c)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
-                      >
-                        <Pencil size={15} />
-                      </button>
-                      <button
-                        onClick={() => setDel(c)}
-                        className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
-                      >
-                        <Trash2 size={15} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+        <div className="overflow-x-auto">
+          {categoriesLoading ? (
+            <div className="space-y-3 p-5">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-12 animate-pulse rounded-lg bg-slate-200"
+                />
               ))}
-            </tbody>
-          </table>
-        )}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 py-16 text-slate-400">
+              <Tags size={40} className="opacity-30" />
+              <p className="text-sm">No categories found.</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="border-b border-slate-100 bg-slate-50">
+                <tr>
+                  {["#", "Name", "Slug", "Status", "Actions"].map((h) => (
+                    <th
+                      key={h}
+                      className={`px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((c, i) => (
+                  <tr
+                    key={c._id}
+                    className="border-b border-slate-50 hover:bg-slate-50"
+                  >
+                    <td className="px-5 py-3 text-slate-400">{i + 1}</td>
+                    <td className="px-5 py-3">
+                      <div className="flex items-center gap-3">
+                        {c.image?.url ? (
+                          <img
+                            src={c.image.url}
+                            className="h-8 w-8 rounded-lg object-cover flex-shrink-0"
+                            alt=""
+                          />
+                        ) : (
+                          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-slate-100">
+                            🛒
+                          </div>
+                        )}
+                        <span className="font-medium text-slate-800">
+                          {c.name}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-3 font-mono text-xs text-slate-400">
+                      {c.slug}
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge
+                        variant={c.status === "active" ? "green" : "slate"}
+                      >
+                        {c.status}
+                      </Badge>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <div className="flex justify-end gap-1">
+                        <button
+                          onClick={() => openEdit(c)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => setDel(c)}
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
 
       <Modal

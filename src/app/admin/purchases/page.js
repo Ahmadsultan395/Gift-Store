@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  Eye,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
@@ -31,6 +32,9 @@ export default function PurchasesPage() {
   const [newPaid, setNewPaid] = useState("");
   const [payLoading, setPayLoading] = useState(false);
   const [toast, setToast] = useState(null);
+  const [viewPurchase, setViewPurchase] = useState(null);
+
+  console.log(viewPurchase);
 
   function showToast(msg, type = "success") {
     setToast({ msg, type });
@@ -66,13 +70,35 @@ export default function PurchasesPage() {
     }
   }
 
+  function openPayment(p) {
+    setPayModal(p);
+    setNewPaid(""); // ab ye current installment hai, purana cumulative paid nahi
+  }
+
   async function handlePayment() {
+    const alreadyPaid = payModal.amountPaid || 0;
+    const grandTotal = payModal.grandTotal || 0;
+    const balanceDue = grandTotal - alreadyPaid;
+    const installment = Number(newPaid);
+
+    if (!newPaid || isNaN(installment) || installment <= 0) {
+      return showToast("Enter a valid amount", "error");
+    }
+    if (installment > balanceDue) {
+      return showToast(
+        `Amount can't exceed balance due (PKR ${balanceDue.toLocaleString()})`,
+        "error",
+      );
+    }
+
+    const totalPaid = alreadyPaid + installment;
+
     setPayLoading(true);
     try {
       const res = await fetch(`/api/admin/purchases/${payModal._id}/payment`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amountPaid: Number(newPaid) }),
+        body: JSON.stringify({ amountPaid: totalPaid }),
       });
       const json = await res.json();
       if (!json.success) return showToast(json.message || "Failed", "error");
@@ -85,11 +111,6 @@ export default function PurchasesPage() {
     } finally {
       setPayLoading(false);
     }
-  }
-
-  function openPayment(p) {
-    setPayModal(p);
-    setNewPaid(p.amountPaid || 0);
   }
 
   const { purchases = [], stats = {}, pagination = {} } = data;
@@ -122,7 +143,7 @@ export default function PurchasesPage() {
         }
       />
 
-      <div className="mb-5 grid grid-cols-2 gap-4 md:grid-cols-5">
+      <div className="mb-5 grid grid-cols-1  min-[450px]:grid-cols-2 gap-4 md:grid-cols-5">
         {[
           {
             label: "Total Bills",
@@ -239,7 +260,7 @@ export default function PurchasesPage() {
                         PKR {(p.amountPaid || 0).toLocaleString()}
                       </td>
                       <td
-                        className={`px-4 py-3 font-semibold ${balance > 0 ? "text-red-600" : "text-green-600"}`}
+                        className={`px-4 py-3 font-semibold ${balance > 0 ? "text-red-600" : "text-primary-600"}`}
                       >
                         {balance > 0
                           ? `PKR ${balance.toLocaleString()}`
@@ -252,21 +273,28 @@ export default function PurchasesPage() {
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex justify-end gap-1">
+                          <button
+                            onClick={() => setViewPurchase(p)}
+                            title="View Details"
+                            className="rounded-lg p-1.5 text-slate-400 hover:bg-blue-50 hover:text-blue-600"
+                          >
+                            <Eye size={16} />
+                          </button>
                           {p.paymentStatus !== "paid" && (
                             <button
                               onClick={() => openPayment(p)}
                               title="Add Payment"
-                              className="rounded-lg p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600"
+                              className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-primary-600"
                             >
                               <CreditCard size={15} />
                             </button>
                           )}
-                          <button
+                          {/* <button
                             onClick={() => setDel(p)}
                             className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-red-600"
                           >
                             <Trash2 size={15} />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
@@ -302,6 +330,126 @@ export default function PurchasesPage() {
           </div>
         )}
       </div>
+
+      {/* View Payment Modal */}
+      <Modal
+        open={!!viewPurchase}
+        onClose={() => setViewPurchase(null)}
+        title="Purchase Details"
+        size="lg"
+      >
+        {viewPurchase && (
+          <div className="space-y-5">
+            {/* Summary */}
+            <div className="grid grid-cols-1  min-[450px]:grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 text-sm">
+              <div>
+                <p className="text-slate-400">Invoice</p>
+                <p className="font-semibold">{viewPurchase.invoiceNumber}</p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Date</p>
+                <p>
+                  {new Date(viewPurchase.purchaseDate).toLocaleDateString(
+                    "en-PK",
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Supplier</p>
+                <p>{viewPurchase.supplier?.name}</p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Phone</p>
+                <p>{viewPurchase.supplier?.phone || "-"}</p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Grand Total</p>
+                <p className="font-semibold text-primary-700">
+                  PKR {viewPurchase.grandTotal.toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Paid</p>
+                <p className="text-primary-600">
+                  PKR {(viewPurchase.amountPaid || 0).toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Remaining</p>
+                <p className="font-semibold text-red-600">
+                  PKR{" "}
+                  {(
+                    (viewPurchase.grandTotal || 0) -
+                    (viewPurchase.amountPaid || 0)
+                  ).toLocaleString()}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-slate-400">Status</p>
+                <Badge variant={PAY_COLOR[viewPurchase.paymentStatus]}>
+                  {viewPurchase.paymentStatus}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Items */}
+            <div>
+              <h3 className="mb-3 font-semibold text-slate-700">
+                Purchased Items
+              </h3>
+
+              <div className="overflow-x-auto rounded-xl border border-slate-200">
+                <table className="min-w-[400px] w-full text-sm">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Product</th>
+                      <th className="px-3 py-2 text-right">Qty</th>
+                      <th className="px-3 py-2 text-right">Rate</th>
+                      <th className="px-3 py-2 text-right">Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {viewPurchase.items?.map((item, i) => (
+                      <tr key={i} className="border-t">
+                        <td className="px-3 py-2">
+                          {item?.product?.name || "-"}
+                        </td>
+
+                        <td className="px-3 py-2 text-right">
+                          {item.quantity}
+                        </td>
+
+                        <td className="px-3 py-2 text-right">
+                          PKR {item.purchasePrice.toLocaleString()}
+                        </td>
+
+                        <td className="px-3 py-2 text-right font-medium">
+                          PKR {item.total.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end pt-2">
+              <Button variant="outline" onClick={() => setViewPurchase(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* Payment Modal */}
       <Modal
@@ -342,28 +490,39 @@ export default function PurchasesPage() {
                 </span>
               </div>
             </div>
+
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-700">
-                Total Amount Paid (PKR)
+                Amount Being Paid Now (PKR)
               </label>
               <input
                 type="number"
                 value={newPaid}
-                onChange={(e) => setNewPaid(e.target.value)}
-                max={payModal.grandTotal}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-green-500 focus:ring-1 focus:ring-green-100"
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const balanceDue =
+                    (payModal.grandTotal || 0) - (payModal.amountPaid || 0);
+                  if (val === "" || Number(val) <= balanceDue) {
+                    setNewPaid(val);
+                  }
+                }}
+                max={(payModal.grandTotal || 0) - (payModal.amountPaid || 0)}
+                className="w-full rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-100"
               />
               <p className="mt-1 text-xs text-slate-400">
-                Enter total cumulative amount paid (not just this installment)
+                Enter only this installment's amount — previous payments are
+                added automatically
               </p>
             </div>
             {newPaid > 0 && (
-              <div className="rounded-lg bg-green-50 px-3 py-2 text-sm">
+              <div className="rounded-lg bg-primary-50 px-3 py-2 text-sm">
                 <p className="text-primary-700 font-medium">
                   Remaining after this: PKR{" "}
                   {Math.max(
                     0,
-                    (payModal.grandTotal || 0) - Number(newPaid),
+                    (payModal.grandTotal || 0) -
+                      (payModal.amountPaid || 0) -
+                      Number(newPaid),
                   ).toLocaleString()}
                 </p>
               </div>

@@ -234,7 +234,7 @@ export default function ProductsPage() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-14 animate-pulse rounded-lg bg-slate-100"
+                  className="h-14 animate-pulse rounded-lg bg-slate-200"
                 />
               ))}
             </div>
@@ -321,7 +321,7 @@ export default function ProductsPage() {
                         {p.category?.name || "—"}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 whitespace-nowrap">
                           <Badge variant={stockBadge.color}>
                             {stockBadge.label}
                           </Badge>
@@ -354,7 +354,7 @@ export default function ProductsPage() {
                             </button>
                           </Link>
                           <Link href={`/admin/products/${p._id}/edit`}>
-                            <button className="rounded-lg p-1.5 text-slate-400 hover:bg-green-50 hover:text-green-600 transition-colors">
+                            <button className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                               <Pencil size={15} />
                             </button>
                           </Link>

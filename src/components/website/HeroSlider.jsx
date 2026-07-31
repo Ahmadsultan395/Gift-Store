@@ -130,7 +130,7 @@ export default function HeroSlider({ banners = [] }) {
         ))}
 
         {/* Dark diagonal overlay for text legibility */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+        {/* <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/60 via-black/30 to-transparent" /> */}
 
         {/* Floating delivery badge */}
         <div className="absolute right-6 top-6 z-30 hidden items-center gap-2 rounded-full border border-primary/20 bg-accent px-4 py-2 backdrop-blur-md md:flex">

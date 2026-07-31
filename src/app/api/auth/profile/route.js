@@ -34,39 +34,39 @@ export async function GET() {
 export async function PUT(request) {
   try {
     const customer = await getCustomer();
-    if (!customer) return unauthorized("Login karein");
+    if (!customer) return unauthorized("Please login");
 
     const body = await request.json();
     const { name, phone, email, currentPassword, newPassword } = body;
 
     // ── Change Password ─────────────────────────────────────────
     if (newPassword) {
-      if (!currentPassword) return fail("Current password enter karein");
+      if (!currentPassword) return fail("Please enter your current password");
       if (newPassword.length < 6)
-        return fail("New password kam az kam 6 characters ka hona chahiye");
+        return fail("New password must be at least 6 characters long");
 
       const customerWithPass = await Customer.findById(customer._id).select(
         "+password",
       );
       if (!customerWithPass.password)
         return fail(
-          "Aapka account password se register nahi hua — Google ya OTP se aya hai",
+          "Your account was not registered with a password — it was created using Google or OTP",
         );
 
       const isMatch = await comparePassword(
         currentPassword,
         customerWithPass.password,
       );
-      if (!isMatch) return fail("Current password ghalat hai");
+      if (!isMatch) return fail("Current password is incorrect");
 
       customerWithPass.password = await hashPassword(newPassword);
       await customerWithPass.save();
-      return ok(null, "Password change ho gaya!");
+      return ok(null, "Password changed successfully!");
     }
 
     // ── Update Profile Info ─────────────────────────────────────
-    if (!name?.trim()) return fail("Naam zaroori hai");
-    if (!phone?.trim()) return fail("Phone zaroori hai");
+    if (!name?.trim()) return fail("Name is required");
+    if (!phone?.trim()) return fail("Phone is required");
 
     // Check if phone already used by someone else
     if (phone !== customer.phone) {
@@ -76,7 +76,7 @@ export async function PUT(request) {
       });
       if (phoneExists)
         return fail(
-          "Yeh phone number already kisi aur account pe registered hai",
+          "This phone number is already registered with another account",
         );
     }
 
@@ -86,7 +86,7 @@ export async function PUT(request) {
         email: email.toLowerCase(),
         _id: { $ne: customer._id },
       });
-      if (emailExists) return fail("Yeh email already use ho rahi hai");
+      if (emailExists) return fail("This email is already in use");
     }
 
     customer.name = name.trim();
@@ -100,7 +100,7 @@ export async function PUT(request) {
         phone: customer.phone,
         email: customer.email || "",
       },
-      "Profile update ho gaya!",
+      "Profile updated successfully!",
     );
   } catch (e) {
     return serverError(e);

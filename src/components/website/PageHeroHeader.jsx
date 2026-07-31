@@ -65,7 +65,7 @@ export default function PageHeroHeader({
         )}
 
         {eyebrow && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-300/40 bg-primary-300/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-[#C8F08A] backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-300/40 bg-primary-300/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary-300 backdrop-blur-sm">
             {eyebrow}
           </span>
         )}

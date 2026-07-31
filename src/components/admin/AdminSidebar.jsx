@@ -18,15 +18,21 @@ import {
   Ticket,
   BarChart3,
   Settings,
-  LogOut,
   Image as ImageIcon,
+  Mail as MailIcon,
+  MessageSquareQuote,
+  Star,
   Store,
   ChevronDown,
   ChevronRight,
   X,
+  LogOut,
+  RotateCcw,
+  Megaphone,
+  UserRound,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Mail } from "lucide-react";
 import Image from "next/image";
 
 const navGroups = [
@@ -42,6 +48,7 @@ const navGroups = [
       },
     ],
   },
+
   {
     label: "Inventory",
     items: [
@@ -51,6 +58,7 @@ const navGroups = [
       { href: "/admin/inventory", label: "Inventory", icon: ClipboardCheck },
     ],
   },
+
   {
     label: "Purchases & Sales",
     items: [
@@ -58,8 +66,10 @@ const navGroups = [
       { href: "/admin/purchases", label: "Purchases", icon: Receipt },
       { href: "/admin/sales", label: "Sales History", icon: ClipboardList },
       { href: "/admin/orders", label: "Website Orders", icon: ShoppingCart },
+      { href: "/admin/refunds", label: "Refunds", icon: Truck },
     ],
   },
+
   {
     label: "People",
     items: [
@@ -67,14 +77,32 @@ const navGroups = [
       { href: "/admin/expenses", label: "Expenses", icon: Wallet },
     ],
   },
+
   {
     label: "Marketing",
     items: [
       { href: "/admin/coupons", label: "Coupons", icon: Ticket },
       { href: "/admin/banners", label: "Banners & Offers", icon: ImageIcon },
-      { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+      { href: "/admin/newsletter", label: "Newsletter", icon: MailIcon },
+      {
+        href: "/admin/testimonials",
+        label: "Testimonials",
+        icon: MessageSquareQuote,
+      },
     ],
   },
+
+  {
+    label: "Engagement",
+    items: [
+      {
+        href: "/admin/reviews",
+        label: "Product Reviews",
+        icon: Star,
+      },
+    ],
+  },
+
   {
     label: "System",
     items: [
@@ -185,7 +213,7 @@ export default function AdminSidebar({ settings, mobileOpen, onClose }) {
           <NavGroup
             key={group.label}
             group={group}
-            defaultOpen={i < 3}
+            // defaultOpen={i < 3}
             onNav={onClose}
           />
         ))}

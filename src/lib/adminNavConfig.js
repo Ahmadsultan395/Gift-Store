@@ -45,6 +45,7 @@ export const navGroups = [
       { href: "/admin/purchases", label: "Purchases", icon: Receipt },
       { href: "/admin/sales", label: "Sales History", icon: ClipboardList },
       { href: "/admin/orders", label: "Website Orders", icon: ShoppingCart },
+      { href: "/admin/refunds", label: "Refunds", icon: Receipt },
     ],
   },
   {

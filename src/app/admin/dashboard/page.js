@@ -27,6 +27,7 @@ import {
   ShoppingCart,
   Layers,
   TrendingDown,
+  RotateCcw,
 } from "lucide-react";
 import StatCard from "@/components/admin/StatCard";
 
@@ -59,7 +60,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-1 min-[450px]:grid-cols-2 gap-4 sm:grid-cols-4">
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="h-28 animate-pulse rounded-xl bg-slate-200" />
         ))}
@@ -69,99 +70,135 @@ export default function DashboardPage() {
 
   const s = data?.stats || {};
 
+  function exactFmt(n) {
+    if (!n) return "0";
+
+    return Number(n).toLocaleString("en-US");
+  }
   const statCards = [
     {
       label: "Today's Sales",
-      value: `PKR ${fmt(s.todaySales)}`,
+      value: `PKR ${fmt(s.todaySales || 0)}`,
+      exactValue: `PKR ${exactFmt(s.todaySales || 0)}`,
       icon: TrendingUp,
       color: "green",
-      sub: `${s.todaySalesCount} transactions`,
+      sub: `${s.todaySalesCount || 0} transactions`,
     },
     {
       label: "Monthly Sales",
-      value: `PKR ${fmt(s.monthlySales)}`,
+      value: `PKR ${fmt(s.monthlySales || 0)}`,
+      exactValue: `PKR ${exactFmt(s.monthlySales || 0)}`,
       icon: ShoppingBag,
       color: "blue",
     },
     {
       label: "Yearly Sales",
-      value: `PKR ${fmt(s.yearlySales)}`,
+      value: `PKR ${fmt(s.yearlySales || 0)}`,
+      exactValue: `PKR ${exactFmt(s.yearlySales || 0)}`,
       icon: TrendingDown,
       color: "purple",
     },
     {
       label: "Total Revenue",
-      value: `PKR ${fmt(s.totalRevenue)}`,
+      value: `PKR ${fmt(s.totalRevenue || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalRevenue || 0)}`,
       icon: DollarSign,
       color: "teal",
+    },
+    {
+      label: "Refunded Sales",
+      value: `PKR ${fmt(s.totalRefundedSales || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalRefundedSales || 0)}`,
+      icon: RotateCcw,
+      color: "red",
+      sub: `${s.refundedSalesCount || 0} sale(s)`,
+    },
+    {
+      label: "Refunded Orders",
+      value: `PKR ${fmt(s.totalRefundedOrders || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalRefundedOrders || 0)}`,
+      icon: RotateCcw,
+      color: "red",
+      sub: `${s.refundedOrdersCount || 0} order(s)`,
     },
 
     {
       label: "Total Purchase",
-      value: `PKR ${fmt(s.totalCost)}`,
+      value: `PKR ${fmt(s.totalCost || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalCost || 0)}`,
       icon: Package,
       color: "blue",
     },
     {
       label: "Paid Purchase",
-      value: `PKR ${fmt(s.totalPaid)}`,
+      value: `PKR ${fmt(s.totalPaid || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalPaid || 0)}`,
       icon: DollarSign,
       color: "green",
     },
 
     {
       label: "Purchase Due",
-      value: `PKR ${fmt(s.totalDue)}`,
+      value: `PKR ${fmt(s.totalDue || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalDue || 0)}`,
       icon: AlertTriangle,
       color: "red",
     },
 
     {
       label: "Total Expenses",
-      value: `PKR ${fmt(s.totalExpenses)}`,
+      value: `PKR ${fmt(s.totalExpenses || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalExpenses || 0)}`,
       icon: DollarSign,
       color: "red",
     },
 
     {
       label: "Total Profit",
-      value: `PKR ${fmt(s.totalProfit)}`,
+      value: `PKR ${fmt(s.totalProfit || 0)}`,
+      exactValue: `PKR ${exactFmt(s.totalProfit || 0)}`,
       icon: TrendingDown,
       color: s.totalProfit > 0 ? "green" : "red",
     },
     {
       label: "Total Orders",
       value: s.totalOrders,
+      exactValue: s.totalOrders,
       icon: ShoppingCart,
       color: "orange",
     },
     {
       label: "Pending Orders",
       value: s.pendingOrders,
+      exactValue: s.pendingOrders,
       icon: AlertTriangle,
       color: "yellow",
     },
     {
       label: "Delivered Orders",
       value: s.deliveredOrders,
+      exactValue: s.deliveredOrders,
       icon: TrendingUp,
       color: "green",
     },
     {
       label: "Total Products",
       value: s.totalProducts,
+      exactValue: s.totalProducts,
       icon: Package,
       color: "blue",
     },
     {
       label: "Total Customers",
       value: s.totalCustomers,
+      exactValue: s.totalCustomers,
       icon: Users,
       color: "purple",
     },
     {
       label: "Low Stock",
       value: s.lowStockProducts,
+      exactValue: s.lowStockProducts,
       icon: AlertTriangle,
       color: "yellow",
       sub: "Need restocking",
@@ -169,6 +206,7 @@ export default function DashboardPage() {
     {
       label: "Out of Stock",
       value: s.outOfStockProducts,
+      exactValue: s.outOfStockProducts,
       icon: XCircle,
       color: "red",
     },
@@ -184,7 +222,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 min-[450px]:grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
         {statCards.map((card) => (
           <StatCard key={card.label} {...card} />
         ))}

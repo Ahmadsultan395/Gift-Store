@@ -54,7 +54,7 @@ export const CategoryAndBrand = ({ categories, brands }) => {
                           {/* full circle glow behind */}
                           <div className="circle-glow absolute inset-0 rounded-full" />
                           {/* <div className="pulse-ring-idle absolute -inset-1 rounded-full border-2 border-primary-600" /> */}
-                          <div className="relative z-[1] flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-slate-100 bg-white shadow-sm sm:h-32 sm:w-32">
+                          <div className="relative z-[1] flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-slate-100 bg-primary-700 shadow-sm sm:h-32 sm:w-32">
                             {c.image?.url ? (
                               <img
                                 src={c.image.url}
@@ -96,7 +96,7 @@ export const CategoryAndBrand = ({ categories, brands }) => {
                           {/* full circle glow behind */}
                           <div className="circle-glow absolute inset-0 rounded-full" />
                           {/* <div className="pulse-ring-idle absolute -inset-1 rounded-full border-2 border-primary-600" /> */}
-                          <div className="relative z-[1] flex items-center justify-center overflow-hidden rounded-full border-2 border-slate-100 bg-white shadow-sm h-20 w-20 shrink-0 sm:h-32 sm:w-32">
+                          <div className="relative z-[1] flex items-center justify-center overflow-hidden rounded-full border-2 border-slate-100 bg-primary-700 shadow-sm h-20 w-20 shrink-0 sm:h-32 sm:w-32">
                             {b.logo?.url ? (
                               <img
                                 src={b.logo.url}
@@ -147,6 +147,27 @@ export const CategoryAndBrand = ({ categories, brands }) => {
               animation: brandSlide 50s linear infinite;
               padding-inline: 1rem;
             }
+
+            /* Full-bleed stays up to 1900px. Only above that (very
+               wide monitors) align with the rest of the page's
+               max-w-7xl container instead of stretching edge-to-edge */
+            @media (min-width: 1900px) {
+              .cat-slider-viewport,
+              .brand-slider-viewport {
+                width: 100%;
+                left: 0;
+                right: 0;
+                margin-left: 0;
+                margin-right: 0;
+                max-width: 80rem;
+                margin-inline: auto;
+              }
+              .cat-slider-track,
+              .brand-slider-track {
+                padding-inline: 1rem;
+              }
+            }
+
             .cat-slider-viewport:hover .cat-slider-track,
             .brand-slider-viewport:hover .brand-slider-track {
               animation-play-state: paused;
@@ -183,20 +204,6 @@ export const CategoryAndBrand = ({ categories, brands }) => {
                 transform: translateX(0);
               }
             }
-            /* @keyframes ringPulse {
-              0% {
-                transform: scale(0.9);
-                opacity: 0.7;
-              }
-              70% {
-                transform: scale(1.02);
-                opacity: 0;
-              }
-              100% {
-                transform: scale(1.05);
-                opacity: 0;
-              }
-            } */
             .pulse-ring-idle {
               animation: ringPulse 6s ease-out infinite;
             }

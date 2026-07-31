@@ -44,15 +44,27 @@ function fmt(n) {
   return n.toLocaleString();
 }
 
-function SummaryCard({ label, value, sub, color = "green", icon: Icon }) {
+function exactFmt(n) {
+  if (!n) return "0";
+  return Number(n).toLocaleString("en-US");
+}
+
+function SummaryCard({
+  label,
+  value,
+  exactValue,
+  sub,
+  color = "green",
+  icon: Icon,
+}) {
   const colors = {
-    green: "bg-green-50 text-green-700",
+    green: "bg-primary-50 text-primary-700",
     blue: "bg-blue-50 text-blue-700",
     red: "bg-red-50 text-red-700",
     orange: "bg-orange-50 text-orange-700",
   };
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <div className="group relative rounded-xl border border-slate-200 bg-white p-5">
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
@@ -67,6 +79,13 @@ function SummaryCard({ label, value, sub, color = "green", icon: Icon }) {
           </div>
         )}
       </div>
+
+      {exactValue && (
+        <div className="pointer-events-none absolute -top-2 left-1/2 z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover:opacity-100">
+          {exactValue}
+          <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
+        </div>
+      )}
     </div>
   );
 }
@@ -92,6 +111,8 @@ export default function ReportsPage() {
     fetchReport();
   }, [type]);
 
+  const s = data?.summary || {};
+
   function exportPDF() {
     if (!data) return;
 
@@ -110,6 +131,8 @@ export default function ReportsPage() {
         ["Total Revenue", `PKR ${fmt(s.totalRevenue)}`],
         ["POS Sales", `PKR ${fmt(s.totalSales)}`],
         ["Website Orders", `PKR ${fmt(s.totalOrders)}`],
+        ["Refunded Sales", `PKR ${fmt(s.totalRefundedSales)}`],
+        ["Refunded Orders", `PKR ${fmt(s.totalRefundedOrders)}`],
         ["Total Purchases", `PKR ${fmt(s.totalPurchases)}`],
         ["Paid Purchase", `PKR ${fmt(s.totalPaid)}`],
         ["Remaining Due", `PKR ${fmt(s.totalDue)}`],
@@ -120,8 +143,6 @@ export default function ReportsPage() {
 
     doc.save(`report-${type}.pdf`);
   }
-
-  const s = data?.summary || {};
 
   return (
     <div>
@@ -137,7 +158,7 @@ export default function ReportsPage() {
 
       {/* Period selector */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <div className="flex rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <div className="flex rounded-xl border border-slate-200 bg-white overflow-x-auto">
           {TYPES.map((t) => (
             <button
               key={t}
@@ -148,7 +169,7 @@ export default function ReportsPage() {
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <input
             type="date"
             value={from}
@@ -169,63 +190,87 @@ export default function ReportsPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-1 min-[450px]:grid-cols-2 gap-4 sm:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-xl bg-slate-100"
+              className="h-28 animate-pulse rounded-xl bg-slate-200"
             />
           ))}
         </div>
       ) : (
         <div className="space-y-6">
           {/* Summary cards */}
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-1 min-[450px]:grid-cols-2 gap-4 sm:grid-cols-4">
             <SummaryCard
               label="Total Revenue"
-              value={`PKR ${fmt(s.totalRevenue)}`}
+              value={`PKR ${fmt(s.totalRevenue)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalRevenue)}` || 0}
               color="green"
               icon={DollarSign}
             />
             <SummaryCard
               label="POS Sales"
-              value={`PKR ${fmt(s.totalSales)}`}
+              value={`PKR ${fmt(s.totalSales)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalSales)}` || 0}
               color="blue"
               icon={TrendingUp}
               sub={`${s.totalSalesTxn} transactions`}
             />
             <SummaryCard
               label="Website Orders"
-              value={`PKR ${fmt(s.totalOrders)}`}
+              value={`PKR ${fmt(s.totalOrders)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalOrders)}` || 0}
               color="orange"
               icon={ShoppingBag}
               sub={`${s.totalOrdersTxn} orders`}
             />
             <SummaryCard
+              label="Refunded Sales"
+              value={`PKR ${fmt(s.totalRefundedSales)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalRefundedSales)}` || 0}
+              color="red"
+              sub={`${s.refundedSalesCount || 0} refunds`}
+            />
+
+            <SummaryCard
+              label="Refunded Orders"
+              value={`PKR ${fmt(s.totalRefundedOrders)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalRefundedOrders)}` || 0}
+              color="red"
+              sub={`${s.refundedOrdersCount || 0} refunds`}
+            />
+
+            <SummaryCard
               label="Total Profit"
-              value={`PKR ${fmt(s.totalProfit)}`}
+              value={`PKR ${fmt(s.totalProfit)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalProfit)}` || 0}
               color={s.totalProfit >= 0 ? "green" : "red"}
               icon={s.totalProfit >= 0 ? TrendingUp : TrendingDown}
             />
             <SummaryCard
               label="Purchases Cost"
-              value={`PKR ${fmt(s.totalPurchases)}`}
+              value={`PKR ${fmt(s.totalPurchases)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalPurchases)}` || 0}
               color="blue"
             />
             <SummaryCard
               label="Purchase Paid"
-              value={`PKR ${fmt(s.totalPaid)}`}
+              value={`PKR ${fmt(s.totalPaid)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalPaid)}` || 0}
               color="green"
             />
 
             <SummaryCard
               label="Purchase Due"
-              value={`PKR ${fmt(s.totalDue)}`}
+              value={`PKR ${fmt(s.totalDue)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalDue)}` || 0}
               color="red"
             />
             <SummaryCard
               label="Total Expenses"
-              value={`PKR ${fmt(s.totalExpenses)}`}
+              value={`PKR ${fmt(s.totalExpenses)}` || 0}
+              exactValue={`PKR ${exactFmt(s.totalExpenses)}` || 0}
               color="red"
             />
             <SummaryCard
@@ -330,7 +375,7 @@ export default function ReportsPage() {
                         <td className="py-2 text-right text-slate-600">
                           {p.qty}
                         </td>
-                        <td className="py-2 text-right font-semibold text-green-700">
+                        <td className="py-2 text-right font-semibold text-primary-700">
                           PKR {fmt(p.revenue)}
                         </td>
                       </tr>
