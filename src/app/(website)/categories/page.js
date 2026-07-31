@@ -11,7 +11,7 @@ export default function CategoriesPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const PER_PAGE = 5;
+  const PER_PAGE = 10;
 
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(search.toLowerCase()),
