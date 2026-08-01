@@ -13,20 +13,42 @@ import {
 
 // ── Quick reply options ─────────────────────────────────────────────
 const QUICK_REPLIES = [
+  { label: "🚚 Delivery Time", text: "Delivery kitne din mein hoti hai?" },
+  { label: "💳 Payment", text: "Payment ke kya options hain?" },
+  { label: "📦 Track Order", text: "Main apna order kaise track karun?" },
+  { label: "🔄 Return", text: "Return policy kya hai?" },
+  { label: "📞 Contact", text: "Store ka contact number kya hai?" },
+  { label: "🏷️ Offers", text: "Koi discount ya special offer hai?" },
+
   {
-    label: "🚚 Delivery kitne din mein?",
-    text: "Delivery kitne din mein hoti hai?",
+    label: "🛒 Order Kaise Karein?",
+    text: "Website se order kaise place karun?",
   },
-  { label: "💰 Payment kaise karein?", text: "Payment ke kya options hain?" },
+  { label: "📍 Store Address", text: "Store ka address kya hai?" },
+  { label: "💸 Delivery Charges", text: "Delivery charges kitne hain?" },
+  { label: "🚀 Free Delivery", text: "Free delivery kis order par milti hai?" },
+  { label: "🏦 Bank Transfer", text: "Bank transfer available hai?" },
+  { label: "💵 Cash on Delivery", text: "Cash on Delivery available hai?" },
+  { label: "📦 Product Available?", text: "Ye product stock mein hai?" },
+  { label: "❌ Order Cancel", text: "Order cancel kaise kar sakta hoon?" },
+  { label: "🔁 Exchange", text: "Product exchange ho sakta hai?" },
+  { label: "📄 Invoice", text: "Invoice kaise milega?" },
+  { label: "🧾 Bulk Order", text: "Bulk order par discount milta hai?" },
+  { label: "🌿 Organic Products", text: "Organic products available hain?" },
+  { label: "🧂 Best Selling", text: "Best selling products kaun se hain?" },
+  { label: "⭐ New Arrivals", text: "New products kaun se aaye hain?" },
+  { label: "📅 Delivery Today", text: "Kya same day delivery available hai?" },
+  { label: "🌍 Other Cities", text: "Doosre cities mein delivery hoti hai?" },
+  { label: "📲 WhatsApp", text: "WhatsApp support available hai?" },
+  { label: "🕒 Working Hours", text: "Store timing kya hai?" },
+  { label: "🎁 Gift Packing", text: "Gift packing available hai?" },
+  { label: "🧺 Categories", text: "Store mein kaun kaun si categories hain?" },
+  { label: "🥜 Dry Fruits", text: "Dry fruits available hain?" },
+  { label: "🌾 Spices", text: "Masalay aur herbs available hain?" },
+  { label: "📋 Minimum Order", text: "Minimum order amount kitna hai?" },
   {
-    label: "📦 Order track karein",
-    text: "Main apna order kaise track karun?",
-  },
-  { label: "🔄 Return policy kya hai?", text: "Return policy kya hai?" },
-  { label: "📞 Contact number?", text: "Store ka contact number kya hai?" },
-  {
-    label: "🏷️ Discount / Offers?",
-    text: "Koi discount ya special offer hai?",
+    label: "🤝 Customer Support",
+    text: "Customer support se kaise baat karun?",
   },
 ];
 
@@ -301,7 +323,7 @@ export default function ChatWidget() {
         {/* Quick replies row — always visible at bottom */}
         {messages.length > 1 && (
           <div className="flex gap-2 overflow-x-auto border-t border-slate-100 bg-white px-3 py-2 flex-shrink-0 scrollbar-hide">
-            {QUICK_REPLIES.slice(0, 4).map((qr, i) => (
+            {QUICK_REPLIES.map((qr, i) => (
               <button
                 key={i}
                 onClick={() => sendMessage(qr.text)}

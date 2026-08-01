@@ -118,6 +118,12 @@ const SettingsSchema = new mongoose.Schema(
       returnPolicy: String,
       announcement: String,
     },
+    faqs: [
+      {
+        question: { type: String, trim: true },
+        answer: { type: String, trim: true },
+      },
+    ],
   },
   { timestamps: true },
 );

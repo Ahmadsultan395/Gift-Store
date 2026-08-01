@@ -128,6 +128,7 @@ export default function Navbar() {
     { href: "/about", label: "About" },
     { href: "/products", label: "Products" },
     { href: "/categories", label: "Categories" },
+    { href: "/faq", label: "Faqs" },
   ];
 
   const isActive = (href) => {

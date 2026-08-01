@@ -196,11 +196,11 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   ["cod", "💵 Cash on Delivery", "Pay when your order arrives"],
-                  [
-                    "bank_transfer",
-                    "🏦 Bank Transfer",
-                    "Transfer to our account before delivery",
-                  ],
+                  // [
+                  //   "bank_transfer",
+                  //   "🏦 Bank Transfer",
+                  //   "Transfer to our account before delivery",
+                  // ],
                 ].map(([v, l, d]) => (
                   <label
                     key={v}

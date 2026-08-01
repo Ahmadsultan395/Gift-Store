@@ -60,11 +60,13 @@ function FeaturedCard({ t, onClick, visible }) {
   return (
     <div
       onClick={() => onClick(t)}
-      className={`group relative col-span-1 row-span-2 flex cursor-pointer flex-col justify-between overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-br from-primary-50/60 to-white p-8 shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-2xl hover:shadow-primary-200/60 sm:col-span-2 ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+      className={`group relative col-span-1 row-span-2 flex cursor-pointer flex-col justify-between overflow-hidden rounded-[28px] border border-primary-200/70 bg-gradient-to-br from-primary-50/70 to-white p-8 shadow-lg shadow-primary-100/60 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-2xl hover:shadow-primary-200/70 sm:col-span-2 ${
+        visible
+          ? "translate-y-0 scale-100 opacity-100"
+          : "translate-y-6 scale-[0.97] opacity-0"
       }`}
     >
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-primary-400 via-teal-400 to-primary-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-primary-400 via-teal-400 to-primary-500 opacity-70 transition-opacity duration-300 group-hover:opacity-100" />
 
       <Quote
         className="pointer-events-none absolute -right-4 -top-4 text-primary-100 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
@@ -101,8 +103,10 @@ function CompactCard({ t, onClick, visible, delay = 0 }) {
     <div
       onClick={() => onClick(t)}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
-      className={`group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm transition-all duration-500 ease-out hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-xl hover:shadow-primary-200/50 ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+      className={`group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-primary-50/30 p-5 shadow-md shadow-slate-200/70 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-xl hover:shadow-primary-200/60 ${
+        visible
+          ? "translate-y-0 scale-100 opacity-100"
+          : "translate-y-6 scale-[0.97] opacity-0"
       }`}
     >
       <div className="pointer-events-none absolute inset-0 z-10 flex scale-95 items-center justify-center bg-primary-600/20 opacity-0 backdrop-blur-[1px] transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">
@@ -110,7 +114,7 @@ function CompactCard({ t, onClick, visible, delay = 0 }) {
           Click to view the comment
         </span>
       </div>
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary-400 to-teal-500 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-primary-400 to-teal-500 opacity-40 transition-opacity duration-300 group-hover:opacity-100" />
 
       <div>
         <div className="flex items-center justify-between">

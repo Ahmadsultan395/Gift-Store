@@ -20,7 +20,7 @@ const quickLinks = [
   ["Products", "/products"],
   ["Cart", "/cart"],
   ["My Orders", "/account/orders"],
-  // ["Contact", "/contact"],
+  ["Faqs", "/faq"],
 ];
 
 const policies = [

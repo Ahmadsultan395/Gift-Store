@@ -82,7 +82,15 @@ YOUR RULES:
 7. For placing orders, guide them to the website's Products page
 8. Never make up prices — only use prices from the product list above
 9. If asked in Roman Urdu (e.g. "kya hal hai", "price kya hai"), respond in Roman Urdu
-10. Sign off helpfully — always offer to help with anything else`;
+10. Sign off helpfully — always offer to help with anything else
+11. Answer questions about delivery, payment, returns, exchange, cancellation, refund, shipping, timings and contact details.
+12. Use the store information from Settings whenever possible.
+13. Recommend similar products if an item is unavailable.
+14. Never make up prices or stock.
+15. If you don't know something, politely ask the customer to contact the store.
+16. Keep replies short and professional.
+17. Answer using the store policies provided above.
+18. End every reply by asking if the customer needs anything else.`;
 }
 
 export async function POST(request) {
@@ -214,6 +222,37 @@ function getFallbackReply(message = "") {
     msg.includes("thank")
   ) {
     return "Shukriya! Apki madad karke khushi hui 😊 Koi aur sawaal ho to zaroor poochhein!";
+  }
+  if (msg.includes("address") || msg.includes("location")) {
+    return "Store ka address Contact page par available hai. 📍";
+  }
+
+  if (msg.includes("timing") || msg.includes("hours")) {
+    return "Store timings Contact page par available hain. 🕒";
+  }
+
+  if (msg.includes("whatsapp")) {
+    return "WhatsApp support available hai. 📲";
+  }
+
+  if (msg.includes("email")) {
+    return "Email support available hai. 📧";
+  }
+
+  if (msg.includes("cancel")) {
+    return "Packed hone se pehle order cancel kiya ja sakta hai. ❌";
+  }
+
+  if (msg.includes("exchange")) {
+    return "7 din ke andar exchange available hai. 🔄";
+  }
+
+  if (msg.includes("invoice") || msg.includes("bill")) {
+    return "Invoice har order ke sath provide kiya jata hai. 🧾";
+  }
+
+  if (msg.includes("bulk")) {
+    return "Bulk orders ke liye support se rabta karein. 📦";
   }
 
   return "Main samjha nahi. Kya aap thoda aur detail mein bata sakte hain? Ya call karein — hum hamesha ready hain! 😊";
