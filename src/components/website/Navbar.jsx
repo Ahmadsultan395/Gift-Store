@@ -128,6 +128,7 @@ export default function Navbar() {
     { href: "/about", label: "About" },
     { href: "/products", label: "Products" },
     { href: "/categories", label: "Categories" },
+    { href: "/contact", label: "Contact" },
     { href: "/faq", label: "Faqs" },
   ];
 

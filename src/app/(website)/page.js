@@ -8,9 +8,8 @@ import ProductShowCase from "@/components/website/ProductShowCase";
 import { WhyChooseUS } from "@/components/website/WhyChooseUS";
 import StatsBanner from "@/components/website/StatsBanner";
 import TestimonialsSection from "@/components/website/TestimonialsSection";
-import TestimonialForm from "@/components/website/TestimonialForm";
-import FaqSection from "@/components/website/FaqSection";
 import FaqHomeSection from "@/components/website/FaqHomeSection";
+import HomeContactSection from "@/components/website/HomeContactSection";
 
 export default function HomePage() {
   const {
@@ -66,6 +65,7 @@ export default function HomePage() {
         <TestimonialsSection />
         {/* <TestimonialForm /> */}
         <FaqHomeSection />
+        <HomeContactSection />
 
         <NewsletterSection />
       </div>

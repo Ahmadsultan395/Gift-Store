@@ -10,6 +10,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
+import { useWebsiteStore } from "@/stores/useWebsiteStore";
 
 // ── Quick reply options ─────────────────────────────────────────────
 const QUICK_REPLIES = [
@@ -19,7 +20,6 @@ const QUICK_REPLIES = [
   { label: "🔄 Return", text: "Return policy kya hai?" },
   { label: "📞 Contact", text: "Store ka contact number kya hai?" },
   { label: "🏷️ Offers", text: "Koi discount ya special offer hai?" },
-
   {
     label: "🛒 Order Kaise Karein?",
     text: "Website se order kaise place karun?",
@@ -103,6 +103,7 @@ function MessageBubble({ msg }) {
 
 // ── Main Chat Widget ────────────────────────────────────────────────
 export default function ChatWidget() {
+  const { storeSettings, fetchStoreSettings } = useWebsiteStore();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -112,13 +113,20 @@ export default function ChatWidget() {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
+  const storeName = storeSettings?.storeName || "Store";
+
+  // Load store settings once (storeName used in header/welcome/footer below)
+  useEffect(() => {
+    fetchStoreSettings();
+  }, [fetchStoreSettings]);
+
   // Welcome message on first open
   useEffect(() => {
     if (open && messages.length === 0) {
       setMessages([
         {
           role: "bot",
-          text: "Assalam o Alaikum! 👋 Main Pansar Store ka AI assistant hoon.\n\nMain aapki help kar sakta hoon:\n• Product prices & availability\n• Order tracking & delivery\n• Return & payment info\n• Aur bhi kuch bhi!\n\nKya poochna chahenge? 😊",
+          text: `Assalam o Alaikum! 👋 Main ${storeName} ka AI assistant hoon.\n\nMain aapki help kar sakta hoon:\n• Product prices & availability\n• Order tracking & delivery\n• Return & payment info\n• Aur bhi kuch bhi!\n\nKya poochna chahenge? 😊`,
           time: nowTime(),
         },
       ]);
@@ -127,7 +135,8 @@ export default function ChatWidget() {
       setUnread(0);
       setTimeout(() => inputRef.current?.focus(), 300);
     }
-  }, [open]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, storeName]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -255,8 +264,8 @@ export default function ChatWidget() {
             <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-primary-500 bg-primary-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-white leading-tight">
-              Pansar AI Assistant
+            <p className="truncate font-bold text-white leading-tight">
+              {storeName} AI Assistant
             </p>
             <p className="text-xs text-primary-100 flex items-center gap-1">
               <Sparkles size={10} /> Online — hamesha ready!
@@ -369,7 +378,7 @@ export default function ChatWidget() {
         {/* Footer */}
         <div className="bg-white px-3 pb-2 text-center flex-shrink-0">
           <p className="text-[9px] text-slate-300">
-            Powered by AI • Pansar Store
+            Powered by AI • {storeName}
           </p>
         </div>
       </div>

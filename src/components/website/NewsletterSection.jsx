@@ -313,7 +313,7 @@ export default function NewsletterSection() {
         }
 
         .border-glow-hard {
-          padding: 1.5px;
+          padding: 10px;
           -webkit-mask:
             linear-gradient(#fff 0 0) content-box,
             linear-gradient(#fff 0 0);

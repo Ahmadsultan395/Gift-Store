@@ -24,6 +24,7 @@ import {
   Mail as MailIcon,
   MessageSquareQuote,
   Star,
+  MessageSquare,
 } from "lucide-react";
 
 // Same pages as sidebar — flat list for searching
@@ -44,6 +45,7 @@ const PAGES = [
   { href: "/admin/coupons", label: "Coupons", icon: Ticket },
   { href: "/admin/banners", label: "Banners & Offers", icon: ImageIcon },
   { href: "/admin/newsletter", label: "Newsletter", icon: MailIcon },
+  { href: "/admin/messages", label: "Messages", icon: MessageSquare },
   {
     href: "/admin/testimonials",
     label: "Testimonials",

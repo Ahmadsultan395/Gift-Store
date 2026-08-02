@@ -6,14 +6,20 @@ import { ok, fail, serverError } from "@/lib/apiResponse";
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
 /**
- * Build system prompt with live store context
+ * Fetch live store settings + top products once, shared by both the
+ * AI system prompt and the rule-based fallback — so storeName, phone,
+ * address, currency, and delivery charges are always real, never
+ * hardcoded placeholder text.
  */
-async function buildSystemPrompt() {
+async function getStoreInfo() {
   let storeInfo = {
-    storeName: "Pansar Store",
+    storeName: "Our Store",
     phone: "",
     address: "",
     shippingCharges: 150,
+    currency: "PKR",
+    returnPolicy: "",
+    privacyPolicy: "",
   };
   let topProducts = [];
 
@@ -22,17 +28,16 @@ async function buildSystemPrompt() {
     const settings = await Settings.findOne();
     if (settings) {
       storeInfo = {
-        storeName: settings.storeName || "Pansar Store",
-        phone: settings.phone || "0300-0000000",
-        address: settings.address || "Main Bazaar",
-        shippingCharges: settings.shippingCharges || 150,
+        storeName: settings.storeName || "Our Store",
+        phone: settings.phone || "",
+        address: settings.address || "",
+        shippingCharges: settings.shippingCharges ?? 150,
         currency: settings.currency || "PKR",
         returnPolicy: settings.cms?.returnPolicy || "",
         privacyPolicy: settings.cms?.privacyPolicy || "",
       };
     }
 
-    // Get top 20 active products for context
     topProducts = await Product.find({ status: "active" })
       .select("name sellingPrice stock unit category")
       .populate("category", "name")
@@ -43,6 +48,13 @@ async function buildSystemPrompt() {
     console.error("Chat context error:", e.message);
   }
 
+  return { storeInfo, topProducts };
+}
+
+/**
+ * Build system prompt with live store context
+ */
+function buildSystemPrompt(storeInfo, topProducts) {
   const productList =
     topProducts.length > 0
       ? topProducts
@@ -59,7 +71,7 @@ STORE INFORMATION:
 - Store Name: ${storeInfo.storeName}
 - Phone: ${storeInfo.phone || "Contact admin"}
 - Address: ${storeInfo.address || "See website"}
-- Delivery Charges: PKR ${storeInfo.shippingCharges} (Free on orders above PKR 2000)
+- Delivery Charges: PKR ${storeInfo.shippingCharges} (Free on orders above PKR 5000)
 - Currency: ${storeInfo.currency || "PKR"}
 - Payment Methods: Cash on Delivery (COD), Bank Transfer
 - Delivery Time: Same day in local area, 2-3 days for other cities
@@ -67,9 +79,19 @@ STORE INFORMATION:
 AVAILABLE PRODUCTS (top items):
 ${productList}
 
+WEBSITE SECTIONS (mention these when relevant):
+- Categories page: browse all product categories
+- Products page: search/filter all products, place orders here
+- Customer Reviews: see and write verified customer reviews
+- Newsletter: subscribe on the homepage for exclusive deals and early access to new arrivals
+- Wishlist: save favorite products from a product's page
+- FAQs page: common questions are also answered on the dedicated FAQs page
+
 POLICIES:
 - Returns: Products can be returned within 7 days if unused and in original packaging
 - Order Cancellation: Can be cancelled before "packed" status
+- Exchange: available within 7 days, same conditions as returns
+- Invoice: provided automatically with every order
 - For complaints: Call on store phone or send WhatsApp message
 
 YOUR RULES:
@@ -80,31 +102,29 @@ YOUR RULES:
 5. Keep responses SHORT — max 3-4 sentences unless a detailed answer is needed
 6. Use emojis naturally to seem friendly 😊
 7. For placing orders, guide them to the website's Products page
-8. Never make up prices — only use prices from the product list above
+8. Never make up prices, stock, or store details — only use the information provided above
 9. If asked in Roman Urdu (e.g. "kya hal hai", "price kya hai"), respond in Roman Urdu
-10. Sign off helpfully — always offer to help with anything else
-11. Answer questions about delivery, payment, returns, exchange, cancellation, refund, shipping, timings and contact details.
-12. Use the store information from Settings whenever possible.
-13. Recommend similar products if an item is unavailable.
-14. Never make up prices or stock.
-15. If you don't know something, politely ask the customer to contact the store.
-16. Keep replies short and professional.
-17. Answer using the store policies provided above.
-18. End every reply by asking if the customer needs anything else.`;
+10. Recommend similar products (from the list above) if an item is unavailable
+11. Answer questions about delivery, payment, returns, exchange, cancellation, refund, shipping, timings and contact details using the store information above
+12. If you genuinely don't know something, politely direct the customer to call or WhatsApp the store phone number above
+13. Sign off helpfully — always offer to help with anything else`;
 }
 
 export async function POST(request) {
   try {
-    if (!ANTHROPIC_API_KEY) {
-      // Fallback if no API key — smart rule-based responses
-      const { message } = await request.json();
-      return ok({ reply: getFallbackReply(message) });
-    }
+    const body = await request.json();
+    const message = body.message;
+    const history = body.history || [];
 
-    const { message, history = [] } = await request.json();
     if (!message?.trim()) return fail("Message is required");
 
-    const systemPrompt = await buildSystemPrompt();
+    const { storeInfo, topProducts } = await getStoreInfo();
+
+    if (!ANTHROPIC_API_KEY) {
+      return ok({ reply: getFallbackReply(message, storeInfo) });
+    }
+
+    const systemPrompt = buildSystemPrompt(storeInfo, topProducts);
 
     // Build conversation history for Claude
     const messages = [
@@ -133,9 +153,7 @@ export async function POST(request) {
     if (!response.ok) {
       const err = await response.text();
       console.error("Claude API error:", err);
-      // Fallback to rule-based
-      const { message: msg } = await request.json().catch(() => ({ message }));
-      return ok({ reply: getFallbackReply(message) });
+      return ok({ reply: getFallbackReply(message, storeInfo) });
     }
 
     const data = await response.json();
@@ -155,25 +173,152 @@ export async function POST(request) {
 }
 
 /**
- * Rule-based fallback when no API key is set
+ * Rule-based fallback when no API key is set (or the AI call fails).
+ *
+ * IMPORTANT — ordering: checks go from MOST specific phrase to LEAST
+ * specific. Generic words like "hai", "available", "kya" appear in
+ * almost every Urdu/Roman-Urdu sentence, so they must never be used
+ * as a stand-alone match condition near the top — that was the bug
+ * causing unrelated questions (contact, address, timing, WhatsApp,
+ * bulk orders, COD...) to all fall into the "stock" reply. Every
+ * condition below requires a genuinely distinguishing keyword.
  */
-function getFallbackReply(message = "") {
+function getFallbackReply(message = "", storeInfo = {}) {
   const msg = message.toLowerCase();
+  const name = storeInfo.storeName || "Hamara store";
+  const phone = storeInfo.phone;
+  const address = storeInfo.address;
+  const shippingCharges = storeInfo.shippingCharges ?? 150;
+  const currency = storeInfo.currency || "PKR";
+
+  // ── Greeting (checked early — distinct, common opener) ──
+  if (
+    msg.includes("assalam") ||
+    msg.includes("salam") ||
+    /\bhi\b/.test(msg) ||
+    /\bhello\b/.test(msg) ||
+    msg.includes("helo")
+  ) {
+    return `Assalam o Alaikum! 👋 ${name} mein khush aamdeed! Main aapki kya madad kar sakta hoon?`;
+  }
+
+  // ── Ordering flow ──
+  if (
+    msg.includes("kaise place") || // was: msg.includes("order kaise")
+    msg.includes("order place") ||
+    msg.includes("place order")
+  ) {
+    return "Website ke Products page se item choose karein, cart mein add karein, aur checkout par apni detail bhar kar order place kar dein — bohat asaan hai! 🛒";
+  }
 
   if (
-    msg.includes("price") ||
-    msg.includes("qeemat") ||
-    msg.includes("rate") ||
-    msg.includes("cost")
+    msg.includes("new arrival") ||
+    msg.includes("naye product") ||
+    msg.includes("new product") // added
   ) {
-    return "Prices ke liye humari Products page visit karein ya store pe call karein. Hum best rates guarantee karte hain! 💰";
+    return "New arrivals homepage par sab se pehle dikhaye jate hain — zaroor check karein! ⭐";
+  }
+
+  // ── Delivery ──
+  if (msg.includes("free delivery")) {
+    return `Free delivery PKR 5000 se zyada ke order par milti hai! Us se kam order par PKR ${shippingCharges} delivery charges lagtay hain 🚚`;
+  }
+  if (msg.includes("delivery charge") || msg.includes("shipping charge")) {
+    return `Delivery charges PKR ${shippingCharges} hain, aur PKR 5000+ ke order par ye free ho jate hain! 🚚`;
+  }
+  if (msg.includes("same day")) {
+    return "Ji haan, local area mein same day delivery available hai! 📅";
   }
   if (
-    msg.includes("order") ||
-    msg.includes("track") ||
-    msg.includes("delivery")
+    msg.includes("other cit") ||
+    msg.includes("doosre cit") ||
+    msg.includes("doosray shehar")
   ) {
-    return "Apna order track karne ke liye 'My Orders' section mein jayein ya apna order number share karein. Delivery 1-3 working days mein hoti hai! 🚚";
+    return "Ji haan, hum tamam Pakistan mein deliver karte hain — doosre shehron mein 2-3 working days lagte hain 🌍";
+  }
+
+  // ── Payment (moved above the generic delivery catch-all — "Cash on
+  // Delivery" contains the word "delivery" and was matching there first) ──
+  if (msg.includes("bank transfer")) {
+    return "Ji haan, Bank Transfer available hai — order ke waqt ye option choose kar sakte hain 🏦";
+  }
+  if (msg.includes("cash on delivery") || msg.includes("cod")) {
+    return "Ji haan, Cash on Delivery (COD) available hai — delivery pe cash mein payment kar sakte hain! 💵";
+  }
+  if (msg.includes("payment")) {
+    return "Hum Cash on Delivery (COD) aur Bank Transfer accept karte hain. COD mein delivery pe payment karein! 💵";
+  }
+  if (msg.includes("currency")) {
+    return `Hamari saari prices ${currency} mein hain 💱`;
+  }
+
+  // ── Generic delivery catch-all — now safely LAST in this group ──
+  if (
+    msg.includes("delivery") ||
+    msg.includes("shipping") ||
+    msg.includes("kitne din")
+  ) {
+    return "Local area mein same day delivery hoti hai, doosre shehron ke liye 2-3 working days lagte hain! 🚚";
+  }
+  // ── Payment ──
+  if (msg.includes("bank transfer")) {
+    return "Ji haan, Bank Transfer available hai — order ke waqt ye option choose kar sakte hain 🏦";
+  }
+  if (msg.includes("cash on delivery") || msg.includes("cod")) {
+    return "Ji haan, Cash on Delivery (COD) available hai — delivery pe cash mein payment kar sakte hain! 💵";
+  }
+  if (msg.includes("payment")) {
+    return "Hum Cash on Delivery (COD) aur Bank Transfer accept karte hain. COD mein delivery pe payment karein! 💵";
+  }
+  if (msg.includes("currency")) {
+    return `Hamari saari prices ${currency} mein hain 💱`;
+  }
+
+  // ── Bulk / minimum order ──
+  if (msg.includes("minimum order")) {
+    return "Filhaal koi minimum order amount required nahi hai — chota ya bara, jitna chahein order kar sakte hain 📋";
+  }
+  if (msg.includes("bulk")) {
+    return `Bulk order par acha discount milta hai — is ke liye humein ${phone ? `${phone} par` : "direct"} call karein 🧾`;
+  }
+
+  // ── Gift / special ──
+  if (msg.includes("gift pack")) {
+    return "Gift packing available hai — order ke waqt note mein mention kar dein 🎁";
+  }
+
+  // ── Product categories ──
+  if (msg.includes("organic")) {
+    return "Ji haan, humare paas organic products bhi available hain — Categories page se dekh sakte hain 🌿";
+  }
+  if (msg.includes("dry fruit")) {
+    return "Ji haan, dry fruits ki wide range available hai — Products page pe 'Dry Fruits' category check karein 🥜";
+  }
+  if (msg.includes("spice") || msg.includes("masal") || msg.includes("herb")) {
+    return "Ji haan, masalay aur herbs available hain — Categories mein dekh sakte hain 🌾";
+  }
+  if (msg.includes("categor")) {
+    return "Aap humari Categories page se saari product categories browse kar sakte hain — top menu mein 'Categories' pe click karein 🧺";
+  }
+  if (msg.includes("best sell")) {
+    return "Best selling products aap Products page par 'Popular' ya 'Best Selling' filter se dekh sakte hain 🧂";
+  }
+  if (msg.includes("new arrival") || msg.includes("naye product")) {
+    return "New arrivals homepage par sab se pehle dikhaye jate hain — zaroor check karein! ⭐";
+  }
+  if (msg.includes("stock") || msg.includes("product available")) {
+    return "Product availability ke liye search mein product ka naam likhein — stock ka status wahan show hoga! ✅";
+  }
+
+  // ── Orders / invoice / cancel / exchange / return ──
+  if (msg.includes("invoice") || msg.includes("bill")) {
+    return "Invoice har order ke sath automatically provide kiya jata hai 🧾";
+  }
+  if (msg.includes("exchange")) {
+    return "7 din ke andar, unused aur original packaging mein product exchange available hai 🔄";
+  }
+  if (msg.includes("cancel")) {
+    return "Order 'packed' status se pehle cancel kiya ja sakta hai. 'Contact lain' humein call karein ❌";
   }
   if (
     msg.includes("return") ||
@@ -182,25 +327,51 @@ function getFallbackReply(message = "") {
   ) {
     return "Aap 7 din ke andar product return kar sakte hain agar wo unused aur original packaging mein ho. Store pe contact karein! 📦";
   }
-  if (msg.includes("payment") || msg.includes("paisa") || msg.includes("cod")) {
-    return "Hum Cash on Delivery (COD) aur Bank Transfer accept karte hain. COD mein delivery pe payment karein! 💵";
+  if (msg.includes("track")) {
+    return "Apna order track karne ke liye 'My Orders' section mein jayein ya apna order number share karein 🚚";
+  }
+  if (msg.includes("order")) {
+    return "Order se related kisi bhi madad ke liye 'My Orders' section check karein ya order number share karein 📦";
+  }
+
+  // ── Support channels ──
+  if (msg.includes("whatsapp")) {
+    return phone
+      ? `WhatsApp support available hai — ${phone} par message karein 📲`
+      : "WhatsApp support available hai — number footer mein diya gaya hai 📲";
+  }
+  if (msg.includes("email")) {
+    return "Email support bhi available hai — detail footer mein di gayi hai 📧";
+  }
+  if (msg.includes("customer support")) {
+    return phone
+      ? `Customer support se ${phone} par call ya WhatsApp kar sakte hain 🤝`
+      : "Customer support se contact page ke zariye rabta kar sakte hain 🤝";
   }
   if (
-    msg.includes("hello") ||
-    msg.includes("hi") ||
-    msg.includes("assalam") ||
-    msg.includes("salam") ||
-    msg.includes("helo")
+    msg.includes("timing") ||
+    msg.includes("hours") ||
+    msg.includes("khulta")
   ) {
-    return "Assalam o Alaikum! 👋 Pansar Store mein khush aamdeed! Main aapki kya madad kar sakta hoon?";
+    return "Store timings Contact page par available hain 🕒";
+  }
+  if (msg.includes("address") || msg.includes("location")) {
+    return address
+      ? `Hamara address: ${address} 📍`
+      : "Store ka address Contact page par available hai 📍";
   }
   if (
-    msg.includes("stock") ||
-    msg.includes("available") ||
-    msg.includes("hai")
+    msg.includes("contact") ||
+    msg.includes("phone") ||
+    msg.includes("number") ||
+    msg.includes("call")
   ) {
-    return "Product availability ke liye search mein product ka naam likhein — stock ka status wahan show hoga! ✅";
+    return phone
+      ? `Aap hamein ${phone} par call ya WhatsApp kar sakte hain 📞`
+      : "Aap hamein call ya WhatsApp kar sakte hain. Contact details footer mein hain! 📞";
   }
+
+  // ── Discounts / pricing ──
   if (
     msg.includes("discount") ||
     msg.includes("sale") ||
@@ -209,13 +380,15 @@ function getFallbackReply(message = "") {
     return "Hamare Flash Sale section mein best discounts milti hain! Homepage pe jakar check karein 🔥";
   }
   if (
-    msg.includes("contact") ||
-    msg.includes("phone") ||
-    msg.includes("number") ||
-    msg.includes("call")
+    msg.includes("price") ||
+    msg.includes("qeemat") ||
+    msg.includes("rate") ||
+    msg.includes("cost")
   ) {
-    return "Aap hamein call kar sakte hain ya WhatsApp message bhej sakte hain. Contact details footer mein hain! 📞";
+    return "Prices ke liye humari Products page visit karein ya store pe call karein. Hum best rates guarantee karte hain! 💰";
   }
+
+  // ── Thanks ──
   if (
     msg.includes("thanks") ||
     msg.includes("shukriya") ||
@@ -223,37 +396,6 @@ function getFallbackReply(message = "") {
   ) {
     return "Shukriya! Apki madad karke khushi hui 😊 Koi aur sawaal ho to zaroor poochhein!";
   }
-  if (msg.includes("address") || msg.includes("location")) {
-    return "Store ka address Contact page par available hai. 📍";
-  }
 
-  if (msg.includes("timing") || msg.includes("hours")) {
-    return "Store timings Contact page par available hain. 🕒";
-  }
-
-  if (msg.includes("whatsapp")) {
-    return "WhatsApp support available hai. 📲";
-  }
-
-  if (msg.includes("email")) {
-    return "Email support available hai. 📧";
-  }
-
-  if (msg.includes("cancel")) {
-    return "Packed hone se pehle order cancel kiya ja sakta hai. ❌";
-  }
-
-  if (msg.includes("exchange")) {
-    return "7 din ke andar exchange available hai. 🔄";
-  }
-
-  if (msg.includes("invoice") || msg.includes("bill")) {
-    return "Invoice har order ke sath provide kiya jata hai. 🧾";
-  }
-
-  if (msg.includes("bulk")) {
-    return "Bulk orders ke liye support se rabta karein. 📦";
-  }
-
-  return "Main samjha nahi. Kya aap thoda aur detail mein bata sakte hain? Ya call karein — hum hamesha ready hain! 😊";
+  return `Main samjha nahi. Kya aap thoda aur detail mein bata sakte hain? Ya${phone ? ` ${phone} par` : ""} call karein — hum hamesha ready hain! 😊`;
 }

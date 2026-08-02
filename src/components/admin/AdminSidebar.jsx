@@ -27,6 +27,7 @@ import {
   ChevronRight,
   X,
   LogOut,
+  MessageSquare,
   RotateCcw,
   Megaphone,
   UserRound,
@@ -100,6 +101,7 @@ const navGroups = [
         label: "Product Reviews",
         icon: Star,
       },
+      { href: "/admin/messages", label: "Messages", icon: MessageSquare },
     ],
   },
 
