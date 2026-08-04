@@ -44,6 +44,7 @@ export default function ReviewsAdminPage() {
   const [rejectNote, setRejectNote] = useState("");
   const [toast, setToast] = useState(null);
   const [search, setSearch] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
 
   function showToast(msg, type = "success") {
     setToast({ msg, type });
@@ -101,7 +102,7 @@ export default function ReviewsAdminPage() {
     setDeleting(true);
     try {
       await fetch(`/api/admin/reviews/${del._id}`, { method: "DELETE" });
-      showToast("Review delete ho gaya");
+      showToast("Review delete Successfully");
       setDel(null);
       fetchData();
     } catch {
@@ -226,6 +227,12 @@ export default function ReviewsAdminPage() {
                       <p className="text-xs text-slate-500 truncate">
                         {r.comment || "—"}
                       </p>
+                      {r.images?.length > 0 && (
+                        <p className="mt-1 text-[11px] font-medium text-primary-600">
+                          📷 {r.images.length} photo
+                          {r.images.length > 1 ? "s" : ""}
+                        </p>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
                       {new Date(r.createdAt).toLocaleDateString("en-PK", {
@@ -354,6 +361,35 @@ export default function ReviewsAdminPage() {
                 {viewing.comment}
               </p>
             )}
+
+            {viewing.images?.length > 0 && (
+              <div>
+                <p className="mb-2 text-sm font-semibold text-slate-700">
+                  Customer Photos ({viewing.images.length})
+                </p>
+
+                <div className="flex flex-wrap gap-2">
+                  {viewing.images.map((img, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setPreviewImage(img.url)}
+                      className="group relative"
+                    >
+                      <img
+                        src={img.url}
+                        alt=""
+                        className="h-20 w-20 rounded-xl border border-slate-200 object-cover transition group-hover:opacity-80"
+                      />
+
+                      <div className="absolute inset-0 hidden items-center justify-center rounded-xl bg-black/30 group-hover:flex">
+                        <Eye size={18} className="text-white" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <p className="text-xs text-slate-400">
               {new Date(viewing.createdAt).toLocaleString("en-PK")}
             </p>
@@ -401,6 +437,19 @@ export default function ReviewsAdminPage() {
           </div>
         )}
       </Modal>
+
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-5"
+          onClick={() => setPreviewImage(null)}
+        >
+          <img
+            src={previewImage}
+            alt=""
+            className="max-h-[90vh] max-w-[90vw] rounded-2xl object-contain shadow-2xl"
+          />
+        </div>
+      )}
 
       <ConfirmDialog
         open={!!del}

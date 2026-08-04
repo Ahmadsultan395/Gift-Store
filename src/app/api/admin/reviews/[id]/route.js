@@ -1,65 +1,68 @@
 import connectDB from "@/lib/db";
 import Review from "@/models/Review";
-import Product from "@/models/Product";
-import { ok, notFound, fail, serverError } from "@/lib/apiResponse";
+import { deleteImage } from "@/lib/cloudinaryDelete";
+import { ok, fail, serverError } from "@/lib/apiResponse";
 
-// Recalculate product avg rating from approved reviews
-async function updateProductRating(productId) {
-  const approved = await Review.find({
-    product: productId,
-    status: "approved",
-  });
-  const count = approved.length;
-  const avg =
-    count > 0 ? approved.reduce((s, r) => s + r.rating, 0) / count : 0;
-
-  await Product.findByIdAndUpdate(productId, {
-    avgRating: Math.round(avg * 10) / 10,
-    reviewCount: count,
-  });
-}
-
-// PUT — approve or reject
+// UPDATE STATUS (Approve / Reject)
 export async function PUT(request, { params }) {
   try {
     await connectDB();
+
+    const { id } = params;
+
     const { status, adminNote } = await request.json();
 
-    if (!["approved", "rejected"].includes(status)) {
-      return fail("Status must be either 'approved' or 'rejected");
+    if (!["pending", "approved", "rejected"].includes(status)) {
+      return fail("Invalid status");
     }
 
-    const review = await Review.findByIdAndUpdate(
-      params.id,
-      { status, adminNote: adminNote || "" },
-      { new: true },
-    )
-      .populate("product", "name")
-      .populate("customer", "name");
+    const review = await Review.findById(id);
 
-    if (!review) return notFound("Review not found");
+    if (!review) {
+      return fail("Review not found", 404);
+    }
 
-    // Recalculate product rating
-    await updateProductRating(review.product._id);
+    review.status = status;
+    review.adminNote = adminNote || "";
 
-    return ok(review, `Review ${status} successfully`);
-  } catch (e) {
-    return serverError(e);
+    await review.save();
+
+    return ok(review, `Review ${status}`);
+  } catch (error) {
+    console.error("Update review error:", error);
+
+    return serverError(error);
   }
 }
 
-// DELETE — remove review permanently
-export async function DELETE(_, { params }) {
+// DELETE
+export async function DELETE(request, { params }) {
   try {
     await connectDB();
-    const review = await Review.findByIdAndDelete(params.id);
-    if (!review) return notFound("Review not found");
 
-    // Recalculate rating after delete
-    await updateProductRating(review.product);
+    const { id } = params;
+
+    const review = await Review.findById(id);
+
+    if (!review) {
+      return fail("Review not found", 404);
+    }
+
+    // Delete Cloudinary images
+    if (review.images?.length) {
+      for (const img of review.images) {
+        if (img?.publicId) {
+          await deleteImage(img.publicId);
+        }
+      }
+    }
+
+    await Review.findByIdAndDelete(id);
 
     return ok(null, "Review deleted successfully");
-  } catch (e) {
-    return serverError(e);
+  } catch (error) {
+    console.error("Delete review error:", error);
+
+    return serverError(error);
   }
 }

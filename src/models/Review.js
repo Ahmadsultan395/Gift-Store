@@ -12,20 +12,38 @@ const ReviewSchema = new mongoose.Schema(
       ref: "Customer",
       required: true,
     },
-    rating:  { type: Number, min: 1, max: 5, required: true },
-    title:   { type: String, trim: true },
+    rating: { type: Number, min: 1, max: 5, required: true },
+    title: { type: String, trim: true },
     comment: { type: String, trim: true },
-    status:  {
+    images: {
+      type: [
+        {
+          url: {
+            type: String,
+            required: true,
+          },
+          publicId: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
+      default: [],
+      validate: {
+        validator: (arr) => arr.length <= 5,
+        message: "Maximum 5 images allowed per review",
+      },
+    },
+    status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
-    adminNote: String, // rejection reason
+    adminNote: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-// One review per customer per product
 ReviewSchema.index({ product: 1, customer: 1 }, { unique: true });
 ReviewSchema.index({ product: 1, status: 1 });
 

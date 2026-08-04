@@ -1,9 +1,18 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
-import { Star, ThumbsUp, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Star,
+  ThumbsUp,
+  ChevronLeft,
+  ChevronRight,
+  ImagePlus,
+  X,
+  Pencil,
+} from "lucide-react";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 
 const REVIEWS_PER_PAGE = 3;
+const MAX_IMAGES = 5;
 
 function StarPicker({ value, onChange, size = 28 }) {
   const [hover, setHover] = useState(0);
@@ -76,14 +85,19 @@ export default function ReviewSection({ productId }) {
   const [breakdown, setBreakdown] = useState({ 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
   const [pagination, setPagination] = useState({ page: 1, pages: 1 });
   const [loading, setLoading] = useState(true);
+  const [myReview, setMyReview] = useState(null);
 
   // Form
+  const [isEditing, setIsEditing] = useState(false);
   const [rating, setRating] = useState(0);
   const [title, setTitle] = useState("");
   const [comment, setComment] = useState("");
+  const [images, setImages] = useState([]);
+  const [uploadingCount, setUploadingCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formError, setFormError] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
 
   const fetchReviews = useCallback(
     async (page = 1) => {
@@ -100,6 +114,7 @@ export default function ReviewSection({ productId }) {
           setAvgRating(json.data.avgRating || 0);
           setBreakdown(json.data.breakdown || { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 });
           setPagination(json.data.pagination || { page: 1, pages: 1 });
+          setMyReview(json.data.myReview || null);
         }
       } catch {
       } finally {
@@ -113,26 +128,121 @@ export default function ReviewSection({ productId }) {
     fetchReviews(1);
   }, [fetchReviews]);
 
+  // FIXED: each file uploads independently (Promise.all), so one failed
+  // file no longer silently kills the rest of the batch. Live spinner
+  // tiles show while uploads are in-flight.
+  async function handleImagesChange(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    const remaining = MAX_IMAGES - images.length - uploadingCount;
+
+    if (remaining <= 0) {
+      setFormError(`Maximum ${MAX_IMAGES} images allowed`);
+      e.target.value = "";
+      return;
+    }
+
+    const filesToUpload = files.slice(0, remaining);
+    setFormError("");
+    setUploadingCount((c) => c + filesToUpload.length);
+
+    await Promise.all(
+      filesToUpload.map(async (file) => {
+        try {
+          const fd = new FormData();
+          fd.append("file", file);
+          fd.append("folder", "reviews");
+
+          const res = await fetch("/api/admin/upload", {
+            method: "POST",
+            body: fd,
+          });
+
+          const json = await res.json();
+
+          if (json.success) {
+            setImages((prev) => [
+              ...prev,
+              {
+                url: json.data.url,
+                publicId: json.data.publicId,
+              },
+            ]);
+          } else {
+            setFormError(
+              json.message ||
+                "Kuch images upload nahi ho sakin, dobara try karein",
+            );
+          }
+        } catch {
+          setFormError("Kuch images upload nahi ho sakin, dobara try karein");
+        } finally {
+          setUploadingCount((c) => c - 1);
+        }
+      }),
+    );
+
+    e.target.value = "";
+  }
+
+  function removeImage(index) {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function startEdit() {
+    setRating(myReview.rating);
+    setTitle(myReview.title || "");
+    setComment(myReview.comment || "");
+    setImages(myReview.images || []);
+    setFormError("");
+    setSubmitted(false);
+    setIsEditing(true);
+  }
+
+  function cancelEdit() {
+    setIsEditing(false);
+    setRating(0);
+    setTitle("");
+    setComment("");
+    setImages([]);
+    setFormError("");
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setFormError("");
+    if (uploadingCount > 0)
+      return setFormError(
+        "Images abhi upload ho rahi hain, thora intezar karein",
+      );
     if (!rating) return setFormError("Please select a star rating");
     if (!comment.trim()) return setFormError("Please write a comment");
 
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/products/${productId}/reviews`, {
-        method: "POST",
+      const isUpdating = isEditing && myReview;
+      const url = isUpdating
+        ? `/api/products/${productId}/reviews/${myReview._id}`
+        : `/api/products/${productId}/reviews`;
+      const method = isUpdating ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating, title, comment }),
+        body: JSON.stringify({ rating, title, comment, images }),
       });
       const json = await res.json();
       if (!json.success)
         return setFormError(json.message || "Submission failed");
+
       setSubmitted(true);
+      setIsEditing(false);
       setRating(0);
       setTitle("");
       setComment("");
+      setImages([]);
+      fetchReviews(pagination.page); // myReview refresh
     } catch {
       setFormError("Network error — please try again");
     } finally {
@@ -143,7 +253,6 @@ export default function ReviewSection({ productId }) {
   function goToPage(p) {
     if (p < 1 || p > pagination.pages) return;
     fetchReviews(p);
-    // Scroll to reviews section
     document
       .getElementById("reviews-section")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -176,7 +285,6 @@ export default function ReviewSection({ productId }) {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* ── LEFT: Summary + Reviews List ──────────────────── */}
         <div className="lg:col-span-2">
-          {/* Rating Summary */}
           {total > 0 && (
             <div className="mb-6 rounded-2xl border border-slate-100 bg-white p-5">
               <div className="flex items-center gap-6">
@@ -201,7 +309,6 @@ export default function ReviewSection({ productId }) {
             </div>
           )}
 
-          {/* Reviews */}
           {loading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -254,11 +361,21 @@ export default function ReviewSection({ productId }) {
                         {r.comment}
                       </p>
                     )}
+                    <div className="flex flex-wrap gap-2">
+                      {r.images?.map((img, i) => (
+                        <img
+                          key={i}
+                          src={img.url}
+                          alt=""
+                          onClick={() => setPreviewImage(img.url)}
+                          className="h-16 w-16 cursor-pointer rounded-lg object-cover border border-slate-200 hover:opacity-80"
+                        />
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
 
-              {/* ── Pagination ─────────────────────────────── */}
               {pagination.pages > 1 && (
                 <div className="mt-6 flex items-center justify-between">
                   <p className="text-xs text-slate-400">
@@ -273,8 +390,6 @@ export default function ReviewSection({ productId }) {
                     >
                       <ChevronLeft size={16} />
                     </button>
-
-                    {/* Page numbers */}
                     <div className="flex gap-1">
                       {Array.from({ length: pagination.pages }, (_, i) => i + 1)
                         .filter(
@@ -311,7 +426,6 @@ export default function ReviewSection({ productId }) {
                           ),
                         )}
                     </div>
-
                     <button
                       onClick={() => goToPage(pagination.page + 1)}
                       disabled={pagination.page === pagination.pages}
@@ -326,11 +440,9 @@ export default function ReviewSection({ productId }) {
           )}
         </div>
 
-        {/* ── RIGHT: Submit Form ─────────────────────────────── */}
+        {/* ── RIGHT: Submit / Edit Form ─────────────────────────────── */}
         <div>
           <div className="sticky top-24 rounded-2xl border border-slate-200 bg-white p-6">
-            <h3 className="mb-4 font-bold text-slate-800">Write a Review</h3>
-
             {!customer ? (
               <div className="rounded-xl bg-slate-50 p-5 text-center">
                 <Star
@@ -350,13 +462,61 @@ export default function ReviewSection({ productId }) {
                   Login to Review
                 </a>
               </div>
+            ) : myReview && !isEditing && !submitted ? (
+              // Customer's existing review — view + edit button
+              <div>
+                <h3 className="mb-3 font-bold text-slate-800">Your Review</h3>
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <div className="flex items-center justify-between">
+                    <StarDisplay rating={myReview.rating} size={16} />
+                    <span
+                      className={`text-[11px] font-semibold uppercase ${
+                        myReview.status === "approved"
+                          ? "text-green-600"
+                          : myReview.status === "pending"
+                            ? "text-amber-600"
+                            : myReview.status === "rejected"
+                              ? "text-red-600"
+                              : "text-slate-500"
+                      }`}
+                    >
+                      {myReview.status}
+                    </span>
+                  </div>
+                  {myReview.title && (
+                    <p className="mt-2 text-sm font-semibold text-slate-800">
+                      {myReview.title}
+                    </p>
+                  )}
+                  <p className="mt-1 text-sm text-slate-600">
+                    {myReview.comment}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {myReview.images?.map((img, i) => (
+                      <img
+                        key={i}
+                        src={img.url}
+                        alt=""
+                        onClick={() => setPreviewImage(img.url)}
+                        className="h-14 w-14 cursor-pointer rounded-lg object-cover border border-slate-200"
+                      />
+                    ))}
+                  </div>
+                </div>
+                <button
+                  onClick={startEdit}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-700 hover:border-primary-400 hover:text-primary-600"
+                >
+                  <Pencil size={14} /> Edit Review
+                </button>
+              </div>
             ) : submitted ? (
               <div className="flex flex-col items-center gap-3 rounded-xl bg-green-50 p-8 text-center">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
                   <ThumbsUp size={24} className="text-green-600" />
                 </div>
                 <p className="font-semibold text-green-800">
-                  Review Submitted!
+                  {isEditing ? "Review Updated!" : "Review Submitted!"}
                 </p>
                 <p className="text-sm text-green-600">
                   It will appear after admin approval.
@@ -364,6 +524,10 @@ export default function ReviewSection({ productId }) {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                <h3 className="font-bold text-slate-800">
+                  {isEditing ? "Edit Your Review" : "Write a Review"}
+                </h3>
+
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Your Rating *
@@ -401,29 +565,111 @@ export default function ReviewSection({ productId }) {
                   />
                 </div>
 
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Photos (optional, max {MAX_IMAGES})
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {images.map((img, i) => (
+                      <div key={img.publicId || i} className="relative">
+                        <img
+                          src={img.url}
+                          alt=""
+                          onClick={() => setPreviewImage(img.url)}
+                          className="h-16 w-16 cursor-pointer rounded-lg object-cover border border-slate-200 hover:opacity-80"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(i)}
+                          className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+
+                    {Array.from({ length: uploadingCount }).map((_, i) => (
+                      <div
+                        key={`uploading-${i}`}
+                        className="flex h-16 w-16 items-center justify-center rounded-lg border border-slate-200 bg-slate-50"
+                      >
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-500 border-t-transparent" />
+                      </div>
+                    ))}
+
+                    {images.length + uploadingCount < MAX_IMAGES && (
+                      <label
+                        className={`flex h-16 w-16 items-center justify-center rounded-lg border-2 border-dashed text-slate-400 ${
+                          uploadingCount > 0
+                            ? "cursor-not-allowed border-slate-200 opacity-50"
+                            : "cursor-pointer border-slate-300 hover:border-primary-400 hover:text-primary-500"
+                        }`}
+                      >
+                        <ImagePlus size={18} />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          disabled={uploadingCount > 0}
+                          onChange={handleImagesChange}
+                          className="hidden"
+                        />
+                      </label>
+                    )}
+                  </div>
+                </div>
+
                 {formError && (
                   <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
                     {formError}
                   </p>
                 )}
 
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary-600 py-3 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-60 transition-colors"
-                >
-                  {submitting ? (
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  ) : (
-                    <Star size={15} />
+                <div className="flex gap-2">
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      className="flex-1 rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
                   )}
-                  {submitting ? "Submitting..." : "Submit Review"}
-                </button>
+                  <button
+                    type="submit"
+                    disabled={submitting || uploadingCount > 0}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary-600 py-3 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-60 transition-colors"
+                  >
+                    {submitting ? (
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    ) : (
+                      <Star size={15} />
+                    )}
+                    {submitting
+                      ? "Saving..."
+                      : uploadingCount > 0
+                        ? "Uploading images..."
+                        : isEditing
+                          ? "Update Review"
+                          : "Submit Review"}
+                  </button>
+                </div>
               </form>
             )}
           </div>
         </div>
       </div>
+      {previewImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setPreviewImage(null)}
+        >
+          <img
+            src={previewImage}
+            className="max-h-[90vh] max-w-[90vw] rounded-xl"
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,34 +1,34 @@
-import connectDB from "@/lib/db";
+import connectDB   from "@/lib/db";
 import Testimonial from "@/models/Testimonial";
-import { ok, serverError } from "@/lib/apiResponse";
+import { ok, notFound, fail, serverError } from "@/lib/apiResponse";
 
-// PATCH — toggle show/hide
+// PATCH — approve or reject
 export async function PATCH(request, { params }) {
   try {
     await connectDB();
-    const { id } = params;
-    const body = await request.json();
+    const { status, adminNote } = await request.json();
+
+    if (!["approved", "rejected"].includes(status)) {
+      return fail("Status must be 'approved' or 'rejected'");
+    }
 
     const testimonial = await Testimonial.findByIdAndUpdate(
-      id,
-      { isVisible: body.isVisible },
-      { new: true },
-    );
+      params.id,
+      { status, adminNote: adminNote || "" },
+      { new: true }
+    ).populate("customer", "name");
 
-    return ok({ testimonial });
-  } catch (e) {
-    return serverError(e);
-  }
+    if (!testimonial) return notFound("Testimonial not found");
+
+    return ok(testimonial, `Testimonial ${status}`);
+  } catch (e) { return serverError(e); }
 }
 
-// DELETE — remove a testimonial entirely
-export async function DELETE(request, { params }) {
+// DELETE
+export async function DELETE(_, { params }) {
   try {
     await connectDB();
-    const { id } = params;
-    await Testimonial.findByIdAndDelete(id);
-    return ok({ deleted: true });
-  } catch (e) {
-    return serverError(e);
-  }
+    await Testimonial.findByIdAndDelete(params.id);
+    return ok(null, "Testimonial deleted");
+  } catch (e) { return serverError(e); }
 }
