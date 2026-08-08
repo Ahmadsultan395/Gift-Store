@@ -223,27 +223,35 @@ export default function ChatWidget() {
       {/* ── Floating Button ──────────────────────────────────── */}
       <button
         onClick={() => setOpen((p) => !p)}
-        className={`fixed bottom-5 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300
-          ${
-            open
-              ? "bg-slate-700 rotate-90 scale-90"
-              : "bg-primary-600 hover:bg-primary-700/90 hover:scale-110"
-          }`}
+        className={`fixed bottom-3 right-3 z-50
+    flex h-10 w-10
+    sm:bottom-5 sm:right-5
+    sm:h-12 sm:w-12
+    lg:h-14 lg:w-14
+    items-center justify-center
+    rounded-full shadow-lg
+    transition-all duration-300
+    ${
+      open
+        ? "bg-slate-700 rotate-90 scale-90"
+        : "bg-primary-600 hover:bg-primary-700/90 hover:scale-110"
+    }`}
         aria-label="Chat with us"
       >
         {open ? (
-          <X size={22} className="text-white" />
+          <X className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
         ) : (
-          <MessageCircle size={24} className="text-white" />
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-white" />
         )}
+
         {!open && unread > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white ring-2 ring-white sm:h-5 sm:min-w-5 sm:text-[10px]">
             {unread}
           </span>
         )}
-        {/* Pulse ring when closed */}
+
         {!open && (
-          <span className="absolute inset-0 rounded-full bg-primary-500 animate-ping opacity-30" />
+          <span className="pointer-events-none absolute inset-0 -z-10 rounded-full border-2 border-primary-400 animate-ping opacity-30" />
         )}
       </button>
 

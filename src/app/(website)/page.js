@@ -5,11 +5,11 @@ import NewsletterSection from "@/components/website/NewsletterSection";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 import { CategoryAndBrand } from "@/components/website/CategoryAndBrand";
 import ProductShowCase from "@/components/website/ProductShowCase";
-import { WhyChooseUS } from "@/components/website/WhyChooseUS";
 import StatsBanner from "@/components/website/StatsBanner";
 import TestimonialsSection from "@/components/website/TestimonialsSection";
 import FaqHomeSection from "@/components/website/FaqHomeSection";
 import HomeContactSection from "@/components/website/HomeContactSection";
+import OurPromise from "@/components/website/OurPromise";
 
 export default function HomePage() {
   const {
@@ -49,6 +49,7 @@ export default function HomePage() {
       <div className="mx-auto max-w-7xl px-4 py-10 space-y-14">
         {/* Category */}
         <CategoryAndBrand categories={categories} brands={brands} />
+
         {/* Products Show Case */}
         <ProductShowCase
           homeProductsLoading={homeProductsLoading}
@@ -56,18 +57,21 @@ export default function HomePage() {
           featuredProducts={featuredProducts}
           newArrivals={newArrivals}
         />
-        {/* Why Choose Us */}
-        <WhyChooseUS />
-        {/* Stats Banner */}
+
+        {/* Why Choose Us / Our Promise (merged) — trust building right after products */}
+        <OurPromise />
+
+        {/* Stats Banner — visual break with dark contrast */}
         <StatsBanner />
-        {/* Newsletter */}
 
+        {/* Testimonials — social proof */}
         <TestimonialsSection />
-        {/* <TestimonialForm /> */}
-        <FaqHomeSection />
-        <HomeContactSection />
 
-        <NewsletterSection />
+        {/* FAQ — clear objections */}
+        <FaqHomeSection />
+
+        {/* Contact — last, for further help */}
+        <HomeContactSection />
       </div>
     </div>
   );
