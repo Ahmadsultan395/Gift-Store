@@ -3,7 +3,7 @@ import Navbar from "@/components/website/Navbar";
 import Footer from "@/components/website/Footer";
 import ChatWidget from "@/components/website/ChatWidget";
 import HeaderMarquee from "@/components/website/HeaderMarquee";
-import WhatsAppButton from "@/components/website/WhatsAppButton";
+import WhatsAppButton from "@/components/website/WhatsappButton";
 
 export const metadata = {
   title: { default: "Pansar Store", template: "%s | Pansar Store" },
