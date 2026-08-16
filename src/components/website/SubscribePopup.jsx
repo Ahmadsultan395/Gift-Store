@@ -572,29 +572,38 @@ export default function SubscribePopup() {
             aria-label="Open 10% off gift offer"
             className={`
               sp-tab-float sp-tab-glow sp-tab-attention
-              relative flex flex-col items-center gap-3
+              relative flex flex-col items-center gap-1.5 sm:gap-3
               ${TAB_SIDE === "right" ? "rounded-l-2xl" : "rounded-r-2xl"}
-              border-[3px] border-[#3a0a12]
-              px-3.5 py-6
+              border-2 sm:border-[3px] border-[#3a0a12]
+              px-2 py-3 sm:px-3.5 sm:py-6
               transition-all duration-300 ease-out
-              hover:px-5
+              hover:px-3 sm:hover:px-5
               active:scale-95
               ${tabMounted ? "opacity-100 scale-100" : "opacity-0 scale-75"}
             `}
             style={{
               background:
                 "linear-gradient(180deg, #FFE27A 0%, #F7C325 50%, #E0A600 100%)",
-              minWidth: 52,
+              minWidth: 38,
             }}
           >
             {/* pulsing "ping" ring — the classic notification-badge attention grabber */}
             <span className="sp-tab-ping pointer-events-none absolute inset-0 rounded-[inherit]" />
 
-            <span className="sp-tab-icon relative flex h-8 w-8 items-center justify-center rounded-full bg-[#3a0a12] shadow-md">
-              <Gift size={17} strokeWidth={2.4} className="text-[#FFE27A]" />
+            <span className="sp-tab-icon relative flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#3a0a12] shadow-md">
+              <Gift
+                size={13}
+                strokeWidth={2.4}
+                className="text-[#FFE27A] sm:hidden"
+              />
+              <Gift
+                size={17}
+                strokeWidth={2.4}
+                className="hidden text-[#FFE27A] sm:block"
+              />
             </span>
             <span
-              className="relative text-[13px] font-black uppercase tracking-wider text-[#3a0a12]"
+              className="relative text-[10px] sm:text-[13px] font-black uppercase tracking-wider text-[#3a0a12]"
               style={{
                 writingMode: "vertical-rl",
                 transform: "rotate(180deg)",
