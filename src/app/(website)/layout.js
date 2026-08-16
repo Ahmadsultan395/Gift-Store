@@ -34,7 +34,7 @@ export default function WebsiteLayout({ children }) {
         {/* Site-wide subscribe popup — shows on entry per the timing
             rules defined inside SubscribePopup.jsx. Mounted once here
             so it works across every page, not per-page. */}
-        <SubscribePopup />
+        {/* <SubscribePopup /> */}
       </div>
     </WebsiteProvider>
   );
