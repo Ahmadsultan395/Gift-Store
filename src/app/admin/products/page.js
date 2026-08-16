@@ -33,10 +33,13 @@ const STOCK_BADGE = {
   out_of_stock: { label: "Out of Stock", color: "red" },
 };
 
+const GENDER_OPTIONS = ["Men", "Women", "Kids", "Unisex"];
+
 export default function ProductsPage() {
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     category: "",
+    gender: "",
     brand: "",
     status: "",
     stock: "",
@@ -89,6 +92,29 @@ export default function ProductsPage() {
   useEffect(() => {
     setPage(1);
   }, [search, filters]);
+
+  // Gender narrows down which categories are shown in the Category
+  // dropdown — it does NOT get cleared when you pick a category, so both
+  // filters combine (e.g. Gender=Men + Category=Drink → Men's Drinks).
+  // Changing gender resets category since the old pick may not belong to
+  // the new gender's category list.
+  function selectCategory(value) {
+    setFilters((p) => ({ ...p, category: value }));
+    setPage(1);
+  }
+  function selectGender(value) {
+    setFilters((p) => ({ ...p, gender: value, category: "" }));
+    setPage(1);
+  }
+
+  // Category dropdown only offers categories that belong to the chosen
+  // gender (plus Unisex) — with no gender chosen, every category shows.
+  const visibleCategories = filters.gender
+    ? categories.filter((c) => {
+        const g = c.gender || "Unisex";
+        return g === filters.gender || g === "Unisex";
+      })
+    : categories;
 
   async function handleDelete() {
     setDeleting(true);
@@ -147,21 +173,37 @@ export default function ProductsPage() {
 
       {/* Filters panel */}
       {showFilter && (
-        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:grid-cols-5">
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-500">
+              Gender
+            </label>
+            <select
+              value={filters.gender}
+              onChange={(e) => selectGender(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none"
+            >
+              <option value="">All Genders</option>
+              {GENDER_OPTIONS.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="mb-1 block text-xs font-medium text-slate-500">
               Category
             </label>
             <select
               value={filters.category}
-              onChange={(e) => {
-                setFilters((p) => ({ ...p, category: e.target.value }));
-                setPage(1);
-              }}
+              onChange={(e) => selectCategory(e.target.value)}
               className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none"
             >
-              <option value="">All Categories</option>
-              {categories.map((c) => (
+              <option value="">
+                {filters.gender ? `All ${filters.gender}` : "All Categories"}
+              </option>
+              {visibleCategories.map((c) => (
                 <option key={c._id} value={c._id}>
                   {c.name}
                 </option>

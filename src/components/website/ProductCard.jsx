@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { ShoppingCart, Heart, Package, Star } from "lucide-react";
-import { useState, useEffect } from "react";
-import { wishlistApi } from "@/services/api";
+import { useState } from "react";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+import Image from "next/image";
 
 // ── Rating stars helper ────────────────────────────────────────────
 function StarRating({ rating = 0, count = 0 }) {
@@ -32,30 +32,16 @@ function StarRating({ rating = 0, count = 0 }) {
 }
 
 export default function ProductCard({ product }) {
-  const { addToCart } = useWebsiteStore();
+  const { addToCart, wishlist, toggleWishlist } = useWebsiteStore();
   const [added, setAdded] = useState(false);
-  const [wished, setWished] = useState(false);
 
-  useEffect(() => {
-    async function checkWishlist() {
-      try {
-        const data = await wishlistApi.get();
-        const exists = data.some((item) => item._id === product._id);
-        setWished(exists);
-      } catch {}
-    }
-    checkWishlist();
-  }, [product._id]);
+  const wished = wishlist.some((item) => (item._id || item) === product._id);
 
-  async function toggleWishlist(e) {
+  async function handleWishlist(e) {
     e.preventDefault();
-    try {
-      const data = await wishlistApi.toggle(product._id);
-      setWished(data?.added ?? false);
-      window.dispatchEvent(new Event("wishlist-updated"));
-    } catch (error) {
-      alert(error.message || "Something went wrong");
-    }
+    e.stopPropagation();
+
+    await toggleWishlist(product._id);
   }
 
   function handleAddToCart(e) {
@@ -76,10 +62,12 @@ export default function ProductCard({ product }) {
       {/* Image */}
       <div className="relative overflow-hidden bg-slate-50 aspect-square">
         {image ? (
-          <img
+          <Image
             src={image}
-            alt={product.name}
-            className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+            alt={product.name || "Product"}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -113,10 +101,7 @@ export default function ProductCard({ product }) {
 
         {/* Wishlist */}
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            toggleWishlist(e);
-          }}
+          onClick={handleWishlist}
           className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow hover:bg-red-50 transition-colors"
         >
           <Heart

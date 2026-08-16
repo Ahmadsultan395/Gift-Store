@@ -7,6 +7,7 @@ import {
   Facebook,
   Instagram,
   ShoppingBag,
+  Gift,
 } from "lucide-react";
 import Link from "next/link";
 import PageHeroHeader from "@/components/website/PageHeroHeader";
@@ -21,18 +22,16 @@ export default function AboutPage() {
 
   const settings = storeSettings || {};
 
-  console.log(settings);
-
-  const storeName = settings?.storeName || "Pansar Store";
+  const storeName = settings?.storeName || "Gift Store";
   const aboutText = settings?.cms?.aboutPage;
 
   return (
     <div className="min-h-screen">
       <PageHeroHeader
-        icon="🛒"
+        icon="🎁"
         eyebrow="Welcome"
         title={storeName}
-        subtitle="Your trusted grocery store — fresh essentials, delivered straight to your door"
+        subtitle="Your trusted gift shop — curated presents and premium keepsakes, wrapped with care"
         stats={[
           { value: "500+", label: "Products" },
           { value: "1000+", label: "Happy Customers" },
@@ -42,9 +41,9 @@ export default function AboutPage() {
       >
         <Link
           href="/products"
-          className="rounded-xl bg-white px-6 py-3 text-sm font-bold text-primary-600 shadow-lg transition-colors hover:bg-[#F3FBEA]"
+          className="rounded-xl bg-white px-6 py-3 text-sm font-bold text-primary-600 shadow-lg transition-colors hover:bg-secondary-50"
         >
-          🛍️ Shop Now
+          🎁 Shop Now
         </Link>
         <a
           href={`tel:${settings?.phone || ""}`}
@@ -58,13 +57,15 @@ export default function AboutPage() {
         {/* ── Our Story ─────────────────────────────────────────── */}
         <section className="grid grid-cols-1 gap-10 md:grid-cols-2 items-center">
           <div>
-            <span className="inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-600 mb-4">
+            <span className="inline-block rounded-full bg-secondary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-600 mb-4">
               Our Story
             </span>
             <h2 className="text-3xl font-extrabold text-slate-800 leading-tight">
               From a Small Shop
               <br />
-              <span className="text-primary-500">to an Online Store</span>
+              <span className="text-primary-600">
+                to Your Favorite Gift Store
+              </span>
             </h2>
             <div className="mt-5 text-slate-600 leading-relaxed space-y-3 text-[15px]">
               {aboutText ? (
@@ -74,18 +75,18 @@ export default function AboutPage() {
               ) : (
                 <>
                   <p>
-                    We started as a small neighborhood grocery shop. We noticed
-                    customers struggling to find quality products easily, so we
-                    decided to move online.
+                    We started as a small neighborhood gift shop. We noticed
+                    customers struggling to find thoughtful, quality gifts
+                    easily, so we decided to move online.
                   </p>
                   <p>
-                    Today, we deliver fresh groceries, spices, staples, and
-                    daily essentials to thousands of customers — all at the best
-                    prices.
+                    Today, we curate and deliver beautifully wrapped gifts,
+                    keepsakes, and celebration essentials to thousands of
+                    customers — all at the best prices.
                   </p>
                   <p>
-                    Our mission is simple: give you everything you need, without
-                    ever having to leave home.
+                    Our mission is simple: help you find the perfect gift for
+                    every occasion, without ever having to leave home.
                   </p>
                 </>
               )}
@@ -93,7 +94,7 @@ export default function AboutPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { emoji: "🌿", title: "Fresh Products", desc: "Stocked daily" },
+              { emoji: "🎀", title: "Curated Gifts", desc: "Handpicked daily" },
               {
                 emoji: "💰",
                 title: "Best Prices",
@@ -112,7 +113,7 @@ export default function AboutPage() {
             ].map((f) => (
               <div
                 key={f.title}
-                className="rounded-2xl border border-slate-100 bg-slate-50 p-4 hover:border-primary-300 hover:bg-primary-100 transition-all"
+                className="rounded-2xl border border-slate-100 bg-slate-50 p-4 hover:border-secondary-300 hover:bg-secondary-50 transition-all"
               >
                 <span className="text-2xl">{f.emoji}</span>
                 <p className="mt-2 text-sm font-bold text-slate-800">
@@ -127,7 +128,7 @@ export default function AboutPage() {
         {/* ── Why Choose Us ─────────────────────────────────────── */}
         <section>
           <div className="text-center mb-10">
-            <span className="inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-500 mb-3">
+            <span className="inline-block rounded-full bg-secondary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-600 mb-3">
               Why Choose Us
             </span>
             <h2 className="text-3xl font-extrabold text-slate-800">
@@ -137,22 +138,22 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             {[
               {
-                icon: "🛡️",
+                icon: "🎁",
                 title: "Quality Assured",
-                desc: "Every product is carefully checked and packed. Expiry dates are always verified.",
-                color: "from-primary-50 to-emerald-50 border-primary-100",
+                desc: "Every gift is carefully checked, wrapped and packed with care before it reaches you.",
+                color: "from-primary-50 to-secondary-50 border-primary-100",
               },
               {
                 icon: "⚡",
                 title: "Fast & Reliable",
                 desc: "Same-day delivery in local areas. Order before 12 PM and get it today.",
-                color: "from-blue-50 to-cyan-50 border-blue-100",
+                color: "from-secondary-50 to-amber-50 border-secondary-100",
               },
               {
                 icon: "🤝",
                 title: "Trusted for Years",
                 desc: "Thousands of families trust us. A 4.8 star rating and a growing community.",
-                color: "from-purple-50 to-pink-50 border-purple-100",
+                color: "from-primary-50 to-rose-50 border-primary-100",
               },
             ].map((f) => (
               <div
@@ -174,7 +175,7 @@ export default function AboutPage() {
         {/* ── Contact ───────────────────────────────────────────── */}
         <section>
           <div className="text-center mb-10">
-            <span className="inline-block rounded-full bg-primary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-500 mb-3">
+            <span className="inline-block rounded-full bg-secondary-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-primary-600 mb-3">
               Get In Touch
             </span>
             <h2 className="text-3xl font-extrabold text-slate-800">
@@ -194,9 +195,9 @@ export default function AboutPage() {
               {
                 icon: <Mail size={22} />,
                 label: "Email",
-                value: settings?.email || "info@pansarstore.com",
+                value: settings?.email || "info@giftstore.com",
                 href: `mailto:${settings?.email || ""}`,
-                color: "bg-blue-600",
+                color: "bg-secondary-600",
                 desc: "We reply within 24 hours",
               },
               {
@@ -204,14 +205,14 @@ export default function AboutPage() {
                 label: "Address",
                 value: settings?.address || "Main Bazaar, Punjab, Pakistan",
                 href: "#",
-                color: "bg-orange-600",
+                color: "bg-primary-800",
                 desc: "Walk-ins welcome",
               },
             ].map((c) => (
               <a
                 key={c.label}
                 href={c.href}
-                className="group flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center hover:border-primary-200 hover:shadow-md transition-all"
+                className="group flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-6 text-center hover:border-secondary-300 hover:shadow-md transition-all"
               >
                 <div
                   className={`${c.color} mb-4 flex h-12 w-12 items-center justify-center rounded-2xl text-white group-hover:scale-110 transition-transform`}
@@ -237,7 +238,7 @@ export default function AboutPage() {
                 <a
                   href={settings.socialLinks.facebook}
                   target="_blank"
-                  className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 transition-colors"
+                  className="flex items-center gap-2 rounded-xl bg-primary-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-800 transition-colors"
                 >
                   <Facebook size={16} /> Facebook
                 </a>
@@ -246,7 +247,7 @@ export default function AboutPage() {
                 <a
                   href={settings.socialLinks.instagram}
                   target="_blank"
-                  className="flex items-center gap-2 rounded-xl bg-pink-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-pink-700 transition-colors"
+                  className="flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-rose-700 transition-colors"
                 >
                   <Instagram size={16} /> Instagram
                 </a>
@@ -255,7 +256,7 @@ export default function AboutPage() {
                 <a
                   href={`https://wa.me/${settings.socialLinks.whatsapp}`}
                   target="_blank"
-                  className="flex items-center gap-2 rounded-xl bg-primary-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-600/80 transition-colors"
+                  className="flex items-center gap-2 rounded-xl bg-secondary-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-secondary-700 transition-colors"
                 >
                   💬 WhatsApp
                 </a>
@@ -265,14 +266,19 @@ export default function AboutPage() {
         </section>
 
         {/* ── CTA ───────────────────────────────────────────────── */}
-        <section className="rounded-3xl bg-gradient-to-br from-[#0F4C39] to-[#0B3D2E] p-10 text-center text-white">
-          <h2 className="text-2xl font-extrabold">Order Today!</h2>
-          <p className="mt-2 text-white/75">
-            Fresh groceries, best prices, fast delivery — with {storeName}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-900 to-primary-700 p-10 text-center text-white">
+          <Gift
+            size={140}
+            strokeWidth={1}
+            className="pointer-events-none absolute -right-6 -top-6 text-secondary-400/10 rotate-12"
+          />
+          <h2 className="relative text-2xl font-extrabold">Order Today!</h2>
+          <p className="relative mt-2 text-white/75">
+            Curated gifts, best prices, fast delivery — with {storeName}
           </p>
           <Link
             href="/products"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-accent px-8 py-3 text-sm font-bold text-white shadow-lg transition-colors hover:bg-accent/80"
+            className="relative mt-6 inline-flex items-center gap-2 rounded-xl bg-secondary-500 px-8 py-3 text-sm font-bold text-primary-950 shadow-lg transition-colors hover:bg-secondary-400"
           >
             <ShoppingBag size={16} /> Browse Products
           </Link>

@@ -20,7 +20,7 @@ export default function CMSPage({
   const loading = !settingsLoaded;
   const cmsContent = storeSettings?.cms?.[settingsKey];
   const content = cmsContent && cmsContent.trim() ? cmsContent : defaultContent;
-  const storeName = storeSettings?.storeName || "Pansar Store";
+  const storeName = storeSettings?.storeName || "Gift Store";
 
   return (
     <div className="min-h-screen bg-white">
@@ -117,7 +117,7 @@ export default function CMSPage({
           <div className="mt-3 flex flex-wrap gap-3">
             {storeSettings?.phone && (
               <a
-                href={`tel:${cmsContent.phone}`}
+                href={`tel:${storeSettings.phone}`}
                 className="flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-medium text-primary-600 shadow-sm hover:bg-primary-700/90 hover:text-white transition-colors"
               >
                 📞 {storeSettings.phone}

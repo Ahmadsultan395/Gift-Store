@@ -10,7 +10,7 @@ export async function GET(_, { params }) {
     await connectDB();
 
     const product = await Product.findById(params.id)
-      .populate("category", "name slug")
+      .populate("category", "name slug gender")
       .populate("brand", "name");
 
     if (!product) {
@@ -102,7 +102,10 @@ export async function PUT(request, { params }) {
 
     await product.save();
 
-    await product.populate(["category", "brand"]);
+    await product.populate([
+      { path: "category", select: "name slug gender" },
+      { path: "brand" },
+    ]);
 
     return ok(product, "Product updated successfully");
   } catch (e) {

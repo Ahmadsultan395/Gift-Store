@@ -1,5 +1,7 @@
 "use client";
 
+import { Gift, Sparkles, Ribbon, PartyPopper } from "lucide-react";
+
 /**
  * PageHeroHeader
  * ---------------------------------------------------------------------
@@ -8,21 +10,22 @@
  * Policy) so the whole site reads as one product instead of a set of
  * pages each with their own color/shape language.
  *
- * Visual language is inherited directly from the homepage HeroSlider:
- *  - deep forest green gradient background (#0B3D2E -> #134E3A)
- *  - lime accent (#A8E063) for eyebrow badges / highlights
- *  - orange accent (#FF7A3D) for primary actions
+ * Visual language matches the gift-shop brand (same as the site Footer):
+ *  - deep maroon gradient background (primary-900 -> primary-950)
+ *  - gold accent (secondary-400/500) for eyebrow badges / highlights
+ *  - gold (secondary-500) for primary actions
  *  - continuously animated flowing wave along the bottom edge
  *    (paths are built so the start and end y-values match exactly,
  *    so the tiled copies loop with zero seam/glitch)
- *  - soft floating dot particles for ambient texture
+ *  - soft floating gold dot particles + dot-grid texture for
+ *    ambient, premium gift-shop texture
  *
  * Usage:
  *  <PageHeroHeader
  *    eyebrow="Our Story"
- *    icon="🛒"
- *    title="About Pansar Store"
- *    subtitle="Fresh groceries, delivered with care."
+ *    icon="🎁"
+ *    title="About Our Gift Store"
+ *    subtitle="Curated gifts, wrapped with care."
  *    stat={{ value: "500+", label: "Products" }}
  *  />
  */
@@ -36,10 +39,46 @@ export default function PageHeroHeader({
   children,
 }) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-primary-700 via-primary-700 to-primary-700">
-      {/* ambient glows — same treatment as the homepage hero */}
-      <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-primary-300/20 blur-3xl" />
-      <div className="pointer-events-none absolute -right-10 bottom-0 h-56 w-56 rounded-full bg-[#FF7A3D]/10 blur-3xl" />
+    <section className="relative overflow-hidden bg-primary-800">
+      {/* ambient glows — same treatment as the footer */}
+      <div className="pointer-events-none absolute -left-16 bottom-0 h-64 w-64 rounded-full bg-secondary-400/15 blur-3xl" />
+      <div className="pointer-events-none absolute -right-10 bottom-0 h-56 w-56 rounded-full bg-secondary-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute left-1/2 top-0 h-40 w-[420px] -translate-x-1/2 rounded-full bg-secondary-400/10 blur-3xl" />
+
+      {/* subtle dot-grid, premium wrapping-paper texture */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
+          backgroundSize: "33px 33px",
+          color: "#E9D073",
+        }}
+      />
+
+      {/* top gold hairline */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(to_right,transparent_0%,transparent_30%,theme(colors.secondary.400)_50%,transparent_70%,transparent_100%)]" />
+
+      {/* floating gift-themed icons — ambient gifting texture */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <span className="hero-gift-float hero-gift-1 absolute text-secondary-300/20">
+          <Gift size={28} strokeWidth={1.5} />
+        </span>
+        <span className="hero-gift-float hero-gift-2 absolute text-secondary-300/15">
+          <Sparkles size={20} strokeWidth={1.5} />
+        </span>
+        <span className="hero-gift-float hero-gift-3 absolute text-secondary-300/15">
+          <Ribbon size={24} strokeWidth={1.5} />
+        </span>
+        <span className="hero-gift-float hero-gift-4 absolute text-secondary-300/20">
+          <PartyPopper size={22} strokeWidth={1.5} />
+        </span>
+        <span className="hero-gift-float hero-gift-5 absolute text-secondary-300/10">
+          <Gift size={18} strokeWidth={1.5} />
+        </span>
+        <span className="hero-gift-float hero-gift-6 absolute text-secondary-300/15">
+          <Sparkles size={16} strokeWidth={1.5} />
+        </span>
+      </div>
 
       {/* floating dot particles */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -59,13 +98,14 @@ export default function PageHeroHeader({
         }`}
       >
         {icon && (
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/10 text-3xl backdrop-blur-sm ring-1 ring-white/15 md:h-20 md:w-20 md:text-4xl">
-            {icon}
+          <div className="hero-icon-wrap relative mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-white/10 text-3xl backdrop-blur-sm ring-1 ring-secondary-300/25 md:h-20 md:w-20 md:text-4xl">
+            <span className="hero-icon-pulse absolute inset-0 rounded-3xl bg-secondary-400/25" />
+            <span className="relative">{icon}</span>
           </div>
         )}
 
         {eyebrow && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary-300/40 bg-primary-300/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary-300 backdrop-blur-sm">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-secondary-400/40 bg-secondary-400/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-widest text-secondary-300 backdrop-blur-sm">
             {eyebrow}
           </span>
         )}
@@ -75,7 +115,7 @@ export default function PageHeroHeader({
         </h1>
 
         {subtitle && (
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-white/75 md:text-lg">
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-primary-100/75 md:text-lg">
             {subtitle}
           </p>
         )}
@@ -90,10 +130,10 @@ export default function PageHeroHeader({
           <div className="mx-auto mt-10 flex max-w-lg flex-wrap justify-center gap-6 border-t border-white/10 pt-8">
             {stats.map((s) => (
               <div key={s.label} className="flex flex-col items-center">
-                <p className="text-xl font-extrabold text-primary-300 md:text-2xl">
+                <p className="text-xl font-extrabold text-secondary-300 md:text-2xl">
                   {s.value}
                 </p>
-                <p className="text-[11px] font-medium uppercase tracking-wide text-white/60">
+                <p className="text-[11px] font-medium uppercase tracking-wide text-primary-100/60">
                   {s.label}
                 </p>
               </div>
@@ -121,7 +161,7 @@ export default function PageHeroHeader({
                M1200,90 C1330,60 1470,60 1600,90 C1730,120 1870,120 2000,90 C2130,60 2270,60 2400,90
                L2400,140 L1200,140 Z"
             className="fill-white"
-            opacity="0.45"
+            opacity="0.35"
           />
         </svg>
         <svg
@@ -173,10 +213,77 @@ export default function PageHeroHeader({
           }
         }
 
+        .hero-icon-pulse {
+          animation: heroIconPulse 2.4s ease-out infinite;
+        }
+        @keyframes heroIconPulse {
+          0% {
+            transform: scale(0.85);
+            opacity: 0.6;
+          }
+          70%,
+          100% {
+            transform: scale(1.4);
+            opacity: 0;
+          }
+        }
+
+        .hero-gift-float {
+          will-change: transform, opacity;
+          animation: heroGiftFloat 9s ease-in-out infinite;
+        }
+        .hero-gift-1 {
+          left: 10%;
+          top: 20%;
+          animation-duration: 10s;
+          animation-delay: 0s;
+        }
+        .hero-gift-2 {
+          left: 85%;
+          top: 18%;
+          animation-duration: 8s;
+          animation-delay: 1s;
+        }
+        .hero-gift-3 {
+          left: 6%;
+          top: 68%;
+          animation-duration: 11s;
+          animation-delay: 2s;
+        }
+        .hero-gift-4 {
+          left: 90%;
+          top: 65%;
+          animation-duration: 9s;
+          animation-delay: 0.6s;
+        }
+        .hero-gift-5 {
+          left: 48%;
+          top: 12%;
+          animation-duration: 12s;
+          animation-delay: 1.6s;
+        }
+        .hero-gift-6 {
+          left: 55%;
+          top: 80%;
+          animation-duration: 10.5s;
+          animation-delay: 2.4s;
+        }
+        @keyframes heroGiftFloat {
+          0%,
+          100% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.5;
+          }
+          50% {
+            transform: translateY(-14px) rotate(10deg);
+            opacity: 1;
+          }
+        }
+
         .float-dot {
           position: absolute;
           border-radius: 9999px;
-          background: rgba(255, 255, 255, 0.5);
+          background: rgba(233, 208, 115, 0.5);
           will-change: transform, opacity;
           animation: dotFloat 8s ease-in-out infinite;
         }
@@ -185,7 +292,7 @@ export default function PageHeroHeader({
           top: 22%;
           width: 5px;
           height: 5px;
-          background: rgba(168, 224, 99, 0.55);
+          background: rgba(233, 208, 115, 0.6);
           animation-duration: 9s;
         }
         .float-dot-2 {
@@ -201,7 +308,7 @@ export default function PageHeroHeader({
           top: 15%;
           width: 4px;
           height: 4px;
-          background: rgba(255, 122, 61, 0.5);
+          background: rgba(201, 162, 39, 0.55);
           animation-duration: 10s;
           animation-delay: 1.2s;
         }
@@ -218,7 +325,7 @@ export default function PageHeroHeader({
           top: 60%;
           width: 5px;
           height: 5px;
-          background: rgba(168, 224, 99, 0.5);
+          background: rgba(233, 208, 115, 0.55);
           animation-duration: 9.5s;
           animation-delay: 1.6s;
         }
@@ -235,7 +342,7 @@ export default function PageHeroHeader({
           top: 12%;
           width: 3px;
           height: 3px;
-          background: rgba(255, 122, 61, 0.45);
+          background: rgba(201, 162, 39, 0.5);
           animation-duration: 7s;
           animation-delay: 0.9s;
         }
@@ -256,14 +363,16 @@ export default function PageHeroHeader({
           }
           50% {
             transform: translateY(-10px) scale(1.2);
-            opacity: 0.75;
+            opacity: 0.8;
           }
         }
 
         @media (prefers-reduced-motion: reduce) {
           .wave-layer-back,
           .wave-layer-front,
-          .float-dot {
+          .float-dot,
+          .hero-icon-pulse,
+          .hero-gift-float {
             animation: none !important;
           }
         }

@@ -18,7 +18,7 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { name, description, parent, status, image } = body;
+    const { name, description, parent, status, image, gender } = body;
     if (!name) return fail("Category name is required");
 
     await connectDB();
@@ -32,6 +32,7 @@ export async function POST(request) {
       description,
       parent: parent || null,
       image,
+      gender: gender || "Unisex",
       status: status || "active",
     });
     return created(category);

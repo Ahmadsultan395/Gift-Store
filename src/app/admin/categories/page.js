@@ -1,7 +1,6 @@
 "use client";
 /**
- * EXAMPLE: Categories page using useAdminStore
- * Koi direct fetch() nahi — sab store se aata hai
+ * Categories page using useAdminStore
  */
 import { useEffect, useState } from "react";
 import { Plus, Pencil, Trash2, Search, Tags } from "lucide-react";
@@ -10,12 +9,27 @@ import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
+import Select from "@/components/ui/Select";
 import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Badge from "@/components/ui/Badge";
 import ImageUpload from "@/components/ui/ImageUpload";
 
-const EMPTY = { name: "", description: "", image: null };
+const EMPTY = { name: "", description: "", image: null, gender: "Unisex" };
+
+const GENDER_OPTIONS = [
+  { value: "Men", label: "Men" },
+  { value: "Women", label: "Women" },
+  { value: "Kids", label: "Kids" },
+  { value: "Unisex", label: "Unisex (shows under every gender tile)" },
+];
+
+const GENDER_BADGE = {
+  Men: "blue",
+  Women: "pink",
+  Kids: "yellow",
+  Unisex: "slate",
+};
 
 export default function CategoriesPage() {
   const {
@@ -56,6 +70,7 @@ export default function CategoriesPage() {
       name: c.name,
       description: c.description || "",
       image: c.image || null,
+      gender: c.gender || "Unisex",
     });
     setModal(true);
   }
@@ -138,14 +153,16 @@ export default function CategoriesPage() {
             <table className="w-full text-sm">
               <thead className="border-b border-slate-100 bg-slate-50">
                 <tr>
-                  {["#", "Name", "Slug", "Status", "Actions"].map((h) => (
-                    <th
-                      key={h}
-                      className={`px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
-                    >
-                      {h}
-                    </th>
-                  ))}
+                  {["#", "Name", "Gender", "Slug", "Status", "Actions"].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        className={`px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-400 ${h === "Actions" ? "text-right" : "text-left"}`}
+                      >
+                        {h}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -172,6 +189,11 @@ export default function CategoriesPage() {
                           {c.name}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-5 py-3">
+                      <Badge variant={GENDER_BADGE[c.gender] || "slate"}>
+                        {c.gender || "Unisex"}
+                      </Badge>
                     </td>
                     <td className="px-5 py-3 font-mono text-xs text-slate-400">
                       {c.slug}
@@ -224,7 +246,13 @@ export default function CategoriesPage() {
             label="Name *"
             value={form.name}
             onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-            placeholder="e.g. Spices"
+            placeholder="e.g. Watches"
+          />
+          <Select
+            label="Gender / Audience *"
+            value={form.gender}
+            onChange={(e) => setForm((p) => ({ ...p, gender: e.target.value }))}
+            options={GENDER_OPTIONS}
           />
           <Textarea
             label="Description"

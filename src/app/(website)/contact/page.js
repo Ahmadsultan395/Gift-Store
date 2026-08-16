@@ -59,7 +59,7 @@ export default function ContactPage() {
   return (
     <main className="min-h-screen bg-white">
       <PageHeroHeader
-        icon="💬"
+        icon="🎁"
         eyebrow="Contact Us"
         title="Get in Touch"
         subtitle="Have a question, suggestion, or complaint? We're here to help — you'll hear back soon."
@@ -94,9 +94,9 @@ export default function ContactPage() {
                 value={s.email}
                 href={`mailto:${s.email}`}
                 color={{
-                  border: "border-blue-100 hover:border-blue-300",
-                  icon: "bg-blue-100",
-                  iconText: "text-blue-600",
+                  border: "border-secondary-100 hover:border-secondary-300",
+                  icon: "bg-secondary-100",
+                  iconText: "text-secondary-700",
                 }}
               />
             )}
@@ -106,9 +106,9 @@ export default function ContactPage() {
                 label="Address"
                 value={s.address}
                 color={{
-                  border: "border-orange-100 hover:border-orange-300",
-                  icon: "bg-orange-100",
-                  iconText: "text-orange-500",
+                  border: "border-primary-100 hover:border-primary-300",
+                  icon: "bg-primary-100",
+                  iconText: "text-primary-700",
                 }}
               />
             )}
@@ -119,9 +119,9 @@ export default function ContactPage() {
               label="Business Hours"
               value="Mon–Sun: 9am – 9pm"
               color={{
-                border: "border-purple-100 hover:border-purple-300",
-                icon: "bg-purple-100",
-                iconText: "text-purple-600",
+                border: "border-secondary-100 hover:border-secondary-300",
+                icon: "bg-secondary-100",
+                iconText: "text-secondary-700",
               }}
             />
 
@@ -139,7 +139,7 @@ export default function ContactPage() {
                       href={s.socialLinks.facebook}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 transition-colors"
+                      className="flex items-center gap-2 rounded-xl bg-primary-700 px-4 py-2 text-xs font-bold text-white hover:bg-primary-800 transition-colors"
                     >
                       <Facebook size={14} /> Facebook
                     </a>
@@ -149,7 +149,7 @@ export default function ContactPage() {
                       href={s.socialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-4 py-2 text-xs font-bold text-white hover:opacity-90 transition-opacity"
+                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-rose-600 px-4 py-2 text-xs font-bold text-white hover:opacity-90 transition-opacity"
                     >
                       <Instagram size={14} /> Instagram
                     </a>
@@ -159,7 +159,7 @@ export default function ContactPage() {
                       href={`https://wa.me/${s.socialLinks.whatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-2 rounded-xl bg-primary-500 px-4 py-2 text-xs font-bold text-white hover:bg-primary-600 transition-colors"
+                      className="flex items-center gap-2 rounded-xl bg-secondary-500 px-4 py-2 text-xs font-bold text-primary-950 hover:bg-secondary-600 transition-colors"
                     >
                       <MessageCircle size={14} /> WhatsApp
                     </a>

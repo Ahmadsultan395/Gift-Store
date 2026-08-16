@@ -1,94 +1,4 @@
-// /** @type {import('tailwindcss').Config} */
-// module.exports = {
-//   darkMode: "class",
-//   content: [
-//     "./src/app/**/*.{js,jsx,ts,tsx}",
-//     "./src/components/**/*.{js,jsx,ts,tsx}",
-//   ],
-//   theme: {
-//     extend: {
-//       colors: {
-//         primary: {
-//           DEFAULT: "#16a34a",
-//           50:  "#f0fdf4",
-//           100: "#dcfce7",
-//           200: "#bbf7d0",
-//           400: "#4ade80",
-//           500: "#22c55e",
-//           600: "#16a34a",
-//           700: "#15803d",
-//           800: "#166534",
-//           900: "#14532d",
-//         },
-//       },
-//       animation: {
-//         "spin-slow": "spin 3s linear infinite",
-//       },
-//     },
-//   },
-//   plugins: [],
-// };
-
-// #0B3D2E
-// /** @type {import('tailwindcss').Config} */
-// module.exports = {
-//   darkMode: "class",
-
-//   content: [
-//     "./src/app/**/*.{js,jsx,ts,tsx}",
-//     "./src/components/**/*.{js,jsx,ts,tsx}",
-//   ],
-
-//   theme: {
-//     extend: {
-//       colors: {
-//         primary: {
-//           DEFAULT: "#0F4C39",
-
-//           50: "#F3FBEA",
-//           100: "#DCF3C4",
-//           200: "#C8F08A",
-//           300: "#A8E063",
-//           400: "#6FBF6A",
-//           500: "#3D8B5F",
-//           600: "#0F4C39",
-//           700: "#0B3D2E",
-//           800: "#0A3527",
-//           900: "#08281E",
-//           950: "#04150F",
-//         },
-//         secondary: {
-//           DEFAULT: "#0F4C39",
-
-//           50: "#F3FBEA",
-//           100: "#DCF3C4",
-//           200: "#C8F08A",
-//           300: "#A8E063",
-//           400: "#6FBF6A",
-//           500: "#3D8B5F",
-//           600: "#0F4C39",
-//           700: "#0B3D2E",
-//           800: "#0A3527",
-//           900: "#08281E",
-//           950: "#04150F",
-//         },
-
-//         accent: {
-//           DEFAULT: "#FF7A3D",
-//           light: "#FF8F5C",
-//         },
-//       },
-
-//       animation: {
-//         "spin-slow": "spin 3s linear infinite",
-//       },
-//     },
-//   },
-
-//   plugins: [],
-// };
-
-// user for next  emerald
+// used for next — maroon & gold gift store theme
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
@@ -102,40 +12,40 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#059669",
+          DEFAULT: "#7A1F2B",
 
-          50: "#ECFDF5",
-          100: "#D1FAE5",
-          200: "#A7F3D0",
-          300: "#6EE7B7",
-          400: "#34D399",
-          500: "#10B981",
-          600: "#059669",
-          700: "#047857",
-          800: "#065F46",
-          900: "#064E3B",
-          950: "#022C22",
+          50: "#FDF3F4",
+          100: "#FBE3E5",
+          200: "#F3BCC1",
+          300: "#E6919A",
+          400: "#C85A68",
+          500: "#A32E3E",
+          600: "#7A1F2B",
+          700: "#5E1722",
+          800: "#48111A",
+          900: "#340C13",
+          950: "#1F070B",
         },
 
         secondary: {
-          DEFAULT: "#047857",
+          DEFAULT: "#C9A227",
 
-          50: "#ECFDF5",
-          100: "#D1FAE5",
-          200: "#A7F3D0",
-          300: "#6EE7B7",
-          400: "#34D399",
-          500: "#10B981",
-          600: "#059669",
-          700: "#047857",
-          800: "#065F46",
-          900: "#064E3B",
-          950: "#022C22",
+          50: "#FDFAEF",
+          100: "#FAF3D6",
+          200: "#F2E2A3",
+          300: "#E9D073",
+          400: "#DDBB4A",
+          500: "#C9A227",
+          600: "#A9841D",
+          700: "#836417",
+          800: "#5E4712",
+          900: "#3D2E0C",
+          950: "#241B07",
         },
 
         accent: {
-          DEFAULT: "#34D399",
-          light: "#6EE7B7",
+          DEFAULT: "#D4AF37",
+          light: "#E9D073",
         },
       },
 

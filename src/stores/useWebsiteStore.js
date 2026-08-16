@@ -100,13 +100,23 @@ export const useWebsiteStore = create(
       // ── Settings / Store Info ─────────────────────────────────
       storeSettings: null,
       settingsLoaded: false,
+      settingsLoading: false,
 
       fetchStoreSettings: async () => {
-        if (get().settingsLoaded) return;
+        if (get().settingsLoaded || get().settingsLoading) return;
+
+        set({ settingsLoading: true });
+
         try {
           const data = await settingsApi.get();
-          set({ storeSettings: data, settingsLoaded: true });
-        } catch {}
+          set({
+            storeSettings: data,
+            settingsLoaded: true,
+            settingsLoading: false,
+          });
+        } catch {
+          set({ settingsLoading: false });
+        }
       },
 
       // ── Categories ───────────────────────────────────────────
@@ -147,7 +157,13 @@ export const useWebsiteStore = create(
       products: [],
       productsPagination: { total: 0, page: 1, pages: 1 },
       productsLoading: false,
-      productFilters: { search: "", category: "", sort: "createdAt", page: 1 },
+      productFilters: {
+        search: "",
+        category: "",
+        gender: "",
+        sort: "createdAt",
+        page: 1,
+      },
 
       setProductFilters: (f) =>
         set((s) => ({
@@ -169,6 +185,10 @@ export const useWebsiteStore = create(
 
         if (filters.category) {
           cleanFilters.category = filters.category;
+        }
+
+        if (filters.gender) {
+          cleanFilters.gender = filters.gender;
         }
 
         if (filters.featured) {
@@ -207,34 +227,55 @@ export const useWebsiteStore = create(
       featuredProducts: [],
       newArrivals: [],
       flashSaleProducts: [],
+      menProducts: [],
+      womenProducts: [],
+      kidsProducts: [],
+      bestSellers: [],
       homeProductsLoading: false,
       fetchHomeProducts: async () => {
         set({ homeProductsLoading: true });
 
         try {
-          const [featured, arrivals, flash] = await Promise.all([
-            productsApi.getList({
-              featured: true,
-              limit: 8,
-            }),
-            productsApi.getList({
-              newArrival: true,
-              limit: 8,
-            }),
-            productsApi.getList({
-              flashSale: true,
-              limit: 8,
-            }),
-          ]);
-
-          console.log("HOME FEATURED", featured);
-          console.log("HOME ARRIVAL", arrivals);
-          console.log("HOME FLASH", flash);
+          const [featured, arrivals, flash, men, women, kids, popular] =
+            await Promise.all([
+              productsApi.getList({
+                featured: true,
+                limit: 8,
+              }),
+              productsApi.getList({
+                newArrival: true,
+                limit: 8,
+              }),
+              productsApi.getList({
+                flashSale: true,
+                limit: 8,
+              }),
+              productsApi.getList({
+                gender: "Men",
+                limit: 8,
+              }),
+              productsApi.getList({
+                gender: "Women",
+                limit: 8,
+              }),
+              productsApi.getList({
+                gender: "Kids",
+                limit: 8,
+              }),
+              productsApi.getList({
+                sort: "popular",
+                limit: 8,
+              }),
+            ]);
 
           set({
             featuredProducts: featured.products || [],
             newArrivals: arrivals.products || [],
             flashSaleProducts: flash.products || [],
+            menProducts: men.products || [],
+            womenProducts: women.products || [],
+            kidsProducts: kids.products || [],
+            bestSellers: popular.products || [],
           });
         } catch (e) {
           console.log("HOME ERROR", e);

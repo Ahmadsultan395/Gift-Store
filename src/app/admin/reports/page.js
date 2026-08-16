@@ -28,7 +28,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const PIE_COLORS = [
-  "#0F4C39",
+  "#7A1F2B",
   "#3b82f6",
   "#f59e0b",
   "#ef4444",
@@ -300,7 +300,7 @@ export default function ReportsPage() {
                   <Line
                     type="monotone"
                     dataKey="sales"
-                    stroke="#0F4C39"
+                    stroke="#7A1F2B"
                     strokeWidth={2}
                     dot={false}
                     name="Sales"

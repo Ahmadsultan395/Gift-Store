@@ -1,5 +1,5 @@
 // components/website/OurPromise.jsx
-import { Truck, ShieldCheck, HandCoins, Headphones } from "lucide-react";
+import { Truck, ShieldCheck, Gift, Headphones } from "lucide-react";
 
 export default function OurPromise() {
   const items = [
@@ -7,11 +7,11 @@ export default function OurPromise() {
       icon: Truck,
       title: "Fast Delivery",
       desc: "Same day delivery in your area",
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-      ring: "ring-blue-100",
-      accent: "bg-blue-500",
-      glow: "group-hover:shadow-blue-200/60",
+      color: "text-secondary-700",
+      bg: "bg-secondary-50",
+      ring: "ring-secondary-100",
+      accent: "bg-secondary-500",
+      glow: "group-hover:shadow-secondary-200/60",
     },
     {
       icon: ShieldCheck,
@@ -24,43 +24,43 @@ export default function OurPromise() {
       glow: "group-hover:shadow-primary-200/60",
     },
     {
-      icon: HandCoins,
-      title: "Best Prices",
-      desc: "Fair value, no hidden charges",
-      color: "text-amber-600",
-      bg: "bg-amber-50",
-      ring: "ring-amber-100",
-      accent: "bg-amber-500",
-      glow: "group-hover:shadow-amber-200/60",
+      icon: Gift,
+      title: "Gift Wrapped With Care",
+      desc: "Every order beautifully packed",
+      color: "text-secondary-800",
+      bg: "bg-secondary-100",
+      ring: "ring-secondary-200",
+      accent: "bg-secondary-700",
+      glow: "group-hover:shadow-secondary-300/50",
     },
     {
       icon: Headphones,
       title: "24/7 Support",
       desc: "Always here to help you",
-      color: "text-rose-600",
-      bg: "bg-rose-50",
-      ring: "ring-rose-100",
-      accent: "bg-rose-500",
-      glow: "group-hover:shadow-rose-200/60",
+      color: "text-primary-500",
+      bg: "bg-primary-50",
+      ring: "ring-primary-100",
+      accent: "bg-primary-400",
+      glow: "group-hover:shadow-primary-200/60",
     },
   ];
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-50 via-white to-primary-50/60 border border-primary-100 px-6 sm:px-10 py-12">
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-50 via-white to-secondary-50/60 border border-primary-100 px-6 sm:px-10 py-12">
       {/* decorative soft blobs */}
       <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-primary-200/30 blur-[70px]" />
-      <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-amber-200/25 blur-[70px]" />
+      <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-secondary-200/30 blur-[70px]" />
       <div className="pointer-events-none absolute inset-0 opacity-[0.04] [background-image:radial-gradient(#0f172a_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="relative text-center max-w-xl mx-auto mb-12">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary-700 ring-1 ring-primary-200">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-secondary-800 ring-1 ring-secondary-200">
           ✨ Our Promise
         </span>
         <h2 className="mt-3 text-2xl sm:text-3xl font-bold text-slate-800">
-          Quality You Can Trust, Every Single Time
+          Every Gift, Wrapped In Trust
         </h2>
         <p className="mt-2 text-slate-500 text-sm">
-          Har order ke sath hamara commitment — freshness se le kar delivery
+          Har order ke sath hamara commitment — packaging se le kar delivery
           tak.
         </p>
       </div>

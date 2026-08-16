@@ -177,6 +177,9 @@ export default function ContactForm({ compact = false, onSuccess }) {
             <option value="">Select a topic</option>
             <option value="Order Issue">Order Issue</option>
             <option value="Product Inquiry">Product Inquiry</option>
+            <option value="Gift Wrapping / Customization">
+              Gift Wrapping / Customization
+            </option>
             <option value="Delivery Problem">Delivery Problem</option>
             <option value="Refund / Return">Refund / Return</option>
             <option value="General Question">General Question</option>

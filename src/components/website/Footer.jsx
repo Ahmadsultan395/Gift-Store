@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
-  Store,
+  Gift,
   Phone,
   Mail,
   MapPin,
@@ -13,6 +13,9 @@ import {
   Send,
   CheckCircle2,
   Loader2,
+  Sparkles,
+  Ribbon,
+  PartyPopper,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
@@ -41,12 +44,12 @@ const socials = {
 };
 
 const linkStyle =
-  "group flex items-center gap-3 text-sm text-slate-300 transition-all duration-500 ease-out hover:text-white hover:translate-x-1";
+  "group flex items-center gap-3 text-sm text-primary-100/80 transition-all duration-500 ease-out hover:text-secondary-300 hover:translate-x-1";
 
 function FooterLink({ name, url }) {
   return (
     <Link href={url} className={linkStyle}>
-      <span className="h-1 w-0 rounded bg-primary-500 transition-all duration-500 ease-out group-hover:w-3" />
+      <span className="h-1 w-0 rounded bg-secondary-400 transition-all duration-500 ease-out group-hover:w-3" />
       {name}
     </Link>
   );
@@ -60,12 +63,13 @@ function ContactItem({ icon: Icon, value, href }) {
       <span
         className="
         h-10 w-10 shrink-0 rounded-full
-        bg-slate-900
+        bg-primary-900
+        border border-primary-800
         flex items-center justify-center
-        text-primary-500
+        text-secondary-400
         transition-all duration-500
-        group-hover:bg-primary-500
-        group-hover:text-white
+        group-hover:bg-secondary-500
+        group-hover:text-primary-950
         group-hover:scale-110
         "
       >
@@ -142,38 +146,55 @@ function FooterNewsletter() {
   return (
     <div
       className={`
+fn-border-glow
 group/card relative overflow-hidden rounded-2xl
-border border-slate-800 bg-slate-900/60
+bg-gradient-to-br from-primary-900/80 via-primary-900/60 to-primary-950/80
 px-6 py-8 sm:px-10
 mb-14
+shadow-xl shadow-black/30
 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]
-hover:border-primary-500/40 hover:bg-slate-900/80
+hover:shadow-secondary-500/10 hover:-translate-y-0.5
 ${mounted ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
 ${shake ? "footer-newsletter-shake" : ""}
 `}
     >
-      {/* radial glow, brightens on hover */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(34,197,94,0.10),transparent_60%)] opacity-70 transition-opacity duration-500 group-hover/card:opacity-100" />
+      {/* animated gradient border ring */}
+      <div className="fn-border-ring pointer-events-none absolute inset-0 rounded-2xl" />
+      <div className="pointer-events-none absolute inset-[1px] rounded-2xl bg-primary-950/40" />
 
-      {/* aurora blobs — static, only drift while card is hovered */}
+      {/* radial glow, brightens on hover — warm gold glow */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,162,39,0.18),transparent_60%)] opacity-80 transition-opacity duration-500 group-hover/card:opacity-100" />
+
+      {/* aurora blobs — always drifting, brighten further on hover */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="fn-aurora-1 absolute -left-10 top-0 h-40 w-40 rounded-full bg-primary-400/20 blur-[60px] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
-        <div className="fn-aurora-2 absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-teal-400/15 blur-[70px] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100" />
+        <div className="fn-aurora-1 absolute -left-10 top-0 h-40 w-40 rounded-full bg-secondary-400/25 blur-[60px] opacity-40 transition-opacity duration-500 group-hover/card:opacity-100" />
+        <div className="fn-aurora-2 absolute -right-10 bottom-0 h-44 w-44 rounded-full bg-primary-400/20 blur-[70px] opacity-40 transition-opacity duration-500 group-hover/card:opacity-100" />
       </div>
+
+      {/* decorative sparkle accents, gift-shop touch — gentle twinkle */}
+      <Sparkles
+        size={70}
+        className="fn-twinkle pointer-events-none absolute -right-4 -top-4 text-secondary-400/20 rotate-12"
+      />
+      <Gift
+        size={50}
+        strokeWidth={1.3}
+        className="fn-twinkle-delay pointer-events-none absolute -left-2 -bottom-3 text-secondary-400/15 -rotate-12"
+      />
 
       <div className="relative flex flex-col items-center gap-5 text-center sm:flex-row sm:justify-between sm:text-left">
         <div className="group/icon flex items-center gap-4">
           <span className="relative hidden h-11 w-11 shrink-0 items-center justify-center sm:flex">
-            <span className="fn-icon-ring absolute inset-0 scale-90 rounded-xl bg-primary-400/30 opacity-0 transition-opacity duration-300 group-hover/icon:opacity-100" />
-            <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-primary-500/15 text-primary-400 ring-1 ring-primary-500/30 transition-transform duration-300 group-hover/icon:-translate-y-1 group-hover/icon:scale-105">
-              <Mail size={20} />
+            <span className="fn-icon-ring absolute inset-0 scale-90 rounded-xl bg-secondary-400/30 opacity-0 transition-opacity duration-300 group-hover/icon:opacity-100" />
+            <span className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-secondary-500/15 text-secondary-400 ring-1 ring-secondary-500/30 transition-transform duration-300 group-hover/icon:-translate-y-1 group-hover/icon:scale-105">
+              <Gift size={20} />
             </span>
           </span>
           <div>
-            <h3 className="text-base font-bold text-white sm:text-lg">
-              Get Exclusive Deals in Your Inbox
+            <h3 className="fn-shimmer-text text-base font-bold sm:text-lg">
+              Get Exclusive Gift Deals in Your Inbox
             </h3>
-            <p className="mt-1 text-xs text-slate-400 sm:text-sm">
+            <p className="mt-1 text-xs text-primary-100/70 sm:text-sm">
               Subscribe for special offers, new arrivals and discount
               notifications.
             </p>
@@ -187,7 +208,7 @@ ${shake ? "footer-newsletter-shake" : ""}
           <div className="relative flex-1">
             <Mail
               size={15}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-primary-300/70"
             />
             <input
               type="email"
@@ -195,10 +216,10 @@ ${shake ? "footer-newsletter-shake" : ""}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               disabled={status === "loading" || status === "success"}
-              className={`w-full rounded-xl border bg-slate-800 py-3 pl-9 pr-3 text-sm text-white placeholder:text-slate-500 outline-none transition-all duration-300 disabled:opacity-50 ${
+              className={`w-full rounded-xl border bg-primary-950/60 py-3 pl-9 pr-3 text-sm text-white placeholder:text-primary-300/50 outline-none transition-all duration-300 disabled:opacity-50 ${
                 status === "error"
                   ? "border-red-500/70 focus:border-red-400"
-                  : "border-slate-700 focus:border-primary-500 focus:shadow-[0_0_0_4px_rgba(22,163,74,0.15)]"
+                  : "border-primary-700 focus:border-secondary-500 focus:shadow-[0_0_0_4px_rgba(201,162,39,0.18)]"
               }`}
             />
           </div>
@@ -206,7 +227,7 @@ ${shake ? "footer-newsletter-shake" : ""}
           <button
             type="submit"
             disabled={status === "loading" || status === "success"}
-            className={`fn-btn-shimmer relative overflow-hidden flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-600/30 active:scale-95 disabled:opacity-80 disabled:translate-y-0 disabled:hover:shadow-none`}
+            className={`fn-btn-shimmer relative overflow-hidden flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-secondary-500 px-6 py-3 text-sm font-bold text-primary-950 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-secondary-500/30 active:scale-95 disabled:opacity-80 disabled:translate-y-0 disabled:hover:shadow-none`}
           >
             {status === "loading" && (
               <>
@@ -237,13 +258,89 @@ ${shake ? "footer-newsletter-shake" : ""}
           </p>
         )}
         {status === "success" && (
-          <p className="fn-msg-in text-xs font-medium text-primary-300">
-            🎉 Thanks! Check your inbox for a confirmation.
+          <p className="fn-msg-in text-xs font-medium text-secondary-300">
+            🎁 Thanks! Check your inbox for a confirmation.
           </p>
         )}
       </div>
 
       <style jsx>{`
+        /* animated conic gradient border — the premium "gift wrap ribbon" ring */
+        .fn-border-glow {
+          position: relative;
+        }
+        .fn-border-ring {
+          padding: 1px;
+          background: conic-gradient(
+            from var(--fn-angle, 0deg),
+            rgba(201, 162, 39, 0.15),
+            rgba(233, 208, 115, 0.55),
+            rgba(201, 162, 39, 0.15) 25%,
+            rgba(122, 31, 43, 0.25) 50%,
+            rgba(201, 162, 39, 0.15) 75%,
+            rgba(233, 208, 115, 0.55),
+            rgba(201, 162, 39, 0.15)
+          );
+          -webkit-mask:
+            linear-gradient(#000 0 0) content-box,
+            linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+          mask-composite: exclude;
+          animation: fnBorderRotate 5s linear infinite;
+        }
+        @property --fn-angle {
+          syntax: "<angle>";
+          initial-value: 0deg;
+          inherits: false;
+        }
+        @keyframes fnBorderRotate {
+          to {
+            --fn-angle: 360deg;
+          }
+        }
+
+        /* shimmering gold-white sweep across the heading text */
+        .fn-shimmer-text {
+          background-image: linear-gradient(
+            100deg,
+            #ffffff 20%,
+            #f3e2a3 40%,
+            #ffffff 60%
+          );
+          background-size: 220% 100%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: fnShimmerText 4s ease-in-out infinite;
+        }
+        @keyframes fnShimmerText {
+          0% {
+            background-position: 200% 0;
+          }
+          100% {
+            background-position: -60% 0;
+          }
+        }
+
+        @keyframes fnTwinkle {
+          0%,
+          100% {
+            opacity: 0.15;
+            transform: scale(1) rotate(12deg);
+          }
+          50% {
+            opacity: 0.4;
+            transform: scale(1.12) rotate(18deg);
+          }
+        }
+        .fn-twinkle {
+          animation: fnTwinkle 3.5s ease-in-out infinite;
+        }
+        .fn-twinkle-delay {
+          animation: fnTwinkle 3.5s ease-in-out infinite;
+          animation-delay: 1.2s;
+        }
+
         @keyframes footerNewsletterShake {
           0%,
           100% {
@@ -308,18 +405,18 @@ ${shake ? "footer-newsletter-shake" : ""}
         }
 
         /* shimmer sweep only plays on hover, resets when not hovered */
-        /* .fn-btn-shimmer {
+        .fn-btn-shimmer {
           background-image: linear-gradient(
             110deg,
-            #16a34a 0%,
-            #16a34a 40%,
-            #4ade80 50%,
-            #16a34a 60%,
-            #16a34a 100%
+            #c9a227 0%,
+            #c9a227 40%,
+            #e9d073 50%,
+            #c9a227 60%,
+            #c9a227 100%
           );
           background-size: 250% 100%;
           background-position: 0% 0;
-        } */
+        }
         .fn-btn-shimmer:hover:not(:disabled) {
           animation: fnShimmerMove 1.2s ease-in-out infinite;
         }
@@ -370,7 +467,11 @@ ${shake ? "footer-newsletter-shake" : ""}
           .fn-icon-ring,
           .fn-btn-shimmer,
           .fn-check-in,
-          .fn-msg-in {
+          .fn-msg-in,
+          .fn-border-ring,
+          .fn-shimmer-text,
+          .fn-twinkle,
+          .fn-twinkle-delay {
             animation: none !important;
           }
         }
@@ -379,6 +480,112 @@ ${shake ? "footer-newsletter-shake" : ""}
   );
 }
 // ---- End Newsletter ----
+
+// ---- Premium decorative background (dot grid + floating gift icons + sparkles) ----
+function FooterBgDecor() {
+  const floaters = [
+    { Icon: Gift, top: "8%", left: "6%", size: 26, delay: "0s", dur: "9s" },
+    {
+      Icon: Sparkles,
+      top: "18%",
+      left: "88%",
+      size: 20,
+      delay: "1.2s",
+      dur: "7s",
+    },
+    {
+      Icon: Ribbon,
+      top: "62%",
+      left: "3%",
+      size: 22,
+      delay: "2.1s",
+      dur: "10s",
+    },
+    {
+      Icon: PartyPopper,
+      top: "72%",
+      left: "92%",
+      size: 24,
+      delay: "0.6s",
+      dur: "8s",
+    },
+    {
+      Icon: Sparkles,
+      top: "42%",
+      left: "50%",
+      size: 16,
+      delay: "1.8s",
+      dur: "11s",
+    },
+    {
+      Icon: Gift,
+      top: "88%",
+      left: "40%",
+      size: 18,
+      delay: "2.6s",
+      dur: "9.5s",
+    },
+  ];
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden">
+      {/* premium gradient mesh */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-56 w-[520px] bg-secondary-500/15 blur-[110px]" />
+      <div className="absolute bottom-0 right-0 h-64 w-64 bg-primary-500/15 blur-[110px]" />
+      <div className="absolute bottom-10 left-0 h-48 w-48 bg-secondary-600/10 blur-[100px]" />
+
+      {/* subtle dot grid, gives a premium wrapping-paper texture */}
+      <div
+        className="absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage: "radial-gradient(currentColor 1px, transparent 1px)",
+          backgroundSize: "22px 22px",
+          color: "#C9A227",
+        }}
+      />
+
+      {/* floating gift-themed icons */}
+      {floaters.map(({ Icon, top, left, size, delay, dur }, i) => (
+        <span
+          key={i}
+          className="fbg-float absolute text-secondary-500/15"
+          style={{
+            top,
+            left,
+            animationDelay: delay,
+            animationDuration: dur,
+          }}
+        >
+          <Icon size={size} strokeWidth={1.5} />
+        </span>
+      ))}
+
+      <style jsx>{`
+        @keyframes fbgFloat {
+          0%,
+          100% {
+            transform: translateY(0) rotate(0deg);
+            opacity: 0.35;
+          }
+          50% {
+            transform: translateY(-14px) rotate(8deg);
+            opacity: 0.7;
+          }
+        }
+        .fbg-float {
+          animation: fbgFloat 8s ease-in-out infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .fbg-float,
+          .fbg-sweep {
+            animation: none !important;
+          }
+        }
+      `}</style>
+    </div>
+  );
+}
+// ---- End decorative background ----
 
 export default function Footer() {
   const { storeSettings, fetchStoreSettings } = useWebsiteStore();
@@ -390,16 +597,11 @@ export default function Footer() {
   const form = storeSettings || {};
 
   return (
-    <footer className="relative overflow-hidden bg-slate-950 text-slate-300">
-      <div
-        className="
-absolute top-0 left-1/2
--translate-x-1/2
-h-44 w-[420px]
-bg-primary-500/10
-blur-[90px]
-"
-      />
+    <footer className="relative overflow-hidden bg-gradient-to-b from-primary-950 via-primary-950 to-primary-900 text-primary-100/80">
+      <FooterBgDecor />
+
+      {/* top gold hairline, premium separator from page content */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-secondary-500/50 to-transparent" />
 
       <div className="relative max-w-7xl mx-auto px-5 py-16">
         <FooterNewsletter />
@@ -409,43 +611,48 @@ blur-[90px]
 
           <div>
             <Link href="/" className="flex items-center gap-3 mb-6 group">
-              <span
-                className="
-h-12 w-12 rounded-xl
-bg-primary-500
+              <span className="relative flex h-12 w-12 shrink-0">
+                <span className="footer-logo-pulse absolute inset-0 rounded-xl bg-secondary-500/40" />
+                <span
+                  className="
+relative h-12 w-12 rounded-xl
+bg-gradient-to-br from-secondary-400 to-secondary-600
 flex items-center justify-center
-text-white shadow-lg
+text-primary-950 shadow-lg shadow-secondary-900/40
+ring-1 ring-secondary-300/40
 transition-transform duration-700
 group-hover:scale-110
 group-hover:rotate-6
 "
-              >
-                {storeSettings?.logo?.url ? (
-                  <Image
-                    src={storeSettings.logo.url}
-                    alt={storeSettings?.storeName || "Store Logo"}
-                    width={44}
-                    height={44}
-                    className="h-full w-full rounded-lg object-contain"
-                  />
-                ) : (
-                  <Store size={21} className="h-4 w-4 sm:h-6 sm:w-6" />
-                )}
+                >
+                  {storeSettings?.logo?.url ? (
+                    <Image
+                      src={storeSettings.logo.url}
+                      alt={storeSettings?.storeName || "Store Logo"}
+                      width={44}
+                      height={44}
+                      className="h-full w-full rounded-lg object-contain"
+                    />
+                  ) : (
+                    <Gift size={21} className="h-4 w-4 sm:h-6 sm:w-6" />
+                  )}
+                </span>
               </span>
 
               <span
                 className="
 text-xl font-bold text-white
-group-hover:text-primary-400
+group-hover:text-secondary-400
+transition-colors duration-500
 "
               >
-                {form.storeName || "Store"}
+                {form.storeName || "Gift Store"}
               </span>
             </Link>
 
-            <p className="text-sm leading-7 text-slate-300">
+            <p className="text-sm leading-7 text-primary-100/70">
               {form.description ||
-                "Premium products with trusted quality and smooth shopping experience."}
+                "Curated gifts and premium products for every celebration, wrapped with care and delivered with love."}
             </p>
 
             <div className="flex gap-3 mt-6">
@@ -467,14 +674,17 @@ group-hover:text-primary-400
                     rel="noopener noreferrer"
                     className="
         h-10 w-10 rounded-full
-        bg-slate-900
-        border border-slate-800
+        bg-primary-900
+        border border-primary-800
         flex items-center justify-center
-        text-slate-300
-        transition-all duration-500
-        hover:bg-primary-500
-        hover:text-white
-        hover:-translate-y-1
+        text-primary-100/80
+        transition-all duration-500 ease-out
+        hover:bg-secondary-500
+        hover:text-primary-950
+        hover:-translate-y-1.5
+        hover:scale-110
+        hover:shadow-lg hover:shadow-secondary-500/30
+        hover:border-secondary-400
       "
                   >
                     <Icon size={18} />
@@ -493,7 +703,7 @@ group-hover:text-primary-400
             <div key={title}>
               <h3
                 className="
-text-white text-sm font-semibold
+text-secondary-400 text-sm font-semibold
 uppercase tracking-[.2em]
 mb-6
 "
@@ -516,7 +726,7 @@ mb-6
           <div>
             <h3
               className="
-text-white text-sm font-semibold
+text-secondary-400 text-sm font-semibold
 uppercase tracking-[.2em]
 mb-6
 "
@@ -549,21 +759,47 @@ mb-6
         <div
           className="
 mt-14 pt-6
-border-t border-slate-800
+border-t border-primary-800
 flex flex-col sm:flex-row
 justify-between items-center
 gap-3
-text-xs text-slate-400
+text-xs text-primary-200/60
 "
         >
           <p>
-            © {new Date().getFullYear()} {form.storeName || "Store"}. All rights
-            reserved.
+            © {new Date().getFullYear()} {form.storeName || "Gift Store"}. All
+            rights reserved.
           </p>
 
-          <p className="hover:text-white">Premium Shopping Experience</p>
+          <p className="flex items-center gap-1.5 hover:text-secondary-400 transition-colors duration-300">
+            <Gift size={13} className="text-secondary-500" />
+            Premium Gifting Experience
+          </p>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes footerLogoPulse {
+          0% {
+            transform: scale(0.85);
+            opacity: 0.55;
+          }
+          70%,
+          100% {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+        }
+        .footer-logo-pulse {
+          animation: footerLogoPulse 2.2s ease-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .footer-logo-pulse {
+            animation: none !important;
+          }
+        }
+      `}</style>
     </footer>
   );
 }

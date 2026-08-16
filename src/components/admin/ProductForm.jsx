@@ -17,14 +17,27 @@ const STATUSES = [
   { value: "inactive", label: "Inactive" },
   { value: "draft", label: "Draft" },
 ];
+const GENDER_OPTIONS = [
+  { value: "Men", label: "Men" },
+  { value: "Women", label: "Women" },
+  { value: "Kids", label: "Kids" },
+  { value: "Unisex", label: "Unisex" },
+];
 
 export default function ProductForm({ product, onSave }) {
   const router = useRouter();
-  const [categories, setCategories] = useState([]);
+  // Full category list (with gender) as fetched — never mutated.
+  const [allCategories, setAllCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [tag, setTag] = useState("");
+
+  // Gender is a picker-only concept here — it exists purely to narrow the
+  // Category dropdown (handy once you have 50-100+ categories). It is
+  // never sent to the API or stored on the product; a product's audience
+  // always comes from its category's own `gender` field.
+  const [genderFilter, setGenderFilter] = useState("");
 
   const [form, setForm] = useState({
     name: "",
@@ -56,8 +69,12 @@ export default function ProductForm({ product, onSave }) {
     fetch("/api/admin/categories")
       .then((r) => r.json())
       .then((d) =>
-        setCategories(
-          (d.data || []).map((c) => ({ value: c._id, label: c.name })),
+        setAllCategories(
+          (d.data || []).map((c) => ({
+            value: c._id,
+            label: c.name,
+            gender: c.gender || "Unisex",
+          })),
         ),
       );
     fetch("/api/admin/brands")
@@ -94,6 +111,11 @@ export default function ProductForm({ product, onSave }) {
         images: product.images || [],
         seo: product.seo || { metaTitle: "", metaDescription: "" },
       });
+      // Pre-select the gender picker from the product's existing category
+      // so its category doesn't disappear from the (now filtered) list.
+      if (product.category?.gender) {
+        setGenderFilter(product.category.gender);
+      }
     }
   }, [product]);
 
@@ -107,6 +129,27 @@ export default function ProductForm({ product, onSave }) {
     return (e) =>
       setForm((p) => ({ ...p, seo: { ...p.seo, [k]: e.target.value } }));
   }
+
+  // Switching gender clears the chosen category if it no longer belongs
+  // to the newly picked gender.
+  function handleGenderChange(e) {
+    const g = e.target.value;
+    setGenderFilter(g);
+    const stillValid = allCategories.some(
+      (c) =>
+        c.value === form.category &&
+        (!g || c.gender === g || c.gender === "Unisex"),
+    );
+    if (!stillValid) {
+      setForm((p) => ({ ...p, category: "" }));
+    }
+  }
+
+  const visibleCategoryOptions = genderFilter
+    ? allCategories.filter(
+        (c) => c.gender === genderFilter || c.gender === "Unisex",
+      )
+    : allCategories;
 
   function addTag() {
     if (tag.trim() && !form.tags.includes(tag.trim())) {
@@ -243,11 +286,22 @@ export default function ProductForm({ product, onSave }) {
             placeholder="Scan or type barcode"
           />
           <Select
+            label="Gender (narrows the category list below)"
+            value={genderFilter}
+            onChange={handleGenderChange}
+            options={GENDER_OPTIONS}
+            placeholder="All genders"
+          />
+          <Select
             label="Category *"
             value={form.category}
             onChange={set("category")}
-            options={categories}
-            placeholder="Select category"
+            options={visibleCategoryOptions}
+            placeholder={
+              genderFilter
+                ? `Select a ${genderFilter} category`
+                : "Select category"
+            }
           />
           <Select
             label="Brand"
@@ -255,6 +309,7 @@ export default function ProductForm({ product, onSave }) {
             onChange={set("brand")}
             options={brands}
             placeholder="Select brand (optional)"
+            className="sm:col-span-2"
           />
           <Textarea
             label="Short Description"

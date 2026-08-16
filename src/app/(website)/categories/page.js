@@ -5,17 +5,26 @@ import Link from "next/link";
 import { ArrowRight, Search, X } from "lucide-react";
 import PageHeroHeader from "@/components/website/PageHeroHeader";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+import Image from "next/image";
+
+const GENDER_TABS = ["All", "Men", "Women", "Kids", "Unisex"];
 
 export default function CategoriesPage() {
   const { categories, fetchCategories, categoriesLoading } = useWebsiteStore();
   const [search, setSearch] = useState("");
+  const [gender, setGender] = useState("All");
   const [page, setPage] = useState(1);
 
   const PER_PAGE = 10;
 
-  const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredCategories = categories.filter((category) => {
+    const matchesSearch = category.name
+      .toLowerCase()
+      .includes(search.toLowerCase());
+    const matchesGender =
+      gender === "All" || (category.gender || "Unisex") === gender;
+    return matchesSearch && matchesGender;
+  });
 
   const totalPages = Math.ceil(filteredCategories.length / PER_PAGE);
 
@@ -26,7 +35,7 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, gender]);
 
   useEffect(() => {
     fetchCategories();
@@ -79,6 +88,23 @@ export default function CategoriesPage() {
           </div>
         </div>
 
+        {/* Gender tabs */}
+        <div className="mb-8 flex flex-wrap gap-2">
+          {GENDER_TABS.map((g) => (
+            <button
+              key={g}
+              onClick={() => setGender(g)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
+                gender === g
+                  ? "border-primary-600 bg-primary-600 text-white"
+                  : "border-slate-200 text-slate-600 hover:border-primary-300 hover:text-primary-600"
+              }`}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+
         {filteredCategories.length === 0 && !categoriesLoading && (
           <div className="py-16 text-center text-slate-500">
             No categories found.
@@ -122,10 +148,12 @@ export default function CategoriesPage() {
                   "
                   >
                     {c.image?.url ? (
-                      <img
+                      <Image
                         src={c.image.url}
-                        alt={c.name}
-                        className="h-full w-full object-cover"
+                        alt={c.name || "Category"}
+                        fill
+                        sizes="(max-width: 640px) 96px, (max-width: 1024px) 112px, 128px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
                       <span className="text-5xl">🛒</span>

@@ -2,15 +2,11 @@ import connectDB from "@/lib/db";
 import Category from "@/models/Category";
 import { ok, fail, notFound, serverError } from "@/lib/apiResponse";
 import slugify from "slugify";
-import { deleteModelImage, updateImage } from "@/lib/cloudinaryDelete";
+import { deleteModelImage } from "@/lib/cloudinaryDelete";
 
 export async function GET(_, { params }) {
   try {
     await connectDB();
-    const oldCat = await updateImage(Category, params.id, image, "image");
-
-    if (!oldCat) return notFound("Category not found");
-
     const cat = await Category.findById(params.id).populate("parent", "name");
     if (!cat) return notFound("Category not found");
     return ok(cat);
@@ -22,7 +18,7 @@ export async function GET(_, { params }) {
 export async function PUT(request, { params }) {
   try {
     const body = await request.json();
-    const { name, description, parent, status, image } = body;
+    const { name, description, parent, status, image, gender } = body;
     await connectDB();
 
     const oldCat = await deleteModelImage(Category, params.id, "image");
@@ -39,6 +35,7 @@ export async function PUT(request, { params }) {
     if (parent !== undefined) cat.parent = parent || null;
     if (status) cat.status = status;
     if (image) cat.image = image;
+    if (gender) cat.gender = gender;
 
     await cat.save();
     return ok(cat, "Category updated");

@@ -9,11 +9,23 @@ const CategorySchema = new mongoose.Schema(
       url: String,
       publicId: String,
     },
-    parent: { type: mongoose.Schema.Types.ObjectId, ref: "Category", default: null },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      default: null,
+    },
+    // Audience this category belongs to — powers the homepage Men/Women/Kids
+    // tiles. "Unisex" categories are included under every gender tile.
+    gender: {
+      type: String,
+      enum: ["Men", "Women", "Kids", "Unisex"],
+      default: "Unisex",
+    },
     status: { type: String, enum: ["active", "inactive"], default: "active" },
     sortOrder: { type: Number, default: 0 },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-export default mongoose.models.Category || mongoose.model("Category", CategorySchema);
+export default mongoose.models.Category ||
+  mongoose.model("Category", CategorySchema);

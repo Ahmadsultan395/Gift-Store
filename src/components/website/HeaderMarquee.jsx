@@ -15,7 +15,11 @@ export default function HeaderMarquee({ brands = [], speed = 80 }) {
   const items = Array.from({ length: repeatCount }).flatMap(() => normalized);
 
   return (
-    <section className="overflow-hidden py-3 bg-[#030B1A]">
+    <section className="relative overflow-hidden py-3 bg-primary-950">
+      {/* subtle gold hairline top/bottom, matches footer/hero language */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-secondary-500/40 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-secondary-500/40 to-transparent" />
+
       <div className="relative flex overflow-hidden">
         <div
           className="flex w-max animate-marquee items-center gap-x-10 sm:gap-x-20 lg:gap-x-44"
@@ -32,8 +36,9 @@ export default function HeaderMarquee({ brands = [], speed = 80 }) {
             ) : (
               <span
                 key={i}
-                className="text-sm font-medium text-white whitespace-nowrap shrink-0"
+                className="flex items-center gap-2 text-sm font-medium text-primary-100/85 whitespace-nowrap shrink-0"
               >
+                <span className="h-1 w-1 rounded-full bg-secondary-400/70" />
                 {item.name}
               </span>
             ),

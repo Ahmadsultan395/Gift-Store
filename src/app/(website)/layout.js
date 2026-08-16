@@ -4,6 +4,7 @@ import Footer from "@/components/website/Footer";
 import ChatWidget from "@/components/website/ChatWidget";
 import HeaderMarquee from "@/components/website/HeaderMarquee";
 import WhatsAppButton from "@/components/website/WhatsappButton";
+import SubscribePopup from "@/components/website/SubscribePopup";
 
 export const metadata = {
   title: { default: "Pansar Store", template: "%s | Pansar Store" },
@@ -29,6 +30,11 @@ export default function WebsiteLayout({ children }) {
         <Footer />
         <ChatWidget />
         <WhatsAppButton />
+
+        {/* Site-wide subscribe popup — shows on entry per the timing
+            rules defined inside SubscribePopup.jsx. Mounted once here
+            so it works across every page, not per-page. */}
+        <SubscribePopup />
       </div>
     </WebsiteProvider>
   );

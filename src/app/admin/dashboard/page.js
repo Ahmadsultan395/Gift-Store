@@ -32,7 +32,7 @@ import {
 import StatCard from "@/components/admin/StatCard";
 
 const PIE_COLORS = [
-  "#0F4C39",
+  "#7A1F2B",
   "#3b82f6",
   "#f59e0b",
   "#ef4444",
@@ -245,7 +245,7 @@ export default function DashboardPage() {
               <Line
                 type="monotone"
                 dataKey="sales"
-                stroke="#0F4C39"
+                stroke="#7A1F2B"
                 strokeWidth={2}
                 dot={false}
                 name="Sales (PKR)"
@@ -312,7 +312,7 @@ export default function DashboardPage() {
               <Tooltip formatter={(v) => `PKR ${fmt(v)}`} />
               <Bar
                 dataKey="sales"
-                fill="#0F4C39"
+                fill="#7A1F2B"
                 radius={[4, 4, 0, 0]}
                 name="Sales"
               />
