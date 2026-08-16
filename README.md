@@ -158,3 +158,4 @@ Secondary : #FEF9C3
 Accent : #EA580C
 Background: #FFFEF5
 Text : #1F2937
+# Gift-Store
