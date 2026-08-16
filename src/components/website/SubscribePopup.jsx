@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   Gift,
   Mail,
@@ -71,6 +72,12 @@ export default function SubscribePopup() {
   const [shake, setShake] = useState(false);
 
   const subscribedRef = useRef(false);
+
+  // Render through a portal straight into document.body so this widget is
+  // never affected by any parent's overflow/scroll/transform — that was
+  // the cause of the tab appearing to vanish while scrolling.
+  const [portalReady, setPortalReady] = useState(false);
+  useEffect(() => setPortalReady(true), []);
 
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
 
@@ -203,11 +210,13 @@ export default function SubscribePopup() {
     }
   }
 
-  return (
+  if (!portalReady) return null;
+
+  return createPortal(
     <>
       {view === "popup" && (
         <div
-          className={`fixed inset-0 z-[999] flex items-center justify-center p-4 transition-opacity duration-300 ${
+          className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-300 ${
             popupMounted ? "opacity-100" : "opacity-0"
           }`}
           aria-modal="true"
@@ -550,7 +559,7 @@ export default function SubscribePopup() {
           transformed ancestor. */}
       {view === "tab" && (
         <div
-          className={`fixed top-1/2 z-[998] -translate-y-1/2 ${
+          className={`fixed top-1/2 z-[9998] -translate-y-1/2 ${
             TAB_SIDE === "right" ? "right-0" : "left-0"
           }`}
           style={{
@@ -562,26 +571,31 @@ export default function SubscribePopup() {
             onClick={openFromTab}
             aria-label="Open 10% off gift offer"
             className={`
-              sp-tab-float sp-tab-glow
+              sp-tab-float sp-tab-glow sp-tab-attention
               relative flex flex-col items-center gap-2
               ${TAB_SIDE === "right" ? "rounded-l-2xl" : "rounded-r-2xl"}
-              border border-secondary-300/40
-              bg-gradient-to-b from-secondary-400 via-secondary-500 to-primary-800
-              px-2.5 py-4
-              shadow-xl shadow-black/30
+              border-2 border-[#FFE9A8]
+              px-3 py-5
               transition-all duration-300 ease-out
-              hover:px-3.5
+              hover:px-4
               active:scale-95
               ${tabMounted ? "opacity-100 scale-100" : "opacity-0 scale-75"}
             `}
+            style={{
+              background:
+                "linear-gradient(180deg, #FFD65C 0%, #F5B900 45%, #7A1F2B 100%)",
+            }}
           >
+            {/* pulsing "ping" ring — the classic notification-badge attention grabber */}
+            <span className="sp-tab-ping pointer-events-none absolute inset-0 rounded-[inherit]" />
+
             <Gift
-              size={18}
-              strokeWidth={1.8}
-              className="sp-tab-icon text-primary-950"
+              size={20}
+              strokeWidth={2}
+              className="sp-tab-icon relative text-[#3a0a12]"
             />
             <span
-              className="text-[10.5px] font-black uppercase tracking-widest text-primary-950"
+              className="relative text-[11px] font-black uppercase tracking-widest text-[#3a0a12]"
               style={{
                 writingMode: "vertical-rl",
                 transform: "rotate(180deg)",
@@ -594,7 +608,7 @@ export default function SubscribePopup() {
 
           <style jsx>{`
             .sp-tab-float {
-              animation: spTabBob 3.2s ease-in-out infinite;
+              animation: spTabBob 2.6s ease-in-out infinite;
             }
             @keyframes spTabBob {
               0%,
@@ -602,27 +616,50 @@ export default function SubscribePopup() {
                 transform: translateY(0);
               }
               50% {
-                transform: translateY(-6px);
+                transform: translateY(-10px);
               }
             }
 
             .sp-tab-glow {
               box-shadow:
-                0 0 0 0 rgba(233, 208, 115, 0.5),
-                0 8px 24px -6px rgba(0, 0, 0, 0.35);
-              animation: spTabGlowPulse 2.6s ease-in-out infinite;
+                0 0 18px 2px rgba(255, 214, 92, 0.65),
+                0 10px 28px -6px rgba(0, 0, 0, 0.5);
             }
-            @keyframes spTabGlowPulse {
+
+            /* big periodic "look at me" pulse, on top of the constant float */
+            .sp-tab-attention {
+              animation:
+                spTabBob 2.6s ease-in-out infinite,
+                spTabAttention 4s ease-in-out infinite;
+            }
+            @keyframes spTabAttention {
               0%,
+              78%,
               100% {
-                box-shadow:
-                  0 0 0 0 rgba(233, 208, 115, 0.45),
-                  0 8px 24px -6px rgba(0, 0, 0, 0.35);
+                filter: brightness(1);
               }
-              50% {
-                box-shadow:
-                  0 0 14px 3px rgba(233, 208, 115, 0.55),
-                  0 8px 24px -6px rgba(0, 0, 0, 0.35);
+              84% {
+                filter: brightness(1.35);
+              }
+              90% {
+                filter: brightness(1);
+              }
+            }
+
+            /* expanding ring that pings outward, like a notification badge */
+            .sp-tab-ping {
+              box-shadow: 0 0 0 0 rgba(255, 214, 92, 0.7);
+              animation: spTabPing 2.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+            }
+            @keyframes spTabPing {
+              0% {
+                box-shadow: 0 0 0 0 rgba(255, 214, 92, 0.65);
+              }
+              70% {
+                box-shadow: 0 0 0 16px rgba(255, 214, 92, 0);
+              }
+              100% {
+                box-shadow: 0 0 0 0 rgba(255, 214, 92, 0);
               }
             }
 
@@ -635,20 +672,20 @@ export default function SubscribePopup() {
                 transform: scale(1) rotate(0deg);
               }
               50% {
-                transform: scale(1.12) rotate(-6deg);
+                transform: scale(1.22) rotate(-8deg);
               }
             }
 
             .sp-tab-shine {
               background: linear-gradient(
                 115deg,
-                transparent 40%,
-                rgba(255, 255, 255, 0.45) 50%,
-                transparent 60%
+                transparent 35%,
+                rgba(255, 255, 255, 0.65) 50%,
+                transparent 65%
               );
               background-size: 220% 220%;
               background-position: 130% 0;
-              animation: spTabShineSweep 3.2s ease-in-out infinite;
+              animation: spTabShineSweep 2.6s ease-in-out infinite;
               animation-delay: 1s;
             }
             @keyframes spTabShineSweep {
@@ -664,6 +701,8 @@ export default function SubscribePopup() {
             @media (prefers-reduced-motion: reduce) {
               .sp-tab-float,
               .sp-tab-glow,
+              .sp-tab-attention,
+              .sp-tab-ping,
               .sp-tab-icon,
               .sp-tab-shine {
                 animation: none !important;
@@ -672,6 +711,7 @@ export default function SubscribePopup() {
           `}</style>
         </div>
       )}
-    </>
+    </>,
+    document.body,
   );
 }
