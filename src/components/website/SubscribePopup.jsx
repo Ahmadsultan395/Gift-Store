@@ -53,7 +53,7 @@ import {
 // ── Config — tweak these to control behaviour ────────────────────────
 const SHOW_INTERVAL_HOURS = 24; // how often to re-show after a close
 const FIRST_SHOW_DELAY_MS = 1800; // small delay so it doesn't jump-scare on load
-const TAB_SIDE = "right"; // "right" | "left"
+const TAB_SIDE = "left"; // "right" | "left"
 
 const STORAGE_KEYS = {
   lastShown: "gs_newsletter_last_shown",
@@ -572,33 +572,33 @@ export default function SubscribePopup() {
             aria-label="Open 10% off gift offer"
             className={`
               sp-tab-float sp-tab-glow sp-tab-attention
-              relative flex flex-col items-center gap-2
+              relative flex flex-col items-center gap-3
               ${TAB_SIDE === "right" ? "rounded-l-2xl" : "rounded-r-2xl"}
-              border-2 border-[#FFE9A8]
-              px-3 py-5
+              border-[3px] border-[#3a0a12]
+              px-3.5 py-6
               transition-all duration-300 ease-out
-              hover:px-4
+              hover:px-5
               active:scale-95
               ${tabMounted ? "opacity-100 scale-100" : "opacity-0 scale-75"}
             `}
             style={{
               background:
-                "linear-gradient(180deg, #FFD65C 0%, #F5B900 45%, #7A1F2B 100%)",
+                "linear-gradient(180deg, #FFE27A 0%, #F7C325 50%, #E0A600 100%)",
+              minWidth: 52,
             }}
           >
             {/* pulsing "ping" ring — the classic notification-badge attention grabber */}
             <span className="sp-tab-ping pointer-events-none absolute inset-0 rounded-[inherit]" />
 
-            <Gift
-              size={20}
-              strokeWidth={2}
-              className="sp-tab-icon relative text-[#3a0a12]"
-            />
+            <span className="sp-tab-icon relative flex h-8 w-8 items-center justify-center rounded-full bg-[#3a0a12] shadow-md">
+              <Gift size={17} strokeWidth={2.4} className="text-[#FFE27A]" />
+            </span>
             <span
-              className="relative text-[11px] font-black uppercase tracking-widest text-[#3a0a12]"
+              className="relative text-[13px] font-black uppercase tracking-wider text-[#3a0a12]"
               style={{
                 writingMode: "vertical-rl",
                 transform: "rotate(180deg)",
+                textShadow: "0 1px 0 rgba(255,255,255,0.35)",
               }}
             >
               10% Off
@@ -622,8 +622,8 @@ export default function SubscribePopup() {
 
             .sp-tab-glow {
               box-shadow:
-                0 0 18px 2px rgba(255, 214, 92, 0.65),
-                0 10px 28px -6px rgba(0, 0, 0, 0.5);
+                0 0 22px 4px rgba(247, 195, 37, 0.75),
+                0 10px 28px -4px rgba(0, 0, 0, 0.6);
             }
 
             /* big periodic "look at me" pulse, on top of the constant float */
