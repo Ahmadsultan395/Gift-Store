@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   Gift,
   Mail,
@@ -20,7 +20,7 @@ import {
  *
  * BEHAVIOUR / TIMING RULES (all controlled by the constants below):
  *  - First-time visitor → popup shows after a short delay.
- *  - If the visitor closes it (X or backdrop click) → it will not
+ *  - If the visitor closes it (X or "no thanks") → it will not
  *    show again until SHOW_INTERVAL_HOURS have passed, BUT a small
  *    animated vertical tab stays stuck to the side of the screen.
  *    Clicking that tab reopens the popup immediately (bypasses the
@@ -31,11 +31,19 @@ import {
  *  - Everything is tracked in localStorage, so it persists across
  *    page navigations and browser restarts (not just per-tab/session).
  *
+ * A single `view` state ("closed" | "popup" | "tab") drives everything —
+ * no chained timeouts flipping multiple booleans, so there's no race
+ * condition where the popup opens and then instantly reverts.
+ *
+ * The side tab NEVER translates itself off/on screen horizontally.
+ * It animates only opacity + scale (anchored at the screen edge), so
+ * it can never push the page's scrollable width and create a gap —
+ * even if some ancestor element has its own CSS transform.
+ *
  * TO CHANGE THE FREQUENCY:
  *  - "1 baar din mein"        → SHOW_INTERVAL_HOURS = 24
  *  - "har 4 ghante baad"      → SHOW_INTERVAL_HOURS = 4
  *  - "har 1 ghante baad"      → SHOW_INTERVAL_HOURS = 1
- *  Just edit the single constant below — nothing else to touch.
  *
  * TO CHANGE THE TAB SIDE:
  *  - TAB_SIDE = "right" | "left"
@@ -45,7 +53,6 @@ import {
 const SHOW_INTERVAL_HOURS = 24; // how often to re-show after a close
 const FIRST_SHOW_DELAY_MS = 1800; // small delay so it doesn't jump-scare on load
 const TAB_SIDE = "right"; // "right" | "left"
-const TAB_APPEAR_DELAY_MS = 400; // delay before the side tab slides in after popup closes
 
 const STORAGE_KEYS = {
   lastShown: "gs_newsletter_last_shown",
@@ -53,43 +60,42 @@ const STORAGE_KEYS = {
 };
 
 export default function SubscribePopup() {
-  const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // "closed" | "popup" | "tab"  — single source of truth, no races
+  const [view, setView] = useState("closed");
+  const [popupMounted, setPopupMounted] = useState(false);
+  const [tabMounted, setTabMounted] = useState(false);
+
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMsg, setErrorMsg] = useState("");
   const [shake, setShake] = useState(false);
 
-  // side tab state
-  const [subscribed, setSubscribed] = useState(false);
-  const [tabVisible, setTabVisible] = useState(false);
-  const [tabMounted, setTabMounted] = useState(false);
+  const subscribedRef = useRef(false);
 
   const isValidEmail = (val) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
 
-  // ── Decide on mount whether the popup is allowed to show ──────────
+  // ── Decide on mount what to show ──────────────────────────────────
   useEffect(() => {
     try {
       const alreadySubscribed = localStorage.getItem(STORAGE_KEYS.subscribed);
       if (alreadySubscribed === "true") {
-        setSubscribed(true);
-        return; // never show popup or tab again
+        subscribedRef.current = true;
+        setView("closed");
+        return;
       }
 
       const lastShown = localStorage.getItem(STORAGE_KEYS.lastShown);
       const intervalMs = SHOW_INTERVAL_HOURS * 60 * 60 * 1000;
-
       const eligible =
         !lastShown || Date.now() - Number(lastShown) >= intervalMs;
 
       if (!eligible) {
-        // not eligible for the popup right now → show the side tab instead
-        setTabVisible(true);
+        setView("tab");
         return;
       }
 
       const timer = setTimeout(() => {
-        setOpen(true);
+        setView("popup");
         localStorage.setItem(STORAGE_KEYS.lastShown, String(Date.now()));
       }, FIRST_SHOW_DELAY_MS);
 
@@ -99,59 +105,53 @@ export default function SubscribePopup() {
     }
   }, []);
 
-  // mount flag purely for the popup entrance animation
+  // entrance animation flags — driven purely by `view`
   useEffect(() => {
-    if (open) {
-      const raf = requestAnimationFrame(() => setMounted(true));
+    if (view === "popup") {
+      const raf = requestAnimationFrame(() => setPopupMounted(true));
       return () => cancelAnimationFrame(raf);
     }
-    setMounted(false);
-  }, [open]);
+    setPopupMounted(false);
 
-  // slide the side tab in whenever it becomes visible
-  useEffect(() => {
-    if (tabVisible) {
-      const t = setTimeout(() => setTabMounted(true), TAB_APPEAR_DELAY_MS);
-      return () => clearTimeout(t);
+    if (view === "tab") {
+      const raf = requestAnimationFrame(() => setTabMounted(true));
+      return () => cancelAnimationFrame(raf);
     }
     setTabMounted(false);
-  }, [tabVisible]);
+  }, [view]);
 
   const closePopup = useCallback(() => {
-    setMounted(false);
+    setPopupMounted(false);
     setTimeout(() => {
-      setOpen(false);
-      // popup dismissed without subscribing → hand off to the side tab
-      if (!subscribed) setTabVisible(true);
+      setView(subscribedRef.current ? "closed" : "tab");
     }, 250); // let exit animation play
-  }, [subscribed]);
+  }, []);
 
   const openFromTab = useCallback(() => {
     setTabMounted(false);
     setTimeout(() => {
-      setTabVisible(false);
-      setOpen(true);
+      setView("popup");
     }, 200);
   }, []);
 
-  // lock body scroll while open
+  // lock body scroll while popup open
   useEffect(() => {
-    if (open) {
+    if (view === "popup") {
       const original = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = original;
       };
     }
-  }, [open]);
+  }, [view]);
 
   // close on Escape
   useEffect(() => {
-    if (!open) return;
+    if (view !== "popup") return;
     const onKey = (e) => e.key === "Escape" && closePopup();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, closePopup]);
+  }, [view, closePopup]);
 
   async function handleSubscribe(e) {
     e.preventDefault();
@@ -189,13 +189,11 @@ export default function SubscribePopup() {
 
       setStatus("success");
       setEmail("");
-      setSubscribed(true);
+      subscribedRef.current = true;
       try {
         localStorage.setItem(STORAGE_KEYS.subscribed, "true");
       } catch {}
 
-      // subscribed → tab must never show again
-      setTabVisible(false);
       setTimeout(() => closePopup(), 2000);
     } catch {
       setStatus("error");
@@ -207,10 +205,10 @@ export default function SubscribePopup() {
 
   return (
     <>
-      {open && (
+      {view === "popup" && (
         <div
           className={`fixed inset-0 z-[999] flex items-center justify-center p-4 transition-opacity duration-300 ${
-            mounted ? "opacity-100" : "opacity-0"
+            popupMounted ? "opacity-100" : "opacity-0"
           }`}
           aria-modal="true"
           role="dialog"
@@ -226,7 +224,7 @@ export default function SubscribePopup() {
             bg-gradient-to-br from-primary-900 via-primary-950 to-primary-950
             shadow-2xl shadow-black/50
             transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]
-            ${mounted ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-95 opacity-0"}
+            ${popupMounted ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-95 opacity-0"}
             ${shake ? "sp-shake" : ""}
             `}
           >
@@ -544,114 +542,135 @@ export default function SubscribePopup() {
         </div>
       )}
 
-      {/* ── Vertical side tab — shown whenever the popup is closed and the visitor hasn't subscribed ── */}
-      {tabVisible && !subscribed && (
-        <button
-          onClick={openFromTab}
-          aria-label="Open 10% off gift offer"
-          className={`
-            sp-tab-float
-            fixed top-1/2 z-[998] -translate-y-1/2
-            ${TAB_SIDE === "right" ? "right-0 sp-tab-in-right" : "left-0 sp-tab-in-left"}
-            ${tabMounted ? "sp-tab-shown" : "sp-tab-hidden"}
-            flex flex-col items-center gap-2
-            rounded-l-2xl rounded-r-2xl
-            ${TAB_SIDE === "right" ? "rounded-r-none" : "rounded-l-none"}
-            bg-gradient-to-b from-secondary-400 via-secondary-500 to-secondary-600
-            px-2.5 py-4
-            shadow-2xl shadow-black/40
-            ring-1 ring-white/20
-            transition-transform duration-300
-            hover:scale-105 active:scale-95
-          `}
+      {/* ── Vertical side tab ─────────────────────────────────────────
+          Anchored flush to the edge at all times. Only opacity + scale
+          animate (transform-origin sits on the edge itself), so this
+          element never extends past the viewport and can never create
+          horizontal overflow/gap on the page, regardless of any
+          transformed ancestor. */}
+      {view === "tab" && (
+        <div
+          className={`fixed top-1/2 z-[998] -translate-y-1/2 ${
+            TAB_SIDE === "right" ? "right-0" : "left-0"
+          }`}
+          style={{
+            transformOrigin:
+              TAB_SIDE === "right" ? "right center" : "left center",
+          }}
         >
-          <span className="sp-tab-ring pointer-events-none absolute inset-0 rounded-2xl" />
-          <Gift
-            size={20}
-            strokeWidth={1.8}
-            className="sp-tab-wiggle text-primary-950"
-          />
-          <span
-            className="text-[11px] font-black uppercase tracking-widest text-primary-950"
-            style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+          <button
+            onClick={openFromTab}
+            aria-label="Open 10% off gift offer"
+            className={`
+              sp-tab-float sp-tab-glow
+              relative flex flex-col items-center gap-2
+              ${TAB_SIDE === "right" ? "rounded-l-2xl" : "rounded-r-2xl"}
+              border border-secondary-300/40
+              bg-gradient-to-b from-secondary-400 via-secondary-500 to-primary-800
+              px-2.5 py-4
+              shadow-xl shadow-black/30
+              transition-all duration-300 ease-out
+              hover:px-3.5
+              active:scale-95
+              ${tabMounted ? "opacity-100 scale-100" : "opacity-0 scale-75"}
+            `}
           >
-            10% Off
-          </span>
-          <Sparkles size={14} className="sp-tab-spark text-primary-950/70" />
+            <Gift
+              size={18}
+              strokeWidth={1.8}
+              className="sp-tab-icon text-primary-950"
+            />
+            <span
+              className="text-[10.5px] font-black uppercase tracking-widest text-primary-950"
+              style={{
+                writingMode: "vertical-rl",
+                transform: "rotate(180deg)",
+              }}
+            >
+              10% Off
+            </span>
+            <span className="sp-tab-shine pointer-events-none absolute inset-0 rounded-[inherit]" />
+          </button>
 
           <style jsx>{`
-            .sp-tab-in-right {
-              transform: translate(100%, -50%);
-            }
-            .sp-tab-in-left {
-              transform: translate(-100%, -50%);
-            }
-            .sp-tab-shown.sp-tab-in-right {
-              transform: translate(0, -50%);
-            }
-            .sp-tab-shown.sp-tab-in-left {
-              transform: translate(0, -50%);
-            }
             .sp-tab-float {
-              animation: spTabBob 2.4s ease-in-out infinite;
+              animation: spTabBob 3.2s ease-in-out infinite;
             }
             @keyframes spTabBob {
               0%,
               100% {
-                margin-top: 0px;
+                transform: translateY(0);
               }
               50% {
-                margin-top: -10px;
+                transform: translateY(-6px);
               }
             }
-            .sp-tab-ring {
-              box-shadow: 0 0 0 0 rgba(233, 208, 115, 0.6);
-              animation: spTabPulseRing 1.8s ease-out infinite;
+
+            .sp-tab-glow {
+              box-shadow:
+                0 0 0 0 rgba(233, 208, 115, 0.5),
+                0 8px 24px -6px rgba(0, 0, 0, 0.35);
+              animation: spTabGlowPulse 2.6s ease-in-out infinite;
             }
-            @keyframes spTabPulseRing {
+            @keyframes spTabGlowPulse {
+              0%,
+              100% {
+                box-shadow:
+                  0 0 0 0 rgba(233, 208, 115, 0.45),
+                  0 8px 24px -6px rgba(0, 0, 0, 0.35);
+              }
+              50% {
+                box-shadow:
+                  0 0 14px 3px rgba(233, 208, 115, 0.55),
+                  0 8px 24px -6px rgba(0, 0, 0, 0.35);
+              }
+            }
+
+            .sp-tab-icon {
+              animation: spTabIconPulse 2.6s ease-in-out infinite;
+            }
+            @keyframes spTabIconPulse {
+              0%,
+              100% {
+                transform: scale(1) rotate(0deg);
+              }
+              50% {
+                transform: scale(1.12) rotate(-6deg);
+              }
+            }
+
+            .sp-tab-shine {
+              background: linear-gradient(
+                115deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.45) 50%,
+                transparent 60%
+              );
+              background-size: 220% 220%;
+              background-position: 130% 0;
+              animation: spTabShineSweep 3.2s ease-in-out infinite;
+              animation-delay: 1s;
+            }
+            @keyframes spTabShineSweep {
               0% {
-                box-shadow: 0 0 0 0 rgba(233, 208, 115, 0.55);
+                background-position: 130% 0;
               }
+              35%,
               100% {
-                box-shadow: 0 0 0 14px rgba(233, 208, 115, 0);
+                background-position: -30% 0;
               }
             }
-            .sp-tab-wiggle {
-              animation: spTabWiggle 1.6s ease-in-out infinite;
-            }
-            @keyframes spTabWiggle {
-              0%,
-              100% {
-                transform: rotate(-8deg);
-              }
-              50% {
-                transform: rotate(8deg);
-              }
-            }
-            .sp-tab-spark {
-              animation: spTabSparkPulse 1.4s ease-in-out infinite;
-            }
-            @keyframes spTabSparkPulse {
-              0%,
-              100% {
-                opacity: 0.4;
-                transform: scale(0.9);
-              }
-              50% {
-                opacity: 1;
-                transform: scale(1.2);
-              }
-            }
+
             @media (prefers-reduced-motion: reduce) {
               .sp-tab-float,
-              .sp-tab-ring,
-              .sp-tab-wiggle,
-              .sp-tab-spark {
+              .sp-tab-glow,
+              .sp-tab-icon,
+              .sp-tab-shine {
                 animation: none !important;
               }
             }
           `}</style>
-        </button>
+        </div>
       )}
     </>
   );
