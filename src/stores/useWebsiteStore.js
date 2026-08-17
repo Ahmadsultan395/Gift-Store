@@ -228,15 +228,15 @@ export const useWebsiteStore = create(
       kidsProducts: [],
       bestSellers: [],
 
-      featuredLoading: false,
-      newArrivalsLoading: false,
-      flashSaleLoading: false,
-      menLoading: false,
-      womenLoading: false,
-      kidsLoading: false,
-      bestSellersLoading: false,
+      featuredLoading: true,
+      newArrivalsLoading: true,
+      flashSaleLoading: true,
+      menLoading: true,
+      womenLoading: true,
+      kidsLoading: true,
+      bestSellersLoading: true,
 
-      fetchHomeProducts: () => {
+      fetchHomeProducts: async () => {
         set({
           featuredLoading: true,
           newArrivalsLoading: true,
@@ -247,47 +247,60 @@ export const useWebsiteStore = create(
           bestSellersLoading: true,
         });
 
-        productsApi
-          .getList({ featured: true, limit: 8 })
-          .then((d) => set({ featuredProducts: d.products || [] }))
-          .catch((e) => console.log("HOME FEATURED ERROR", e))
-          .finally(() => set({ featuredLoading: false }));
+        // Fetched ONE AT A TIME (not Promise.all) — firing 7 DB-hitting
+        // requests at once was overloading the connection pool on
+        // serverless (Vercel), causing random ones to silently fail or
+        // time out. Sequential keeps things reliable; each section still
+        // updates and renders the moment ITS data lands, so the page
+        // still fills in progressively rather than waiting for all seven.
+        const jobs = [
+          {
+            params: { flashSale: true, limit: 8 },
+            dataKey: "flashSaleProducts",
+            loadingKey: "flashSaleLoading",
+          },
+          {
+            params: { featured: true, limit: 8 },
+            dataKey: "featuredProducts",
+            loadingKey: "featuredLoading",
+          },
+          {
+            params: { newArrival: true, limit: 8 },
+            dataKey: "newArrivals",
+            loadingKey: "newArrivalsLoading",
+          },
+          {
+            params: { sort: "popular", limit: 8 },
+            dataKey: "bestSellers",
+            loadingKey: "bestSellersLoading",
+          },
+          {
+            params: { gender: "Men", limit: 8 },
+            dataKey: "menProducts",
+            loadingKey: "menLoading",
+          },
+          {
+            params: { gender: "Women", limit: 8 },
+            dataKey: "womenProducts",
+            loadingKey: "womenLoading",
+          },
+          {
+            params: { gender: "Kids", limit: 8 },
+            dataKey: "kidsProducts",
+            loadingKey: "kidsLoading",
+          },
+        ];
 
-        productsApi
-          .getList({ newArrival: true, limit: 8 })
-          .then((d) => set({ newArrivals: d.products || [] }))
-          .catch((e) => console.log("HOME NEW ARRIVALS ERROR", e))
-          .finally(() => set({ newArrivalsLoading: false }));
-
-        productsApi
-          .getList({ flashSale: true, limit: 8 })
-          .then((d) => set({ flashSaleProducts: d.products || [] }))
-          .catch((e) => console.log("HOME FLASH ERROR", e))
-          .finally(() => set({ flashSaleLoading: false }));
-
-        productsApi
-          .getList({ gender: "Men", limit: 8 })
-          .then((d) => set({ menProducts: d.products || [] }))
-          .catch((e) => console.log("HOME MEN ERROR", e))
-          .finally(() => set({ menLoading: false }));
-
-        productsApi
-          .getList({ gender: "Women", limit: 8 })
-          .then((d) => set({ womenProducts: d.products || [] }))
-          .catch((e) => console.log("HOME WOMEN ERROR", e))
-          .finally(() => set({ womenLoading: false }));
-
-        productsApi
-          .getList({ gender: "Kids", limit: 8 })
-          .then((d) => set({ kidsProducts: d.products || [] }))
-          .catch((e) => console.log("HOME KIDS ERROR", e))
-          .finally(() => set({ kidsLoading: false }));
-
-        productsApi
-          .getList({ sort: "popular", limit: 8 })
-          .then((d) => set({ bestSellers: d.products || [] }))
-          .catch((e) => console.log("HOME POPULAR ERROR", e))
-          .finally(() => set({ bestSellersLoading: false }));
+        for (const job of jobs) {
+          try {
+            const data = await productsApi.getList(job.params);
+            set({ [job.dataKey]: data.products || [] });
+          } catch (e) {
+            console.log(`HOME ${job.dataKey} ERROR`, e);
+          } finally {
+            set({ [job.loadingKey]: false });
+          }
+        }
       },
 
       // ── Single Product ────────────────────────────────────────
