@@ -100,23 +100,13 @@ export const useWebsiteStore = create(
       // ── Settings / Store Info ─────────────────────────────────
       storeSettings: null,
       settingsLoaded: false,
-      settingsLoading: false,
 
       fetchStoreSettings: async () => {
-        if (get().settingsLoaded || get().settingsLoading) return;
-
-        set({ settingsLoading: true });
-
+        if (get().settingsLoaded) return;
         try {
           const data = await settingsApi.get();
-          set({
-            storeSettings: data,
-            settingsLoaded: true,
-            settingsLoading: false,
-          });
-        } catch {
-          set({ settingsLoading: false });
-        }
+          set({ storeSettings: data, settingsLoaded: true });
+        } catch {}
       },
 
       // ── Categories ───────────────────────────────────────────
@@ -224,6 +214,12 @@ export const useWebsiteStore = create(
       },
 
       // ── Home Page Products ───────────────────────────────────
+      // Each section has its OWN loading flag and fetches independently —
+      // no single Promise.all blocking every section behind the slowest
+      // request. On serverless (Vercel), gender-filtered queries do an
+      // extra Category lookup before the Product query, so they're
+      // naturally slower; sections that resolve first should render
+      // immediately instead of waiting for all seven to finish together.
       featuredProducts: [],
       newArrivals: [],
       flashSaleProducts: [],
@@ -231,57 +227,67 @@ export const useWebsiteStore = create(
       womenProducts: [],
       kidsProducts: [],
       bestSellers: [],
-      homeProductsLoading: false,
-      fetchHomeProducts: async () => {
-        set({ homeProductsLoading: true });
 
-        try {
-          const [featured, arrivals, flash, men, women, kids, popular] =
-            await Promise.all([
-              productsApi.getList({
-                featured: true,
-                limit: 8,
-              }),
-              productsApi.getList({
-                newArrival: true,
-                limit: 8,
-              }),
-              productsApi.getList({
-                flashSale: true,
-                limit: 8,
-              }),
-              productsApi.getList({
-                gender: "Men",
-                limit: 8,
-              }),
-              productsApi.getList({
-                gender: "Women",
-                limit: 8,
-              }),
-              productsApi.getList({
-                gender: "Kids",
-                limit: 8,
-              }),
-              productsApi.getList({
-                sort: "popular",
-                limit: 8,
-              }),
-            ]);
+      featuredLoading: false,
+      newArrivalsLoading: false,
+      flashSaleLoading: false,
+      menLoading: false,
+      womenLoading: false,
+      kidsLoading: false,
+      bestSellersLoading: false,
 
-          set({
-            featuredProducts: featured.products || [],
-            newArrivals: arrivals.products || [],
-            flashSaleProducts: flash.products || [],
-            menProducts: men.products || [],
-            womenProducts: women.products || [],
-            kidsProducts: kids.products || [],
-            bestSellers: popular.products || [],
-          });
-        } catch (e) {
-          console.log("HOME ERROR", e);
-        } finally {
-          set({ homeProductsLoading: false });
-        }
+      fetchHomeProducts: () => {
+        set({
+          featuredLoading: true,
+          newArrivalsLoading: true,
+          flashSaleLoading: true,
+          menLoading: true,
+          womenLoading: true,
+          kidsLoading: true,
+          bestSellersLoading: true,
+        });
+
+        productsApi
+          .getList({ featured: true, limit: 8 })
+          .then((d) => set({ featuredProducts: d.products || [] }))
+          .catch((e) => console.log("HOME FEATURED ERROR", e))
+          .finally(() => set({ featuredLoading: false }));
+
+        productsApi
+          .getList({ newArrival: true, limit: 8 })
+          .then((d) => set({ newArrivals: d.products || [] }))
+          .catch((e) => console.log("HOME NEW ARRIVALS ERROR", e))
+          .finally(() => set({ newArrivalsLoading: false }));
+
+        productsApi
+          .getList({ flashSale: true, limit: 8 })
+          .then((d) => set({ flashSaleProducts: d.products || [] }))
+          .catch((e) => console.log("HOME FLASH ERROR", e))
+          .finally(() => set({ flashSaleLoading: false }));
+
+        productsApi
+          .getList({ gender: "Men", limit: 8 })
+          .then((d) => set({ menProducts: d.products || [] }))
+          .catch((e) => console.log("HOME MEN ERROR", e))
+          .finally(() => set({ menLoading: false }));
+
+        productsApi
+          .getList({ gender: "Women", limit: 8 })
+          .then((d) => set({ womenProducts: d.products || [] }))
+          .catch((e) => console.log("HOME WOMEN ERROR", e))
+          .finally(() => set({ womenLoading: false }));
+
+        productsApi
+          .getList({ gender: "Kids", limit: 8 })
+          .then((d) => set({ kidsProducts: d.products || [] }))
+          .catch((e) => console.log("HOME KIDS ERROR", e))
+          .finally(() => set({ kidsLoading: false }));
+
+        productsApi
+          .getList({ sort: "popular", limit: 8 })
+          .then((d) => set({ bestSellers: d.products || [] }))
+          .catch((e) => console.log("HOME POPULAR ERROR", e))
+          .finally(() => set({ bestSellersLoading: false }));
       },
 
       // ── Single Product ────────────────────────────────────────

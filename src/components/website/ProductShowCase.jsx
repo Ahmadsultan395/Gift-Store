@@ -4,14 +4,16 @@ import ProductCard from "./ProductCard";
 import { SectionTitle } from "./SectionTitle";
 
 const ProductShowCase = ({
-  homeProductsLoading,
+  flashSaleLoading,
+  featuredLoading,
+  newArrivalsLoading,
   flashSaleProducts,
   featuredProducts,
   newArrivals,
 }) => {
   return (
     <>
-      {(homeProductsLoading || flashSaleProducts.length > 0) && (
+      {(flashSaleLoading || flashSaleProducts.length > 0) && (
         <section>
           <div className="mb-6 flex items-center gap-3">
             <div className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-white">
@@ -26,7 +28,7 @@ const ProductShowCase = ({
               View All →
             </Link>
           </div>
-          {homeProductsLoading ? (
+          {flashSaleLoading ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
@@ -46,14 +48,14 @@ const ProductShowCase = ({
       )}
 
       {/* Featured */}
-      {(homeProductsLoading || featuredProducts.length > 0) && (
+      {(featuredLoading || featuredProducts.length > 0) && (
         <section>
           <SectionTitle
             title="Featured Products"
             subtitle="Handpicked best sellers"
             viewAll="/products?featured=true"
           />
-          {homeProductsLoading ? (
+          {featuredLoading ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
@@ -73,14 +75,14 @@ const ProductShowCase = ({
       )}
 
       {/* New Arrivals */}
-      {(homeProductsLoading || newArrivals.length > 0) && (
+      {(newArrivalsLoading || newArrivals.length > 0) && (
         <section>
           <SectionTitle
             title="New Arrivals"
             subtitle="Fresh stock just added"
             viewAll="/products?newArrival=true"
           />
-          {homeProductsLoading ? (
+          {newArrivalsLoading ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div
