@@ -145,7 +145,7 @@ export default function Navbar({ isHome = false, scrolled = false }) {
     ${
       isHome && !scrolled
         ? "bg-transparent border-b border-transparent shadow-none backdrop-blur-0"
-        : "bg-primary-800/95 shadow-lg backdrop-blur-md border-b border-white/5"
+        : "bg-primary-800 shadow-lg backdrop-blur-md border-b border-white/5"
     }
   `}
       >
