@@ -5,6 +5,7 @@ import ChatWidget from "@/components/website/ChatWidget";
 import HeaderMarquee from "@/components/website/HeaderMarquee";
 import WhatsAppButton from "@/components/website/WhatsappButton";
 import SubscribePopup from "@/components/website/SubscribePopup";
+import NavClientSafe from "@/components/website/NavClientSafe";
 
 export const metadata = {
   title: { default: "Pansar Store", template: "%s | Pansar Store" },
@@ -25,7 +26,7 @@ export default function WebsiteLayout({ children }) {
             "Best Quality Guaranteed",
           ]}
         />
-        <Navbar />
+        <NavClientSafe />
         <main className="flex-1">{children}</main>
         <Footer />
         <ChatWidget />

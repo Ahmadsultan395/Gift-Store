@@ -236,8 +236,20 @@ export const useWebsiteStore = create(
       kidsLoading: true,
       bestSellersLoading: true,
 
+      // Guards against fetchHomeProducts running twice in parallel — if
+      // the HomePage effect fires more than once (re-mounts, prefetch,
+      // fast navigation), a second call used to start a second sequential
+      // loop that raced with the first one, and whichever job finished
+      // last would stomp on state the other loop had already set. On
+      // localhost the round-trip is near-instant so the two loops never
+      // meaningfully overlapped; on Vercel's slower/variable network they
+      // did, which is exactly the "random section missing" symptom.
+      _homeProductsFetching: false,
+
       fetchHomeProducts: async () => {
+        if (get()._homeProductsFetching) return;
         set({
+          _homeProductsFetching: true,
           featuredLoading: true,
           newArrivalsLoading: true,
           flashSaleLoading: true,
@@ -301,6 +313,8 @@ export const useWebsiteStore = create(
             set({ [job.loadingKey]: false });
           }
         }
+
+        set({ _homeProductsFetching: false });
       },
 
       // ── Single Product ────────────────────────────────────────

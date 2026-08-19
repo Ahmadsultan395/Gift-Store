@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { Truck, PackageCheck } from "lucide-react";
 import HeroSlider from "@/components/website/HeroSlider";
-import NewsletterSection from "@/components/website/NewsletterSection";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 import { CategoryAndBrand } from "@/components/website/CategoryAndBrand";
 import ProductShowCase from "@/components/website/ProductShowCase";
@@ -13,6 +12,7 @@ import StatsBanner from "@/components/website/StatsBanner";
 import TestimonialsSection from "@/components/website/TestimonialsSection";
 import FaqHomeSection from "@/components/website/FaqHomeSection";
 import HomeContactSection from "@/components/website/HomeContactSection";
+import LovedByStrip from "@/components/website/LovedByStrip";
 import OurPromise from "@/components/website/OurPromise";
 
 export default function HomePage() {
@@ -31,8 +31,14 @@ export default function HomePage() {
     womenProducts,
     kidsProducts,
     bestSellers,
+    featuredLoading,
+    newArrivalsLoading,
+    flashSaleLoading,
+    menLoading,
+    womenLoading,
+    kidsLoading,
+    bestSellersLoading,
     fetchHomeProducts,
-    homeProductsLoading,
     fetchStoreSettings,
   } = useWebsiteStore();
   const [loading, setLoading] = useState(true);
@@ -63,25 +69,26 @@ export default function HomePage() {
           cShow={true}
         />
 
-        {/* Trending — Flash Sale / Featured / New Arrivals */}
+        {/* Trending — Flash Sale / Featured / New Arrivals — each section
+            renders as soon as ITS OWN data is back, independent of the
+            others */}
         <ProductShowCase
-          homeProductsLoading={homeProductsLoading}
+          flashSaleLoading={flashSaleLoading}
+          featuredLoading={featuredLoading}
+          newArrivalsLoading={newArrivalsLoading}
           flashSaleProducts={flashSaleProducts}
           featuredProducts={featuredProducts}
           newArrivals={newArrivals}
         />
 
         {/* Best Sellers — ranked strip */}
-        <BestSellersStrip
-          products={bestSellers}
-          loading={homeProductsLoading}
-        />
+        <BestSellersStrip products={bestSellers} loading={bestSellersLoading} />
 
         {/* Men's Picks — dark horizontal carousel */}
         <GenderShowcase
           gender="Men"
           products={menProducts}
-          loading={homeProductsLoading}
+          loading={menLoading}
         />
 
         {/* Promo — free gift wrapping */}
@@ -98,7 +105,7 @@ export default function HomePage() {
         <GenderShowcase
           gender="Women"
           products={womenProducts}
-          loading={homeProductsLoading}
+          loading={womenLoading}
         />
 
         {/* Promo — delivery */}
@@ -116,8 +123,11 @@ export default function HomePage() {
         <GenderShowcase
           gender="Kids"
           products={kidsProducts}
-          loading={homeProductsLoading}
+          loading={kidsLoading}
         />
+
+        {/* Loved By Our Customers — compact rotating-quote banner */}
+        <LovedByStrip />
 
         {/* Why Choose Us / Our Promise (merged) — trust building right after products */}
         <OurPromise />

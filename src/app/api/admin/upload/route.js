@@ -2,7 +2,7 @@ import { ok, fail, serverError } from "@/lib/apiResponse";
 import cloudinary from "@/lib/cloudinary";
 import path from "path";
 
-const ALLOWED_TYPES = [
+const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
   "image/png",
@@ -10,7 +10,10 @@ const ALLOWED_TYPES = [
   "image/gif",
 ];
 
-const MAX_SIZE_MB = 5;
+const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
+
+const MAX_IMAGE_SIZE_MB = 5;
+const MAX_VIDEO_SIZE_MB = 25;
 
 export async function POST(request) {
   try {
@@ -23,15 +26,23 @@ export async function POST(request) {
       return fail("No file provided");
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return fail("Only JPG, PNG, WEBP and GIF images are allowed");
+    const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
+    const isVideo = ALLOWED_VIDEO_TYPES.includes(file.type);
+
+    if (!isImage && !isVideo) {
+      return fail(
+        "Only JPG, PNG, WEBP, GIF images or MP4, WEBM videos are allowed",
+      );
     }
+
+    const resourceType = isVideo ? "video" : "image";
+    const maxSizeMB = isVideo ? MAX_VIDEO_SIZE_MB : MAX_IMAGE_SIZE_MB;
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    if (buffer.length > MAX_SIZE_MB * 1024 * 1024) {
-      return fail(`File size must be under ${MAX_SIZE_MB}MB`);
+    if (buffer.length > maxSizeMB * 1024 * 1024) {
+      return fail(`File size must be under ${maxSizeMB}MB`);
     }
 
     const ext = path.extname(file.name);
@@ -40,7 +51,7 @@ export async function POST(request) {
 
     const result = await cloudinary.uploader.upload(base64, {
       folder: folder,
-      resource_type: "image",
+      resource_type: resourceType,
       public_id: `${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
       overwrite: false,
     });
@@ -50,8 +61,9 @@ export async function POST(request) {
         url: result.secure_url,
         publicId: result.public_id,
         filename: path.basename(result.public_id) + ext,
+        resourceType,
       },
-      "Image uploaded successfully",
+      isVideo ? "Video uploaded successfully" : "Image uploaded successfully",
     );
   } catch (error) {
     console.error(error);

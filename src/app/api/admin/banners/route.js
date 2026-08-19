@@ -7,16 +7,28 @@ export async function GET() {
     await connectDB();
     const banners = await Banner.find().sort({ sortOrder: 1, createdAt: -1 });
     return ok(banners);
-  } catch (e) { return serverError(e); }
+  } catch (e) {
+    return serverError(e);
+  }
 }
 
 export async function POST(request) {
   try {
     await connectDB();
     const body = await request.json();
-    const { title, image, type, link, sortOrder, subtitle } = body;
+    const { title, image, video, type, link, sortOrder, subtitle } = body;
     if (!image?.url) return fail("Banner image is required");
-    const banner = await Banner.create({ title, subtitle, image, type: type || "hero", link, sortOrder: sortOrder || 0 });
+    const banner = await Banner.create({
+      title,
+      subtitle,
+      image,
+      video,
+      type: type || "hero",
+      link,
+      sortOrder: sortOrder || 0,
+    });
     return created(banner);
-  } catch (e) { return serverError(e); }
+  } catch (e) {
+    return serverError(e);
+  }
 }

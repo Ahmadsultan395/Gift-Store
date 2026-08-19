@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, Image, PlayCircle } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -9,6 +9,7 @@ import Modal from "@/components/ui/Modal";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import Badge from "@/components/ui/Badge";
 import ImageUpload from "@/components/ui/ImageUpload";
+import VideoUpload from "@/components/ui/VideoUpload";
 import { useAdminStore } from "@/stores/useAdminStore";
 
 const TYPE_OPTS = [
@@ -29,6 +30,7 @@ const EMPTY = {
   title: "",
   subtitle: "",
   image: null,
+  video: null,
   link: "",
   type: "hero",
   sortOrder: "0",
@@ -75,6 +77,7 @@ export default function BannersPage() {
       title: b.title || "",
       subtitle: b.subtitle || "",
       image: b.image || null,
+      video: b.video || null,
       link: b.link || "",
       type: b.type,
       sortOrder: b.sortOrder || 0,
@@ -170,6 +173,11 @@ export default function BannersPage() {
                   <Badge variant={TYPE_COLOR[b.type] || "slate"}>
                     {b.type.replace("_", " ")}
                   </Badge>
+                  {b.video?.url && (
+                    <span className="flex items-center gap-1 rounded-full bg-primary-950/80 px-2 py-0.5 text-[10px] font-bold text-secondary-300 backdrop-blur-sm">
+                      <PlayCircle size={11} /> Video
+                    </span>
+                  )}
                 </div>
                 <div className="absolute top-2 right-2">
                   <Badge variant={b.status === "active" ? "green" : "red"}>
@@ -200,13 +208,13 @@ export default function BannersPage() {
                   </button>
                   <button
                     onClick={() => openEdit(b)}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-blue-600"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-secondary-50 hover:text-secondary-700"
                   >
                     <Pencil size={15} />
                   </button>
                   <button
                     onClick={() => setDel(b)}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-50 hover:text-primary-700"
+                    className="rounded-lg p-1.5 text-slate-400 hover:bg-red-50 hover:text-red-600"
                   >
                     <Trash2 size={15} />
                   </button>
@@ -225,7 +233,7 @@ export default function BannersPage() {
       >
         <div className="space-y-4">
           <ImageUpload
-            label="Banner Image"
+            label="Banner Image (poster / fallback)"
             value={form.image}
             onChange={(img) =>
               setForm((p) => ({
@@ -233,9 +241,23 @@ export default function BannersPage() {
                 image: img,
               }))
             }
-            folder="pansar-store/banners"
+            folder="gift-store/banners"
             aspect="square"
           />
+
+          {/* Video is optional — plays in the hero slider once loaded,
+              the image above is shown as the poster/fallback until then */}
+          <VideoUpload
+            value={form.video}
+            onChange={(vid) =>
+              setForm((p) => ({
+                ...p,
+                video: vid,
+              }))
+            }
+            folder="gift-store/banners"
+          />
+
           <Select
             label="Banner Type"
             value={form.type}
@@ -293,7 +315,7 @@ export default function BannersPage() {
       />
       {toast && (
         <div
-          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-primary"}`}
+          className={`fixed bottom-5 right-5 z-50 rounded-xl px-5 py-3 text-sm font-medium text-white shadow-lg ${toast.type === "error" ? "bg-red-600" : "bg-primary-600"}`}
         >
           {toast.msg}
         </div>

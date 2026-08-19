@@ -16,7 +16,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 import Image from "next/image";
 
-export default function Navbar() {
+export default function Navbar({ isHome = false, scrolled = false }) {
   const router = useRouter();
   const pathname = usePathname();
   const {
@@ -35,7 +35,6 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [scrolled, setScrolled] = useState(false);
 
   const debounceRef = useRef(null);
   const searchInputRef = useRef(null);
@@ -43,12 +42,6 @@ export default function Navbar() {
   useEffect(() => {
     fetchStoreSettings();
   }, [fetchStoreSettings]);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 10);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Focus input + lock body scroll when modal opens
   useEffect(() => {
@@ -144,11 +137,17 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 bg-primary-800 transition-all duration-300 ${
-          scrolled
-            ? "shadow-lg backdrop-blur-md bg-primary-800/95 border-b border-white/5"
-            : "border-b border-transparent"
-        }`}
+        className={`sticky top-0 z-50 w-full
+    transform-gpu
+    transition-[background-color,box-shadow,backdrop-filter,border-color]
+    duration-1000
+    ease-out
+    ${
+      isHome && !scrolled
+        ? "bg-transparent border-b border-transparent shadow-none backdrop-blur-0"
+        : "bg-primary-800/95 shadow-lg backdrop-blur-md border-b border-white/5"
+    }
+  `}
       >
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex h-16 sm:h-[72px] items-center justify-between">

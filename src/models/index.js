@@ -70,6 +70,12 @@ const BannerSchema = new mongoose.Schema(
       url: { type: String, required: true },
       publicId: String,
     },
+    // Optional — plays in the hero slider once loaded; the image above
+    // is used as the poster/fallback until the video is ready.
+    video: {
+      url: String,
+      publicId: String,
+    },
     link: String,
     type: {
       type: String,
@@ -83,7 +89,6 @@ const BannerSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
 /* ---------------- Settings (singleton) ---------------- */
 const SettingsSchema = new mongoose.Schema(
   {

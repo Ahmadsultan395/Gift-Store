@@ -12,6 +12,11 @@ const BannerSchema = new mongoose.Schema(
       required: true,
     },
 
+    subtitle: {
+      type: String,
+      default: "",
+    },
+
     description: {
       type: String,
       default: "",
@@ -19,7 +24,21 @@ const BannerSchema = new mongoose.Schema(
 
     image: {
       url: String,
-      public_id: String,
+      publicId: String,
+    },
+
+    // Optional — plays in the hero slider once loaded; the image above
+    // is used as the poster/fallback until the video is ready.
+    // Naming (url/publicId) matches the `image` field exactly.
+    video: {
+      url: String,
+      publicId: String,
+    },
+
+    type: {
+      type: String,
+      enum: ["hero", "poster", "flash_sale", "offer", "festival"],
+      default: "hero",
     },
 
     link: {
