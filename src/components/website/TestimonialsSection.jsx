@@ -166,6 +166,7 @@ function Pagination({ page, totalPages, onChange }) {
   return (
     <div className="mt-10 flex items-center justify-center gap-1.5">
       <button
+        aria-label="Previous testimonials"
         onClick={() => onChange(Math.max(1, page - 1))}
         disabled={page === 1}
         className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 transition-all duration-200 hover:border-primary-300 hover:text-primary-600 hover:shadow-sm disabled:pointer-events-none disabled:opacity-40"
@@ -468,7 +469,7 @@ export default function TestimonialsSection() {
       </div>
 
       {!customer && (
-        <p className="mt-2 text-center text-xs text-slate-400">
+        <p className="mt-2 text-center text-xs text-slate-500">
           Please{" "}
           <a
             href="/account/login"

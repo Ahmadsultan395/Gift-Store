@@ -288,6 +288,7 @@ export default function ChatWidget() {
             </button>
             <button
               onClick={() => setOpen(false)}
+              aria-label="Close chat"
               className="rounded-lg p-1.5 text-white/70 hover:bg-white/20 transition-colors"
             >
               <ChevronDown size={16} />
@@ -372,6 +373,7 @@ export default function ChatWidget() {
           />
           <button
             onClick={() => sendMessage()}
+            aria-label="Send message"
             disabled={!input.trim() || loading}
             className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-primary-500 text-white hover:bg-primary-500/80 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
           >

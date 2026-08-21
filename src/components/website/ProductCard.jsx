@@ -78,17 +78,17 @@ export default function ProductCard({ product }) {
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-col gap-1">
           {product.discountPercent > 0 && (
-            <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-red-700 px-2 py-0.5 text-[10px] font-bold text-white">
               {product.discountPercent}% off
             </span>
           )}
           {product.isNewArrival && (
-            <span className="rounded-full bg-blue-500 px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-blue-700 px-2 py-0.5 text-[10px] font-bold text-white">
               NEW
             </span>
           )}
           {product.isFlashSale && (
-            <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-amber-700 px-2 py-0.5 text-[10px] font-bold text-white">
               ⚡ SALE
             </span>
           )}
@@ -101,6 +101,7 @@ export default function ProductCard({ product }) {
 
         {/* Wishlist */}
         <button
+          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
           onClick={handleWishlist}
           className="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow hover:bg-red-50 transition-colors"
         >
@@ -132,12 +133,13 @@ export default function ProductCard({ product }) {
               PKR {product.sellingPrice?.toLocaleString()}
             </p>
             {product.oldPrice > 0 && (
-              <p className="text-[11px] text-slate-400 line-through">
+              <p className="text-[11px] text-slate-600 line-through">
                 PKR {product.oldPrice?.toLocaleString()}
               </p>
             )}
           </div>
           <button
+            aria-label={isOutOfStock ? "Out of stock" : "Add to cart"}
             onClick={handleAddToCart}
             disabled={isOutOfStock}
             className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-all ${

@@ -164,12 +164,20 @@ export default function ContactForm({ compact = false, onSuccess }) {
 
         {/* Subject */}
         <div>
-          {!compact && (
-            <label className="mb-1.5 block text-sm font-medium text-slate-700">
-              Subject
-            </label>
-          )}
+          <label
+            htmlFor="contact-subject"
+            className={
+              compact
+                ? "sr-only"
+                : "mb-1.5 block text-sm font-medium text-slate-700"
+            }
+          >
+            Subject
+          </label>
+
           <select
+            id="contact-subject"
+            name="subject"
             value={form.subject}
             onChange={setF("subject")}
             className={`${inputClass} bg-white`}

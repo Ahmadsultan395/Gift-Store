@@ -9,7 +9,7 @@ export default function BestSellersStrip({ products, loading }) {
     <section>
       <div className="mb-6 flex items-end justify-between gap-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-red-600">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-red-700">
             <Flame size={13} strokeWidth={2.5} />
             Most Loved
           </span>

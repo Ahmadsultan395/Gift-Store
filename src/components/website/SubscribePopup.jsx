@@ -221,6 +221,7 @@ export default function SubscribePopup() {
           }`}
           aria-modal="true"
           role="dialog"
+          aria-labelledby="subscribe-popup-title"
         >
           {/* backdrop */}
           <div className="absolute inset-0 bg-primary-950/70 backdrop-blur-sm" />
@@ -258,10 +259,12 @@ export default function SubscribePopup() {
 
             {/* floating sparkle accents */}
             <Sparkles
+              aria-hidden="true"
               size={80}
               className="sp-twinkle pointer-events-none absolute -right-3 -top-3 text-secondary-400/20 rotate-12"
             />
             <Gift
+              aria-hidden="true"
               size={56}
               strokeWidth={1.3}
               className="sp-twinkle-delay pointer-events-none absolute -left-3 -bottom-3 text-secondary-400/15 -rotate-12"
@@ -271,9 +274,10 @@ export default function SubscribePopup() {
             <button
               onClick={closePopup}
               aria-label="Close"
+              type="button"
               className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white/70 backdrop-blur-sm transition-all duration-200 hover:bg-white/20 hover:text-white hover:rotate-90"
             >
-              <X size={16} />
+              <X aria-hidden="true" size={16} />
             </button>
 
             {/* content */}
@@ -281,6 +285,7 @@ export default function SubscribePopup() {
               <div className="sp-icon-wrap relative mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-secondary-300/25 backdrop-blur-sm">
                 <span className="sp-icon-pulse absolute inset-0 rounded-2xl bg-secondary-400/25" />
                 <Gift
+                  aria-hidden="true"
                   size={28}
                   className="relative text-secondary-300"
                   strokeWidth={1.6}
@@ -291,9 +296,13 @@ export default function SubscribePopup() {
                 Exclusive Offer
               </span>
 
-              <h2 className="sp-shimmer-text mt-4 text-2xl font-black tracking-tight sm:text-3xl">
+              <h2
+                id="subscribe-popup-title"
+                className="sp-shimmer-text mt-4 text-2xl font-black tracking-tight sm:text-3xl"
+              >
                 Unwrap 10% Off
               </h2>
+
               <p className="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-primary-100/70">
                 Subscribe for exclusive gift deals, new arrivals and offers
                 straight to your inbox.
@@ -329,19 +338,27 @@ export default function SubscribePopup() {
                 >
                   {status === "loading" && (
                     <>
-                      <Loader2 size={15} className="animate-spin" />
+                      <Loader2
+                        aria-hidden="true"
+                        size={15}
+                        className="animate-spin"
+                      />
                       Subscribing…
                     </>
                   )}
                   {status === "success" && (
                     <span className="sp-check-in flex items-center gap-2">
-                      <CheckCircle2 size={16} strokeWidth={2.5} />
+                      <CheckCircle2
+                        aria-hidden="true"
+                        size={16}
+                        strokeWidth={2.5}
+                      />
                       Subscribed
                     </span>
                   )}
                   {(status === "idle" || status === "error") && (
                     <>
-                      <Send size={14} />
+                      <Send aria-hidden="true" size={14} />
                       Claim My Discount
                     </>
                   )}
@@ -592,11 +609,13 @@ export default function SubscribePopup() {
 
             <span className="sp-tab-icon relative flex h-6 w-6 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-[#3a0a12] shadow-md">
               <Gift
+                aria-hidden="true"
                 size={13}
                 strokeWidth={2.4}
                 className="text-[#FFE27A] sm:hidden"
               />
               <Gift
+                aria-hidden="true"
                 size={17}
                 strokeWidth={2.4}
                 className="hidden text-[#FFE27A] sm:block"

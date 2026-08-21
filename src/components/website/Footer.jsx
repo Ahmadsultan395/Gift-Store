@@ -672,6 +672,15 @@ transition-colors duration-500
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
+                    aria-label={
+                      key === "facebook"
+                        ? "Facebook"
+                        : key === "instagram"
+                          ? "Instagram"
+                          : key === "whatsapp"
+                            ? "WhatsApp"
+                            : "YouTube"
+                    }
                     className="
         h-10 w-10 rounded-full
         bg-primary-900

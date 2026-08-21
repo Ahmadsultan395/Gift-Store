@@ -152,7 +152,11 @@ export default function Navbar({ isHome = false, scrolled = false }) {
         <div className="mx-auto max-w-7xl px-4">
           <div className="flex h-16 sm:h-[72px] items-center justify-between">
             {/* LOGO */}
-            <Link href="/" className="flex items-center gap-2.5 shrink-0">
+            <Link
+              href="/"
+              aria-label="Home"
+              className="flex items-center gap-2.5 shrink-0"
+            >
               <div
                 className="
     flex h-8 w-8 sm:h-10 sm:w-10 
@@ -231,6 +235,7 @@ export default function Navbar({ isHome = false, scrolled = false }) {
 
               <Link
                 href="/account/wishlist"
+                aria-label="Wishlist"
                 className={`
               rounded-full
               p-2
@@ -250,6 +255,7 @@ export default function Navbar({ isHome = false, scrolled = false }) {
 
               <Link
                 href="/cart"
+                aria-label="Shopping Cart"
                 className={`
               relative
               rounded-full
@@ -298,6 +304,7 @@ export default function Navbar({ isHome = false, scrolled = false }) {
 
               <Link
                 href="/account"
+                aria-label="Account"
                 className={`
               rounded-full
               p-2
@@ -317,6 +324,7 @@ export default function Navbar({ isHome = false, scrolled = false }) {
 
               <button
                 onClick={() => setOpen(!open)}
+                aria-label={open ? "Close menu" : "Open menu"}
                 className="
               md:hidden
               rounded-full
