@@ -6,11 +6,15 @@ function FaqItem({ faq, index, isOpen, onToggle }) {
   return (
     <div
       style={{ animationDelay: `${index * 70}ms` }}
-      className={`faq-item-in group relative overflow-hidden rounded-[20px] border transition-all duration-500 ease-out ${
-        isOpen
-          ? "-translate-y-1 border-primary-300 bg-gradient-to-br from-primary-50/70 to-white shadow-xl shadow-primary-200/60"
-          : "border-slate-200 bg-white shadow-sm hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-100/60"
-      }`}
+      className={`faq-item-in group relative overflow-hidden rounded-[20px] border transition-all duration-500 ease-out
+        shadow-[0_8px_12px_rgba(15,23,42,0.08),0_18px_30px_rgba(15,23,42,0.14),0_30px_50px_rgba(15,23,42,0.08)]
+        hover:shadow-[0_10px_15px_rgba(15,23,42,0.10),0_22px_40px_rgba(15,23,42,0.18),0_35px_60px_rgba(15,23,42,0.10)]
+        
+         ${
+           isOpen
+             ? "-translate-y-1 border-primary-300 bg-gradient-to-br from-primary-50/70 to-white shadow-xl shadow-primary-200/60"
+             : "border-slate-200 bg-white shadow-sm hover:-translate-y-1 hover:border-primary-200 hover:shadow-lg hover:shadow-primary-100/60"
+         }`}
     >
       {/* Top gradient bar — gold instead of teal, matches the rest of the site */}
       <div
@@ -237,7 +241,7 @@ export default function FaqSection({
   }
 
   return (
-    <div className="relative space-y-3">
+    <div className="relative space-y-3 ">
       {validFaqs.map((faq, i) => (
         <FaqItem
           key={i}

@@ -62,7 +62,7 @@ function FeaturedCard({ t, onClick, visible }) {
   return (
     <div
       onClick={() => onClick(t)}
-      className={`group relative col-span-1 row-span-2 flex cursor-pointer flex-col justify-between overflow-hidden rounded-[28px] border border-primary-200/70 bg-gradient-to-br from-primary-50/70 to-white p-8 shadow-lg shadow-primary-100/60 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-2xl hover:shadow-primary-200/70 sm:col-span-2 ${visible ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-[0.97] opacity-0"}`}
+      className={`group relative col-span-1 row-span-2 flex cursor-pointer flex-col justify-between overflow-hidden rounded-[28px] border border-slate-200 to-white p-8 shadow-[0_8px_12px_rgba(15,23,42,0.08),0_18px_30px_rgba(15,23,42,0.14),0_30px_50px_rgba(15,23,42,0.08)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-[0_10px_15px_rgba(15,23,42,0.10),0_22px_40px_rgba(15,23,42,0.18),0_35px_60px_rgba(15,23,42,0.10)] sm:col-span-2 ${visible ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-[0.97] opacity-0"}`}
     >
       {/* wrapping-paper dot texture — same motif as hero/promo banners */}
       <svg
@@ -124,7 +124,7 @@ function CompactCard({ t, onClick, visible, delay = 0 }) {
     <div
       onClick={() => onClick(t)}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
-      className={`group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-primary-50/30 p-5 shadow-md shadow-slate-200/70 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-xl hover:shadow-primary-200/60 ${visible ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-[0.97] opacity-0"}`}
+      className={`group relative flex cursor-pointer flex-col justify-between overflow-hidden rounded-[24px] border border-slate-200 bg-gradient-to-br from-white to-primary-50/30 p-5 shadow-[0_6px_10px_rgba(15,23,42,0.07),0_14px_25px_rgba(15,23,42,0.12),0_24px_40px_rgba(15,23,42,0.07)] transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:border-primary-300 hover:shadow-[0_8px_14px_rgba(15,23,42,0.09),0_18px_32px_rgba(15,23,42,0.16),0_30px_50px_rgba(15,23,42,0.09)] ${visible ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-[0.97] opacity-0"}`}
     >
       <Gift
         className="pointer-events-none absolute -right-3 -bottom-3 text-primary-50 transition-transform duration-500 group-hover:scale-110"

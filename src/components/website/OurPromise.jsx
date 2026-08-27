@@ -46,7 +46,7 @@ export default function OurPromise() {
   ];
 
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-50 via-white to-secondary-50/60 border border-primary-100 px-6 sm:px-10 py-12">
+    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-50 via-white to-secondary-50/60 border border-primary-100 px-6 sm:px-10 py-12 shadow-[0_18px_45px_rgba(15,23,42,0.10)]">
       {/* decorative soft blobs */}
       <div className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-primary-200/30 blur-[70px]" />
       <div className="pointer-events-none absolute -right-16 -bottom-16 h-56 w-56 rounded-full bg-secondary-200/30 blur-[70px]" />
@@ -96,6 +96,9 @@ export default function OurPromise() {
           );
         })}
       </div>
+      {/* bottom ambient glow */}
+      <div className="pointer-events-none absolute -bottom-20 left-1/2 -translate-x-1/2 h-32 w-[70%] rounded-full bg-primary-300/30 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-10 left-1/2 -translate-x-1/2 h-16 w-[45%] rounded-full bg-secondary-300/25 blur-2xl" />
     </section>
   );
 }

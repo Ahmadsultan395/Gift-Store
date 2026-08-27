@@ -43,7 +43,10 @@ export default function HomeContactSection() {
         </p>
       </div>
 
-      <div className="mx-auto max-w-2xl overflow-hidden rounded-[28px] border border-primary-100 bg-primary-50/40">
+      <div
+        className="mx-auto max-w-2xl overflow-hidden rounded-[28px] border border-primary-100 bg-primary-50/40  shadow-[0_8px_12px_rgba(15,23,42,0.08),0_18px_30px_rgba(15,23,42,0.14),0_30px_50px_rgba(15,23,42,0.08)]
+        hover:shadow-[0_10px_15px_rgba(15,23,42,0.10),0_22px_40px_rgba(15,23,42,0.18),0_35px_60px_rgba(15,23,42,0.10)]"
+      >
         <div className="px-6 py-8 text-center sm:px-8">
           {(s?.phone || s?.socialLinks?.whatsapp) && (
             <div className="mb-6 flex flex-wrap justify-center gap-3">
