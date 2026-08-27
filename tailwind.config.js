@@ -1,4 +1,3 @@
-// used for next — maroon & gold gift store theme
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
@@ -13,7 +12,6 @@ module.exports = {
       colors: {
         primary: {
           DEFAULT: "#7A1F2B",
-
           50: "#FDF3F4",
           100: "#FBE3E5",
           200: "#F3BCC1",
@@ -26,10 +24,8 @@ module.exports = {
           900: "#340C13",
           950: "#1F070B",
         },
-
         secondary: {
           DEFAULT: "#C9A227",
-
           50: "#FDFAEF",
           100: "#FAF3D6",
           200: "#F2E2A3",
@@ -42,7 +38,6 @@ module.exports = {
           900: "#3D2E0C",
           950: "#241B07",
         },
-
         accent: {
           DEFAULT: "#D4AF37",
           light: "#E9D073",

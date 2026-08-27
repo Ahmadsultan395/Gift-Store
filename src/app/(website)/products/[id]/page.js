@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import {
   ShoppingCart,
   Heart,
@@ -9,6 +9,7 @@ import {
   Truck,
   Shield,
   RotateCcw,
+  Zap,
 } from "lucide-react";
 import ProductCard from "@/components/website/ProductCard";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
@@ -22,9 +23,11 @@ export default function ProductDetailPage() {
     addToCart,
   } = useWebsiteStore();
   const { id } = useParams();
+  const router = useRouter();
   const [mainImg, setMainImg] = useState(0);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [buying, setBuying] = useState(false);
 
   const data = currentProduct;
   const loading = currentProductLoading;
@@ -46,6 +49,22 @@ export default function ProductDetailPage() {
     setTimeout(() => {
       setAdded(false);
     }, 2000);
+  }
+
+  function handleBuyNow(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!data?.product) return;
+    if (data.product.stock <= 0 || buying) return;
+
+    setBuying(true);
+
+    addToCart(data.product, qty);
+
+    setTimeout(() => {
+      router.push("/cart");
+    }, 350);
   }
 
   if (loading)
@@ -157,8 +176,11 @@ export default function ProductDetailPage() {
             </p>
           )}
 
-          <div className="mt-6 flex items-center gap-4">
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
+          {/* Qty selector + Add to Cart / Buy Now — quantity control on
+              its own row, buttons in an equal-width flex row below it
+              on small screens, all in one row on larger screens. */}
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 self-start">
               <button
                 onClick={() => setQty((q) => Math.max(1, q - 1))}
                 className="text-slate-500 hover:text-slate-800 font-bold text-lg leading-none"
@@ -173,18 +195,82 @@ export default function ProductDetailPage() {
                 +
               </button>
             </div>
-            <button
-              onClick={handleAddToCart}
-              disabled={isOutOfStock}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${added ? "bg-primary-700 text-white" : isOutOfStock ? "bg-primary-50 text-slate-400 cursor-not-allowed" : "bg-primary text-white hover:bg-primary-700"}`}
-            >
-              <ShoppingCart size={18} />
-              {added
-                ? "Added to Cart!"
-                : isOutOfStock
-                  ? "Out of Stock"
-                  : "Add to Cart"}
-            </button>
+
+            <div className="flex flex-1 gap-3">
+              <button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock}
+                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
+                  added
+                    ? "bg-primary-700 text-white"
+                    : isOutOfStock
+                      ? "bg-primary-50 text-slate-400 cursor-not-allowed"
+                      : "bg-primary-600 text-white  shadow-[0_0_24px_theme(colors.primary.500/35%)] hover:bg-primary-600  hover:shadow-[0_0_24px_theme(colors.primary.500/75%)] animate-cart-attention"
+                }`}
+              >
+                <ShoppingCart size={18} />
+                {added
+                  ? "Added to Cart!"
+                  : isOutOfStock
+                    ? "Out of Stock"
+                    : "Add to Cart"}
+              </button>
+
+              {/* ─────────────────────────────────
+                  BUY NOW
+              ───────────────────────────────── */}
+              <button
+                type="button"
+                aria-label={isOutOfStock ? "Out of stock" : "Buy now"}
+                onClick={handleBuyNow}
+                disabled={isOutOfStock || buying}
+                className={`
+                  relative
+                  flex
+                  flex-1
+                  h-12
+                  items-center
+                  justify-center
+                  gap-2
+                  overflow-hidden
+                  rounded-xl
+                  border
+                  px-2
+                  text-sm
+                  font-extrabold
+                  transition-all
+                  duration-150
+
+                  ${
+                    isOutOfStock
+                      ? `
+                        cursor-not-allowed
+                        border-slate-200
+                        bg-slate-100
+                        text-slate-300
+                      `
+                      : buying
+                        ? `
+                          border-amber-500
+                          bg-amber-500
+                          text-slate-950
+                        `
+                        : `
+                          border-amber-400
+                          bg-amber-400
+                          text-slate-950
+                          shadow-[0_0_16px_rgba(251,191,36,0.65)]
+                          hover:bg-amber-300
+                          hover:shadow-[0_0_28px_rgba(251,191,36,0.95)]
+                        `
+                  }
+                  ${!isOutOfStock && !buying ? "animate-buy-attention" : ""}
+                `}
+              >
+                <Zap size={18} strokeWidth={2.5} className="fill-current" />
+                <span>{buying ? "Processing..." : "Buy Now"}</span>
+              </button>
+            </div>
           </div>
 
           {p.weight && (

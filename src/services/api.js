@@ -94,6 +94,7 @@ export const brandsApi = {
 // ─────────────────────────────────────────────────────────────────
 export const productsApi = {
   // public website
+  getHomeSections: () => req(`/api/products/home`),
   getList: (params = {}) => req(`/api/products?${new URLSearchParams(params)}`),
   getBySlug: (slug) => req(`/api/products/${slug}`),
   // admin

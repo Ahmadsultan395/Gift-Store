@@ -220,101 +220,40 @@ export const useWebsiteStore = create(
       // extra Category lookup before the Product query, so they're
       // naturally slower; sections that resolve first should render
       // immediately instead of waiting for all seven to finish together.
+      // ── Home Page Products ───────────────────────────────────
+      flashSaleProducts: [],
       featuredProducts: [],
       newArrivals: [],
-      flashSaleProducts: [],
+      bestSellers: [],
       menProducts: [],
       womenProducts: [],
       kidsProducts: [],
-      bestSellers: [],
 
-      featuredLoading: true,
-      newArrivalsLoading: true,
-      flashSaleLoading: true,
-      menLoading: true,
-      womenLoading: true,
-      kidsLoading: true,
-      bestSellersLoading: true,
-
-      // Guards against fetchHomeProducts running twice in parallel — if
-      // the HomePage effect fires more than once (re-mounts, prefetch,
-      // fast navigation), a second call used to start a second sequential
-      // loop that raced with the first one, and whichever job finished
-      // last would stomp on state the other loop had already set. On
-      // localhost the round-trip is near-instant so the two loops never
-      // meaningfully overlapped; on Vercel's slower/variable network they
-      // did, which is exactly the "random section missing" symptom.
-      _homeProductsFetching: false,
+      homeProductsLoading: true,
+      homeProductsFetched: false,
 
       fetchHomeProducts: async () => {
-        if (get()._homeProductsFetching) return;
-        set({
-          _homeProductsFetching: true,
-          featuredLoading: true,
-          newArrivalsLoading: true,
-          flashSaleLoading: true,
-          menLoading: true,
-          womenLoading: true,
-          kidsLoading: true,
-          bestSellersLoading: true,
-        });
-
-        // Fetched ONE AT A TIME (not Promise.all) — firing 7 DB-hitting
-        // requests at once was overloading the connection pool on
-        // serverless (Vercel), causing random ones to silently fail or
-        // time out. Sequential keeps things reliable; each section still
-        // updates and renders the moment ITS data lands, so the page
-        // still fills in progressively rather than waiting for all seven.
-        const jobs = [
-          {
-            params: { flashSale: true, limit: 8 },
-            dataKey: "flashSaleProducts",
-            loadingKey: "flashSaleLoading",
-          },
-          {
-            params: { featured: true, limit: 8 },
-            dataKey: "featuredProducts",
-            loadingKey: "featuredLoading",
-          },
-          {
-            params: { newArrival: true, limit: 8 },
-            dataKey: "newArrivals",
-            loadingKey: "newArrivalsLoading",
-          },
-          {
-            params: { sort: "popular", limit: 8 },
-            dataKey: "bestSellers",
-            loadingKey: "bestSellersLoading",
-          },
-          {
-            params: { gender: "Men", limit: 8 },
-            dataKey: "menProducts",
-            loadingKey: "menLoading",
-          },
-          {
-            params: { gender: "Women", limit: 8 },
-            dataKey: "womenProducts",
-            loadingKey: "womenLoading",
-          },
-          {
-            params: { gender: "Kids", limit: 8 },
-            dataKey: "kidsProducts",
-            loadingKey: "kidsLoading",
-          },
-        ];
-
-        for (const job of jobs) {
-          try {
-            const data = await productsApi.getList(job.params);
-            set({ [job.dataKey]: data.products || [] });
-          } catch (e) {
-            console.log(`HOME ${job.dataKey} ERROR`, e);
-          } finally {
-            set({ [job.loadingKey]: false });
-          }
+        if (get().homeProductsFetched || get().homeProductsLoading === false) {
+          if (get().homeProductsFetched) return;
         }
-
-        set({ _homeProductsFetching: false });
+        set({ homeProductsLoading: true });
+        try {
+          const data = await productsApi.getHomeSections();
+          set({
+            flashSaleProducts: data.flashSale || [],
+            featuredProducts: data.featured || [],
+            newArrivals: data.newArrivals || [],
+            bestSellers: data.bestSellers || [],
+            menProducts: data.men || [],
+            womenProducts: data.women || [],
+            kidsProducts: data.kids || [],
+            homeProductsFetched: true,
+          });
+        } catch (e) {
+          console.log("HOME PRODUCTS ERROR", e);
+        } finally {
+          set({ homeProductsLoading: false });
+        }
       },
 
       // ── Single Product ────────────────────────────────────────

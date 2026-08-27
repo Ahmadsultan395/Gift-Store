@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import Link from "next/link";
 import {
   Minus,
@@ -9,7 +10,7 @@ import {
   ArrowRight,
   Package,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import PageHeroHeader from "@/components/website/PageHeroHeader";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 
@@ -28,13 +29,22 @@ export default function CartPage() {
     storeSettings,
   } = useWebsiteStore();
 
+  // ─────────────────────────────────────────────
+  // TOTALS
+  // ─────────────────────────────────────────────
+
   const subTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+
   const deliveryCharge =
     subTotal >= 2000 ? 0 : storeSettings?.shippingCharges || 150;
 
   const grandTotal = subTotal - couponDiscount + deliveryCharge;
 
-  if (cart.length === 0)
+  // ─────────────────────────────────────────────
+  // EMPTY CART
+  // ─────────────────────────────────────────────
+
+  if (cart.length === 0) {
     return (
       <div className="min-h-screen">
         <PageHeroHeader
@@ -44,25 +54,49 @@ export default function CartPage() {
           subtitle="Everything you add will show up here"
           compact
         />
+
         <div className="mx-auto max-w-2xl px-4 py-16 text-center">
           <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-slate-100">
             <ShoppingCart size={40} className="text-slate-300" />
           </div>
+
           <h2 className="text-2xl font-bold text-slate-800">
             Your cart is empty
           </h2>
+
           <p className="mt-2 text-slate-500">
             Looks like you haven't added anything yet.
           </p>
+
           <Link
             href="/products"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-bold text-white hover:bg-primary-700/90"
+            className="
+              mt-6
+              inline-flex
+              items-center
+              gap-2
+              rounded-xl
+              bg-primary-600
+              px-6
+              py-3
+              text-sm
+              font-bold
+              text-white
+              transition-all
+              hover:bg-primary-700
+              hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.45)]
+            "
           >
             Continue Shopping
           </Link>
         </div>
       </div>
     );
+  }
+
+  // ─────────────────────────────────────────────
+  // CART PAGE
+  // ─────────────────────────────────────────────
 
   return (
     <div className="min-h-screen">
@@ -70,21 +104,58 @@ export default function CartPage() {
         icon="🛒"
         eyebrow="Shopping Cart"
         title="Your Cart"
-        subtitle={`${cart.length} item${cart.length === 1 ? "" : "s"} ready for checkout`}
+        subtitle={`${cart.length} item${
+          cart.length === 1 ? "" : "s"
+        } ready for checkout`}
         compact
       />
 
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Items */}
-          <div className="lg:col-span-2 space-y-3">
+          {/* ═══════════════════════════════════════
+              CART ITEMS
+          ═══════════════════════════════════════ */}
+
+          <div className="space-y-3 lg:col-span-2">
             {cart.map((item) => (
               <div
                 key={item._id}
-                className="flex flex-col min-[400px]:flex-row items-start min-[400px]:items-center justify-start min-[400px]:justify-between gap-2 sm:gap-4 rounded-2xl border border-slate-100 bg-white p-2.5 sm:p-4 shadow-sm"
+                className="
+                  flex
+                  flex-col
+                  items-start
+                  justify-start
+                  gap-2
+                  rounded-2xl
+                  border
+                  border-slate-100
+                  bg-white
+                  p-2.5
+                  shadow-sm
+                  min-[400px]:flex-row
+                  min-[400px]:items-center
+                  min-[400px]:justify-between
+                  sm:gap-4
+                  sm:p-4
+                "
               >
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <div className="h-12 w-12 sm:h-16 sm:w-16 flex-shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
+                {/* Product Info */}
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  {/* Image */}
+                  <div
+                    className="
+                      h-12
+                      w-12
+                      flex-shrink-0
+                      overflow-hidden
+                      rounded-xl
+                      border
+                      border-slate-100
+                      bg-slate-50
+                      sm:h-16
+                      sm:w-16
+                    "
+                  >
                     {item.image ? (
                       <img
                         src={item.image}
@@ -98,43 +169,102 @@ export default function CartPage() {
                     )}
                   </div>
 
+                  {/* Name + Price */}
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs sm:text-sm font-semibold text-slate-800 line-clamp-2 break-words">
+                    <p
+                      className="
+                        line-clamp-2
+                        break-words
+                        text-xs
+                        font-semibold
+                        text-slate-800
+                        sm:text-sm
+                      "
+                    >
                       {item.name}
                     </p>
 
-                    <p className="text-xs sm:text-sm font-bold text-primary-600 mt-1">
+                    <p className="mt-1 text-xs font-bold text-primary-600 sm:text-sm">
                       PKR {item.price?.toLocaleString()}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex justify-between w-full min-[400px]:w-auto">
-                  <div className="flex items-center  gap-0 sm:gap-2">
+                {/* Quantity + Total */}
+                <div className="flex w-full justify-between min-[400px]:w-auto">
+                  {/* Quantity Controls */}
+                  <div className="flex items-center gap-0 sm:gap-2">
                     <button
+                      type="button"
                       onClick={() => updateCartQty(item._id, item.qty - 1)}
-                      className="flex h-6 w-6 sm:w-7 sm:h-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-red-300 hover:text-red-500"
+                      className="
+                        flex
+                        h-6
+                        w-6
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-slate-200
+                        text-slate-600
+                        transition-all
+                        hover:border-red-300
+                        hover:text-red-500
+                        sm:h-7
+                        sm:w-7
+                      "
+                      aria-label="Decrease quantity"
                     >
                       <Minus size={13} />
                     </button>
+
                     <span className="w-8 text-center text-sm font-bold">
                       {item.qty}
                     </span>
+
                     <button
+                      type="button"
                       onClick={() => updateCartQty(item._id, item.qty + 1)}
                       disabled={item.qty >= item.stock}
-                      className="flex h-6 w-6 sm:w-7 sm:h-7 items-center justify-center rounded-full border border-slate-200 text-slate-600 hover:border-primary-300 hover:text-primary-600 disabled:opacity-40"
+                      className="
+                        flex
+                        h-6
+                        w-6
+                        items-center
+                        justify-center
+                        rounded-full
+                        border
+                        border-slate-200
+                        text-slate-600
+                        transition-all
+                        hover:border-primary-300
+                        hover:text-primary-600
+                        disabled:cursor-not-allowed
+                        disabled:opacity-40
+                        sm:h-7
+                        sm:w-7
+                      "
+                      aria-label="Increase quantity"
                     >
                       <Plus size={13} />
                     </button>
                   </div>
-                  <div className="flex gap-2 items-center">
+
+                  {/* Item Total + Remove */}
+                  <div className="flex items-center gap-2">
                     <p className="w-24 text-right text-sm font-bold text-slate-800">
                       PKR {(item.price * item.qty).toLocaleString()}
                     </p>
+
                     <button
+                      type="button"
                       onClick={() => removeFromCart(item._id)}
-                      className="text-slate-300 hover:text-red-500 transition-colors"
+                      className="
+                        text-slate-300
+                        transition-colors
+                        hover:text-red-500
+                      "
+                      aria-label={`Remove ${item.name}`}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -144,44 +274,76 @@ export default function CartPage() {
             ))}
           </div>
 
-          {/* Summary */}
+          {/* ═══════════════════════════════════════
+              ORDER SUMMARY
+          ═══════════════════════════════════════ */}
+
           <div className="lg:col-span-1">
-            <div className="sticky top-20 rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+            <div
+              className="
+                sticky
+                top-20
+                space-y-4
+                rounded-2xl
+                border
+                border-slate-200
+                bg-white
+                p-5
+              "
+            >
               <h2 className="text-base font-bold text-slate-800">
                 Order Summary
               </h2>
 
+              {/* ─────────────────────────────────
+                  SUBTOTAL / DELIVERY
+              ───────────────────────────────── */}
+
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between text-slate-600">
                   <span>Subtotal ({cart.length} items)</span>
+
                   <span>PKR {subTotal.toLocaleString()}</span>
                 </div>
+
                 <div className="flex justify-between text-slate-600">
                   <span>Delivery</span>
+
                   <span
                     className={
-                      deliveryCharge === 0 ? "text-primary-600 font-medium" : ""
+                      deliveryCharge === 0 ? "font-medium text-primary-600" : ""
                     }
                   >
                     {deliveryCharge === 0 ? "FREE" : `PKR ${deliveryCharge}`}
                   </span>
                 </div>
+
+                {/* Coupon Discount */}
                 {couponDiscount > 0 && (
-                  <div className="flex justify-between text-primary-600 font-medium">
+                  <div className="flex justify-between font-medium text-primary-600">
                     <span>Coupon ({appliedCoupon?.code})</span>
 
                     <div className="flex items-center gap-1">
                       <span>-PKR {couponDiscount.toLocaleString()}</span>
 
                       <button
+                        type="button"
                         onClick={removeCoupon}
-                        className="text-red-500 text-xs"
+                        className="
+                          text-xs
+                          text-red-500
+                          transition-colors
+                          hover:text-red-700
+                        "
+                        aria-label="Remove coupon"
                       >
                         ✕
                       </button>
                     </div>
                   </div>
                 )}
+
+                {/* Free Delivery Message */}
                 {subTotal < 2000 && (
                   <p className="text-[11px] text-slate-400">
                     Add PKR {(2000 - subTotal).toLocaleString()} more for free
@@ -190,20 +352,39 @@ export default function CartPage() {
                 )}
               </div>
 
-              {/* Coupon */}
+              {/* ═════════════════════════════════
+                  COUPON
+              ═════════════════════════════════ */}
+
               <div className="border-t border-slate-100 pt-3">
                 <label className="mb-1.5 block text-xs font-medium text-slate-500">
                   Coupon Code
                 </label>
+
                 <div className="flex gap-2">
                   <input
                     value={coupon}
                     onChange={(e) => setCoupon(e.target.value)}
                     placeholder="Enter code"
-                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    className="
+                      min-w-0
+                      flex-1
+                      rounded-xl
+                      border
+                      border-slate-200
+                      px-3
+                      py-2
+                      text-sm
+                      outline-none
+                      transition-all
+                      focus:border-primary-300
+                      focus:ring-1
+                      focus:ring-primary-300/30
+                    "
                   />
 
                   <button
+                    type="button"
                     onClick={async () => {
                       try {
                         await applyCoupon(coupon);
@@ -220,7 +401,20 @@ export default function CartPage() {
                       }
                     }}
                     disabled={!coupon}
-                    className="rounded-xl bg-primary-600 px-3 py-2 text-xs font-bold text-white"
+                    className="
+                      rounded-xl
+                      bg-primary-600
+                      px-3
+                      py-2
+                      text-xs
+                      font-bold
+                      text-white
+                      transition-all
+                      hover:bg-primary-700
+                      hover:shadow-[0_0_16px_rgba(var(--primary-rgb),0.45)]
+                      disabled:cursor-not-allowed
+                      disabled:opacity-40
+                    "
                   >
                     Apply
                   </button>
@@ -228,34 +422,47 @@ export default function CartPage() {
 
                 {couponMsg && (
                   <p
-                    className={`mt-1.5 text-xs ${
-                      couponMsg.type === "success"
-                        ? "text-primary-600"
-                        : "text-red-500"
-                    }`}
-                  >
-                    {couponMsg.msg}
-                  </p>
-                )}
-                {couponMsg && (
-                  <p
-                    className={`mt-1.5 text-xs ${
-                      couponMsg.type === "success"
-                        ? "text-primary-600"
-                        : "text-red-500"
-                    }`}
+                    className={`
+                      mt-1.5
+                      text-xs
+                      ${
+                        couponMsg.type === "success"
+                          ? "text-primary-600"
+                          : "text-red-500"
+                      }
+                    `}
                   >
                     {couponMsg.msg}
                   </p>
                 )}
               </div>
 
-              <div className="border-t border-slate-100 pt-3 flex justify-between font-bold text-base">
+              {/* ═════════════════════════════════
+                  GRAND TOTAL
+              ═════════════════════════════════ */}
+
+              <div
+                className="
+                  flex
+                  justify-between
+                  border-t
+                  border-slate-100
+                  pt-3
+                  text-base
+                  font-bold
+                "
+              >
                 <span>Grand Total</span>
+
                 <span className="text-primary-600">
                   PKR {grandTotal.toLocaleString()}
                 </span>
               </div>
+
+              {/* ═════════════════════════════════
+                  PROCEED TO CHECKOUT
+                  REUSABLE ANIMATION
+              ═════════════════════════════════ */}
 
               <Link
                 href={{
@@ -265,13 +472,39 @@ export default function CartPage() {
                     discount: couponDiscount || undefined,
                   },
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 py-3.5 text-sm font-bold text-white hover:bg-primary-600/90 transition-colors"
+                className="
+                  animate-cart-attention
+                  flex
+                  w-full
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-xl
+                  bg-primary-600
+                  py-3.5
+                  text-sm
+                  font-bold
+                  text-white
+                  transition-colors
+                  hover:bg-primary-700
+                  hover:shadow-[0_0_24px_theme(colors.primary.500/75%)]
+                "
               >
-                Proceed to Checkout <ArrowRight size={16} />
+                Proceed to Checkout
+                <ArrowRight size={16} />
               </Link>
+
+              {/* Continue Shopping */}
               <Link
                 href="/products"
-                className="block text-center text-xs text-slate-400 hover:text-slate-600"
+                className="
+                  block
+                  text-center
+                  text-xs
+                  text-slate-400
+                  transition-colors
+                  hover:text-primary-600
+                "
               >
                 ← Continue Shopping
               </Link>

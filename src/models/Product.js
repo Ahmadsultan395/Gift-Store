@@ -5,7 +5,7 @@ const ImageSchema = new mongoose.Schema(
     url: { type: String, required: true },
     publicId: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const ProductSchema = new mongoose.Schema(
@@ -15,7 +15,11 @@ const ProductSchema = new mongoose.Schema(
     sku: { type: String, required: true, unique: true, trim: true },
     barcode: { type: String, unique: true, sparse: true, trim: true },
 
-    category: { type: mongoose.Schema.Types.ObjectId, ref: "Category", required: true },
+    category: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
     brand: { type: mongoose.Schema.Types.ObjectId, ref: "Brand" },
 
     description: String,
@@ -44,7 +48,11 @@ const ProductSchema = new mongoose.Schema(
 
     tags: [{ type: String, trim: true }],
 
-    status: { type: String, enum: ["active", "inactive", "draft"], default: "active" },
+    status: {
+      type: String,
+      enum: ["active", "inactive", "draft"],
+      default: "active",
+    },
     isFeatured: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
     isFlashSale: { type: Boolean, default: false },
@@ -60,13 +68,19 @@ const ProductSchema = new mongoose.Schema(
       metaDescription: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 ProductSchema.index({ name: "text", description: "text", tags: "text" });
 ProductSchema.index({ category: 1, status: 1 });
 ProductSchema.index({ isFeatured: 1 });
 ProductSchema.index({ stock: 1 });
+
+// ── Naye indexes — home page facet aggregation ke liye ──────────
+ProductSchema.index({ status: 1, isFlashSale: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, isFeatured: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, isNewArrival: 1, createdAt: -1 });
+ProductSchema.index({ status: 1, totalSold: -1 });
 
 // Virtual: availability label
 ProductSchema.virtual("availability").get(function () {
@@ -78,4 +92,5 @@ ProductSchema.virtual("availability").get(function () {
 ProductSchema.set("toJSON", { virtuals: true });
 ProductSchema.set("toObject", { virtuals: true });
 
-export default mongoose.models.Product || mongoose.model("Product", ProductSchema);
+export default mongoose.models.Product ||
+  mongoose.model("Product", ProductSchema);

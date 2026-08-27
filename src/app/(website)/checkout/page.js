@@ -284,13 +284,33 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={placing}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-bold text-white hover:bg-primary-700 disabled:opacity-60 transition-colors"
+                className="
+                  animate-cart-attention
+                  flex
+                  w-full
+                  items-center
+                  justify-center
+                  gap-2
+                  rounded-xl
+                  bg-primary
+                  py-3.5
+                  text-sm
+                  font-bold
+                  text-white
+                  shadow-[0_0_12px_rgba(14,165,233,0.45)]
+                  transition-colors
+                  hover:bg-primary-700
+                 hover:shadow-[0_0_24px_theme(colors.primary.500/75%)]
+                  disabled:cursor-not-allowed
+                  disabled:opacity-60
+                "
               >
                 {placing ? (
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 ) : (
                   <CheckCircle size={16} />
                 )}
+
                 {placing ? "Placing Order..." : "Place Order"}
               </button>
             </div>
