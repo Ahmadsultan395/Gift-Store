@@ -63,7 +63,7 @@ export default function ProductCard({ product }) {
   const [added, setAdded] = useState(false);
   const [buying, setBuying] = useState(false);
 
-  // Load store settings so WhatsApp number comes from Footer settings
+  // Load store settings
   useEffect(() => {
     fetchStoreSettings();
   }, [fetchStoreSettings]);
@@ -73,51 +73,18 @@ export default function ProductCard({ product }) {
   );
 
   const image = product.images?.[0]?.url;
-
   const isOutOfStock = product.stock <= 0;
 
-  // ─────────────────────────────────────────
-  // WhatsApp number from store settings
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
+  // WhatsApp Number
+  // Footer / Store Settings se
+  // ─────────────────────────────────────────────
   const whatsappNumber =
     storeSettings?.phone?.replace(/\D/g, "") || "";
 
-  // ─────────────────────────────────────────
-  // WhatsApp Order
-  // ─────────────────────────────────────────
-  function handleWhatsApp(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (isOutOfStock) return;
-
-    if (!whatsappNumber) {
-      alert("WhatsApp number is not configured.");
-      return;
-    }
-
-    const message = `Assalam o Alaikum,
-
-Mujhe ye product order karna hai:
-
-Product: ${product.name}
-Price: PKR ${product.sellingPrice?.toLocaleString()}
-Quantity: 1
-Product ID: ${product._id}
-
-Product Link:
-${window.location.origin}/products/${product._id}`;
-
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-      message
-    )}`;
-
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-  }
-
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
   // Wishlist
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
   async function handleWishlist(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -125,9 +92,9 @@ ${window.location.origin}/products/${product._id}`;
     await toggleWishlist(product._id);
   }
 
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
   // Add To Cart
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
   function handleAddToCart(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -143,9 +110,9 @@ ${window.location.origin}/products/${product._id}`;
     }, 2000);
   }
 
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
   // Buy Now
-  // ─────────────────────────────────────────
+  // ─────────────────────────────────────────────
   function handleBuyNow(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -161,9 +128,46 @@ ${window.location.origin}/products/${product._id}`;
     }, 350);
   }
 
+  // ─────────────────────────────────────────────
+  // WhatsApp Order
+  // ─────────────────────────────────────────────
+  function handleWhatsApp(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isOutOfStock) return;
+
+    if (!whatsappNumber) {
+      alert("WhatsApp number is not configured in store settings.");
+      return;
+    }
+
+    const productUrl =
+      typeof window !== "undefined"
+        ? `${window.location.origin}/products/${product._id}`
+        : `/products/${product._id}`;
+
+    const message = `Assalam o Alaikum,
+
+Mujhe ye product order karna hai:
+
+Product: ${product.name}
+Price: PKR ${product.sellingPrice?.toLocaleString()}
+Quantity: 1
+Product ID: ${product._id}
+
+Product Link:
+${productUrl}`;
+
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  }
+
   return (
-    <Link
-      href={`/products/${product._id}`}
+    <div
       className="
         group
         relative
@@ -185,8 +189,18 @@ ${window.location.origin}/products/${product._id}`;
     >
       {/* ═══════════════════════════════════════
           IMAGE
+          Only image click opens product detail
       ═══════════════════════════════════════ */}
-      <div className="relative aspect-square overflow-hidden bg-slate-50">
+      <Link
+        href={`/products/${product._id}`}
+        className="
+          relative
+          block
+          aspect-square
+          overflow-hidden
+          bg-slate-50
+        "
+      >
         {image ? (
           <Image
             src={image}
@@ -293,7 +307,9 @@ ${window.location.origin}/products/${product._id}`;
         <button
           type="button"
           aria-label={
-            wished ? "Remove from wishlist" : "Add to wishlist"
+            wished
+              ? "Remove from wishlist"
+              : "Add to wishlist"
           }
           onClick={handleWishlist}
           className="
@@ -325,7 +341,7 @@ ${window.location.origin}/products/${product._id}`;
             }
           />
         </button>
-      </div>
+      </Link>
 
       {/* ═══════════════════════════════════════
           PRODUCT INFO
@@ -334,33 +350,45 @@ ${window.location.origin}/products/${product._id}`;
 
         {/* Category */}
         {product.category && (
-          <p
-            className="
-              text-[10px]
-              font-bold
-              uppercase
-              tracking-wider
-              text-primary-500
-            "
+          <Link
+            href={`/products/${product._id}`}
+            className="block"
           >
-            {product.category.name}
-          </p>
+            <p
+              className="
+                text-[10px]
+                font-bold
+                uppercase
+                tracking-wider
+                text-primary-500
+              "
+            >
+              {product.category.name}
+            </p>
+          </Link>
         )}
 
         {/* Product Name */}
-        <p
-          className="
-            mt-1
-            line-clamp-2
-            min-h-[36px]
-            text-sm
-            font-semibold
-            leading-snug
-            text-slate-800
-          "
+        <Link
+          href={`/products/${product._id}`}
+          className="block"
         >
-          {product.name}
-        </p>
+          <p
+            className="
+              mt-1
+              line-clamp-2
+              min-h-[36px]
+              text-sm
+              font-semibold
+              leading-snug
+              text-slate-800
+              transition-colors
+              hover:text-primary-600
+            "
+          >
+            {product.name}
+          </p>
+        </Link>
 
         {/* Rating */}
         <div className="mt-1 min-h-[14px]">
@@ -370,7 +398,9 @@ ${window.location.origin}/products/${product._id}`;
           />
         </div>
 
-        {/* Price */}
+        {/* ═════════════════════════════════════
+            PRICE
+        ═════════════════════════════════════ */}
         <div className="mt-2">
           <p className="text-base font-extrabold text-primary-700">
             PKR {product.sellingPrice?.toLocaleString()}
@@ -401,7 +431,9 @@ ${window.location.origin}/products/${product._id}`;
           <button
             type="button"
             aria-label={
-              isOutOfStock ? "Out of stock" : "Add to cart"
+              isOutOfStock
+                ? "Out of stock"
+                : "Add to cart"
             }
             onClick={handleAddToCart}
             disabled={isOutOfStock || added}
@@ -454,7 +486,10 @@ ${window.location.origin}/products/${product._id}`;
               }
             `}
           >
-            <ShoppingCart size={14} strokeWidth={2.5} />
+            <ShoppingCart
+              size={14}
+              strokeWidth={2.5}
+            />
 
             <span>
               {added
@@ -474,7 +509,9 @@ ${window.location.origin}/products/${product._id}`;
             <button
               type="button"
               aria-label={
-                isOutOfStock ? "Out of stock" : "Buy now"
+                isOutOfStock
+                  ? "Out of stock"
+                  : "Buy now"
               }
               onClick={handleBuyNow}
               disabled={isOutOfStock || buying}
@@ -532,7 +569,9 @@ ${window.location.origin}/products/${product._id}`;
               />
 
               <span>
-                {buying ? "Processing..." : "Buy Now"}
+                {buying
+                  ? "Processing..."
+                  : "Buy Now"}
               </span>
             </button>
 
@@ -584,6 +623,6 @@ ${window.location.origin}/products/${product._id}`;
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
