@@ -13,8 +13,8 @@ import {
 import { FaWhatsapp } from "react-icons/fa";
 
 import ProductCard from "@/components/website/ProductCard";
-import ReviewSection from "@/components/website/ReviewSection";
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
+import ReviewSection from "@/components/website/ReviewSection";
 
 export default function ProductDetailPage() {
   const {
@@ -23,7 +23,7 @@ export default function ProductDetailPage() {
     fetchProductBySlug,
     addToCart,
 
-    // Store settings se phone number lena hai
+    // Store settings se phone number
     storeSettings,
     fetchStoreSettings,
   } = useWebsiteStore();
@@ -39,9 +39,9 @@ export default function ProductDetailPage() {
   const data = currentProduct;
   const loading = currentProductLoading;
 
-  // ─────────────────────────────────────────────
-  // Fetch Product + Store Settings
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // FETCH PRODUCT + STORE SETTINGS
+  // ============================================================
   useEffect(() => {
     if (id) {
       fetchProductBySlug(id);
@@ -50,9 +50,9 @@ export default function ProductDetailPage() {
     fetchStoreSettings();
   }, [id, fetchProductBySlug, fetchStoreSettings]);
 
-  // ─────────────────────────────────────────────
-  // Add To Cart
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // ADD TO CART
+  // ============================================================
   function handleAddToCart() {
     if (!data?.product) return;
 
@@ -65,9 +65,9 @@ export default function ProductDetailPage() {
     }, 2000);
   }
 
-  // ─────────────────────────────────────────────
-  // Buy Now
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // BUY NOW
+  // ============================================================
   function handleBuyNow(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -84,24 +84,24 @@ export default function ProductDetailPage() {
     }, 350);
   }
 
-  // ─────────────────────────────────────────────
-  // WhatsApp Number
-  // Footer mein jo form.phone use ho raha hai
-  // wahi yahan se bhi use hoga.
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // GET WHATSAPP NUMBER FROM STORE SETTINGS
+  // ============================================================
   function getWhatsAppNumber() {
     let number = storeSettings?.phone || "";
 
-    // Sirf digits
+    // Sirf numbers rakho
     number = number.replace(/\D/g, "");
 
-    // Agar Pakistan ka local number hai:
-    // 03001234567 -> 923001234567
+    // Pakistan local number:
+    // 03001234567
+    // =>
+    // 923001234567
     if (number.startsWith("0")) {
       number = "92" + number.substring(1);
     }
 
-    // Agar 92 ke baghair 10/11 digit number hai
+    // Agar 3001234567 save hai
     if (!number.startsWith("92") && number.length === 10) {
       number = "92" + number;
     }
@@ -109,20 +109,30 @@ export default function ProductDetailPage() {
     return number;
   }
 
-  // ─────────────────────────────────────────────
-  // WhatsApp Order
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // ORDER ON WHATSAPP
+  // ============================================================
   function handleWhatsAppOrder() {
     if (!data?.product) return;
 
     const p = data.product;
+
     const whatsappNumber = getWhatsAppNumber();
 
-    // Agar store settings mein phone hi nahi hai
+    // Store settings mein phone number nahi mila
     if (!whatsappNumber) {
-      alert("WhatsApp number is not configured in store settings.");
+      alert("WhatsApp number is not configured in Store Settings.");
       return;
     }
+
+    // Current website ka URL automatically milega.
+    //
+    // Example:
+    // https://gift-store-tawny.vercel.app/products/6a7ded...
+    //
+    // localhost par:
+    // http://localhost:3000/products/6a7ded...
+    const productUrl = `${window.location.origin}/products/${p._id}`;
 
     const message = `Assalam o Alaikum,
 
@@ -131,7 +141,9 @@ Mujhe ye product order karna hai:
 Product: ${p.name}
 Price: PKR ${p.sellingPrice?.toLocaleString()}
 Quantity: ${qty}
-Product ID: ${p._id}
+
+Product Link:
+${productUrl}
 
 Please confirm availability and order details.`;
 
@@ -142,9 +154,9 @@ Please confirm availability and order details.`;
     window.open(whatsappUrl, "_blank", "noopener,noreferrer");
   }
 
-  // ─────────────────────────────────────────────
-  // Loading
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // LOADING
+  // ============================================================
   if (loading) {
     return (
       <div className="flex min-h-[400px] items-center justify-center">
@@ -153,9 +165,9 @@ Please confirm availability and order details.`;
     );
   }
 
-  // ─────────────────────────────────────────────
-  // Product Not Found
-  // ─────────────────────────────────────────────
+  // ============================================================
+  // PRODUCT NOT FOUND
+  // ============================================================
   if (!data?.product) {
     return (
       <div className="py-24 text-center text-slate-400">
@@ -166,6 +178,9 @@ Please confirm availability and order details.`;
 
   const p = data.product;
 
+  // ============================================================
+  // PRODUCT STATUS
+  // ============================================================
   const isOutOfStock = p.stock <= 0;
 
   const availability =
@@ -188,9 +203,9 @@ Please confirm availability and order details.`;
     <div className="mx-auto max-w-7xl px-4 py-10">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
 
-        {/* =====================================================
+        {/* ======================================================
             PRODUCT IMAGES
-        ===================================================== */}
+        ====================================================== */}
         <div>
           <div className="mb-3 aspect-square overflow-hidden rounded-2xl border border-primary-100 bg-primary-50">
             {p.images?.[mainImg]?.url ? (
@@ -230,23 +245,23 @@ Please confirm availability and order details.`;
           )}
         </div>
 
-        {/* =====================================================
+        {/* ======================================================
             PRODUCT DETAILS
-        ===================================================== */}
+        ====================================================== */}
         <div>
-          {/* Category */}
+          {/* CATEGORY */}
           {p.category && (
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-primary-600">
               {p.category.name}
             </p>
           )}
 
-          {/* Product Name */}
+          {/* NAME */}
           <h1 className="text-2xl font-bold leading-snug text-slate-800">
             {p.name}
           </h1>
 
-          {/* Brand */}
+          {/* BRAND */}
           {p.brand && (
             <p className="mt-1 text-sm text-slate-500">
               Brand:{" "}
@@ -254,7 +269,9 @@ Please confirm availability and order details.`;
             </p>
           )}
 
-          {/* Price */}
+          {/* ====================================================
+              PRICE
+          ==================================================== */}
           <div className="mt-4 flex flex-wrap items-baseline gap-3">
             <span className="text-3xl font-extrabold text-primary-700">
               PKR {p.sellingPrice?.toLocaleString()}
@@ -273,7 +290,9 @@ Please confirm availability and order details.`;
             )}
           </div>
 
-          {/* Availability + SKU */}
+          {/* ====================================================
+              AVAILABILITY + SKU
+          ==================================================== */}
           <div className="mt-4 flex items-center gap-2">
             <span className={`text-sm font-semibold ${availColor}`}>
               ● {availability}
@@ -286,25 +305,25 @@ Please confirm availability and order details.`;
             </span>
           </div>
 
-          {/* Short Description */}
+          {/* SHORT DESCRIPTION */}
           {p.shortDescription && (
             <p className="mt-4 text-sm leading-relaxed text-slate-600">
               {p.shortDescription}
             </p>
           )}
 
-          {/* =====================================================
+          {/* ====================================================
               QUANTITY
-          ===================================================== */}
+          ==================================================== */}
           <div className="mt-6">
-            <div className="flex items-center gap-2 self-start rounded-xl border border-slate-200 px-3 py-2 w-fit">
+            <div className="flex w-fit items-center gap-2 rounded-xl border border-slate-200 px-3 py-2">
               <button
                 type="button"
                 onClick={() =>
                   setQty((q) => Math.max(1, q - 1))
                 }
                 disabled={isOutOfStock}
-                className="text-lg font-bold leading-none text-slate-500 hover:text-slate-800"
+                className="text-lg font-bold leading-none text-slate-500 transition-colors hover:text-slate-800 disabled:cursor-not-allowed"
               >
                 −
               </button>
@@ -321,18 +340,19 @@ Please confirm availability and order details.`;
                   )
                 }
                 disabled={isOutOfStock}
-                className="text-lg font-bold leading-none text-slate-500 hover:text-slate-800"
+                className="text-lg font-bold leading-none text-slate-500 transition-colors hover:text-slate-800 disabled:cursor-not-allowed"
               >
                 +
               </button>
             </div>
           </div>
 
-          {/* =====================================================
+          {/* ====================================================
               ADD TO CART + BUY NOW
-          ===================================================== */}
+          ==================================================== */}
           <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-            {/* Add To Cart */}
+
+            {/* ADD TO CART */}
             <button
               type="button"
               onClick={handleAddToCart}
@@ -342,7 +362,7 @@ Please confirm availability and order details.`;
                   ? "bg-green-600 text-white"
                   : isOutOfStock
                     ? "cursor-not-allowed bg-primary-50 text-slate-400"
-                    : "bg-primary-600 text-white shadow-[0_0_24px_theme(colors.primary.500/35%)] hover:bg-primary-700"
+                    : "bg-primary-600 text-white shadow-[0_0_24px_theme(colors.primary.500/35%)] hover:bg-primary-700 hover:shadow-[0_0_24px_theme(colors.primary.500/55%)]"
               }`}
             >
               <ShoppingCart size={18} />
@@ -354,7 +374,7 @@ Please confirm availability and order details.`;
                   : "Add to Cart"}
             </button>
 
-            {/* Buy Now */}
+            {/* BUY NOW */}
             <button
               type="button"
               onClick={handleBuyNow}
@@ -379,10 +399,14 @@ Please confirm availability and order details.`;
             </button>
           </div>
 
-          {/* =====================================================
+          {/* ====================================================
               WHATSAPP ORDER BUTTON
-              Number STORE SETTINGS se aa raha hai
-          ===================================================== */}
+              
+              IMPORTANT:
+              Number Store Settings se aa raha hai.
+              Product ID message mein nahi jayegi.
+              Current browser domain ka product link jayega.
+          ==================================================== */}
           <button
             type="button"
             onClick={handleWhatsAppOrder}
@@ -402,14 +426,14 @@ Please confirm availability and order details.`;
                 : "Order on WhatsApp"}
           </button>
 
-          {/* Weight */}
+          {/* WEIGHT */}
           {p.weight && (
             <p className="mt-3 text-xs text-slate-400">
               Weight: {p.weight}
             </p>
           )}
 
-          {/* Tags */}
+          {/* TAGS */}
           {p.tags?.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {p.tags.map((t) => (
@@ -423,9 +447,9 @@ Please confirm availability and order details.`;
             </div>
           )}
 
-          {/* =====================================================
-              FEATURES
-          ===================================================== */}
+          {/* ====================================================
+              PRODUCT FEATURES
+          ==================================================== */}
           <div className="mt-6 grid grid-cols-3 gap-3 border-t border-primary-100 pt-5">
             {[
               [Truck, "Free delivery on orders above PKR 2000"],
@@ -452,9 +476,9 @@ Please confirm availability and order details.`;
         </div>
       </div>
 
-      {/* =====================================================
-          DESCRIPTION
-      ===================================================== */}
+      {/* ========================================================
+          PRODUCT DESCRIPTION
+      ======================================================== */}
       {p.description && (
         <div className="mt-10 rounded-2xl border border-slate-100 bg-white p-6">
           <h2 className="mb-3 text-lg font-bold text-slate-800">
@@ -467,14 +491,14 @@ Please confirm availability and order details.`;
         </div>
       )}
 
-      {/* =====================================================
+      {/* ========================================================
           REVIEWS
-      ===================================================== */}
+      ======================================================== */}
       <ReviewSection productId={id} />
 
-      {/* =====================================================
+      {/* ========================================================
           RELATED PRODUCTS
-      ===================================================== */}
+      ======================================================== */}
       {data.related?.length > 0 && (
         <div className="mt-12">
           <h2 className="mb-6 text-xl font-bold text-slate-800">
