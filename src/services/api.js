@@ -96,7 +96,7 @@ export const productsApi = {
   // public website
   getHomeSections: () => req(`/api/products/home`),
   getList: (params = {}) => req(`/api/products?${new URLSearchParams(params)}`),
-  getBySlug: (slug) => req(`/api/products/${slug}`),
+  getBySlug: (id) => req(`/api/products/${id}`),
   // admin
   getById: async (id) => {
     const res = await api.get(`/admin/products/${id}`);
