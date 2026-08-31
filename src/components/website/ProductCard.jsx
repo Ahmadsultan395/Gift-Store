@@ -77,10 +77,31 @@ export default function ProductCard({ product }) {
 
   // ─────────────────────────────────────────────
   // WhatsApp Number
-  // Footer / Store Settings se
   // ─────────────────────────────────────────────
-  const whatsappNumber =
-    storeSettings?.phone?.replace(/\D/g, "") || "";
+function normalizeWhatsAppNumber(value) {
+  if (!value) return "";
+
+  let number = String(value).replace(/\D/g, "");
+
+  if (number.startsWith("03") && number.length === 11) {
+    return "92" + number.slice(1);
+  }
+
+  if (number.startsWith("3") && number.length === 10) {
+    return "92" + number;
+  }
+
+  if (number.startsWith("92")) {
+    return number;
+  }
+
+  return number;
+}
+
+const whatsappNumber = normalizeWhatsAppNumber(
+  storeSettings?.phone
+);
+
 
   // ─────────────────────────────────────────────
   // Wishlist
