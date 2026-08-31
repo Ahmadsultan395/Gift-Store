@@ -11,9 +11,10 @@ import {
   Zap,
 } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+
 import ProductCard from "@/components/website/ProductCard";
-import { useWebsiteStore } from "@/stores/useWebsiteStore";
 import ReviewSection from "@/components/website/ReviewSection";
+import { useWebsiteStore } from "@/stores/useWebsiteStore";
 
 export default function ProductDetailPage() {
   const {
@@ -21,6 +22,10 @@ export default function ProductDetailPage() {
     currentProductLoading,
     fetchProductBySlug,
     addToCart,
+
+    // Store settings se phone number lena hai
+    storeSettings,
+    fetchStoreSettings,
   } = useWebsiteStore();
 
   const { id } = useParams();
@@ -34,12 +39,20 @@ export default function ProductDetailPage() {
   const data = currentProduct;
   const loading = currentProductLoading;
 
+  // ─────────────────────────────────────────────
+  // Fetch Product + Store Settings
+  // ─────────────────────────────────────────────
   useEffect(() => {
     if (id) {
       fetchProductBySlug(id);
     }
-  }, [id, fetchProductBySlug]);
 
+    fetchStoreSettings();
+  }, [id, fetchProductBySlug, fetchStoreSettings]);
+
+  // ─────────────────────────────────────────────
+  // Add To Cart
+  // ─────────────────────────────────────────────
   function handleAddToCart() {
     if (!data?.product) return;
 
@@ -52,6 +65,9 @@ export default function ProductDetailPage() {
     }, 2000);
   }
 
+  // ─────────────────────────────────────────────
+  // Buy Now
+  // ─────────────────────────────────────────────
   function handleBuyNow(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -68,18 +84,78 @@ export default function ProductDetailPage() {
     }, 350);
   }
 
-  function handleWhatsAppOrder() {
-    if (!data?.product || isOutOfStock) return;
+  // ─────────────────────────────────────────────
+  // WhatsApp Number
+  // Footer mein jo form.phone use ho raha hai
+  // wahi yahan se bhi use hoga.
+  // ─────────────────────────────────────────────
+  function getWhatsAppNumber() {
+    let number = storeSettings?.phone || "";
+
+    // Sirf digits
+    number = number.replace(/\D/g, "");
+
+    // Agar Pakistan ka local number hai:
+    // 03001234567 -> 923001234567
+    if (number.startsWith("0")) {
+      number = "92" + number.substring(1);
+    }
+
+    // Agar 92 ke baghair 10/11 digit number hai
+    if (!number.startsWith("92") && number.length === 10) {
+      number = "92" + number;
+    }
+
+    return number;
   }
 
+  // ─────────────────────────────────────────────
+  // WhatsApp Order
+  // ─────────────────────────────────────────────
+  function handleWhatsAppOrder() {
+    if (!data?.product) return;
+
+    const p = data.product;
+    const whatsappNumber = getWhatsAppNumber();
+
+    // Agar store settings mein phone hi nahi hai
+    if (!whatsappNumber) {
+      alert("WhatsApp number is not configured in store settings.");
+      return;
+    }
+
+    const message = `Assalam o Alaikum,
+
+Mujhe ye product order karna hai:
+
+Product: ${p.name}
+Price: PKR ${p.sellingPrice?.toLocaleString()}
+Quantity: ${qty}
+Product ID: ${p._id}
+
+Please confirm availability and order details.`;
+
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      message,
+    )}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  }
+
+  // ─────────────────────────────────────────────
+  // Loading
+  // ─────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-24">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
       </div>
     );
   }
 
+  // ─────────────────────────────────────────────
+  // Product Not Found
+  // ─────────────────────────────────────────────
   if (!data?.product) {
     return (
       <div className="py-24 text-center text-slate-400">
@@ -101,31 +177,22 @@ export default function ProductDetailPage() {
 
   const availColor =
     p.stock <= 0
-      ? "text-primary-700"
+      ? "text-red-600"
       : p.stock <= p.lowStockThreshold
         ? "text-yellow-600"
-        : "text-primary-600";
+        : "text-green-600";
 
-  // WhatsApp message
-  const whatsappNumber = "923001234567";
-
-  const whatsappMessage = `Assalam o Alaikum, mujhe ye product order karna hai:
-
-Product: ${p.name}
-Price: PKR ${p.sellingPrice?.toLocaleString()}
-Quantity: ${qty}
-Product ID: ${p._id}`;
-
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    whatsappMessage,
-  )}`;
+  const whatsappNumber = getWhatsAppNumber();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        {/* ================= IMAGES ================= */}
+
+        {/* =====================================================
+            PRODUCT IMAGES
+        ===================================================== */}
         <div>
-          <div className="overflow-hidden rounded-2xl border border-primary-100 bg-primary-50 aspect-square mb-3">
+          <div className="mb-3 aspect-square overflow-hidden rounded-2xl border border-primary-100 bg-primary-50">
             {p.images?.[mainImg]?.url ? (
               <img
                 src={p.images[mainImg].url}
@@ -163,7 +230,9 @@ Product ID: ${p._id}`;
           )}
         </div>
 
-        {/* ================= DETAILS ================= */}
+        {/* =====================================================
+            PRODUCT DETAILS
+        ===================================================== */}
         <div>
           {/* Category */}
           {p.category && (
@@ -173,7 +242,7 @@ Product ID: ${p._id}`;
           )}
 
           {/* Product Name */}
-          <h1 className="text-2xl font-bold text-slate-800 leading-snug">
+          <h1 className="text-2xl font-bold leading-snug text-slate-800">
             {p.name}
           </h1>
 
@@ -181,14 +250,12 @@ Product ID: ${p._id}`;
           {p.brand && (
             <p className="mt-1 text-sm text-slate-500">
               Brand:{" "}
-              <span className="font-medium">
-                {p.brand.name}
-              </span>
+              <span className="font-medium">{p.brand.name}</span>
             </p>
           )}
 
           {/* Price */}
-          <div className="mt-4 flex items-baseline gap-3">
+          <div className="mt-4 flex flex-wrap items-baseline gap-3">
             <span className="text-3xl font-extrabold text-primary-700">
               PKR {p.sellingPrice?.toLocaleString()}
             </span>
@@ -200,13 +267,13 @@ Product ID: ${p._id}`;
             )}
 
             {p.discountPercent > 0 && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-sm font-bold text-primary-700">
+              <span className="rounded-full bg-red-100 px-2 py-0.5 text-sm font-bold text-red-700">
                 -{p.discountPercent}% OFF
               </span>
             )}
           </div>
 
-          {/* Availability */}
+          {/* Availability + SKU */}
           <div className="mt-4 flex items-center gap-2">
             <span className={`text-sm font-semibold ${availColor}`}>
               ● {availability}
@@ -221,21 +288,23 @@ Product ID: ${p._id}`;
 
           {/* Short Description */}
           {p.shortDescription && (
-            <p className="mt-4 text-sm text-slate-600 leading-relaxed">
+            <p className="mt-4 text-sm leading-relaxed text-slate-600">
               {p.shortDescription}
             </p>
           )}
 
-          {/* ================= ACTIONS ================= */}
-          <div className="mt-6 flex flex-col gap-3">
-            {/* Quantity */}
-            <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 self-start">
+          {/* =====================================================
+              QUANTITY
+          ===================================================== */}
+          <div className="mt-6">
+            <div className="flex items-center gap-2 self-start rounded-xl border border-slate-200 px-3 py-2 w-fit">
               <button
                 type="button"
                 onClick={() =>
                   setQty((q) => Math.max(1, q - 1))
                 }
-                className="text-slate-500 hover:text-slate-800 font-bold text-lg leading-none"
+                disabled={isOutOfStock}
+                className="text-lg font-bold leading-none text-slate-500 hover:text-slate-800"
               >
                 −
               </button>
@@ -252,162 +321,86 @@ Product ID: ${p._id}`;
                   )
                 }
                 disabled={isOutOfStock}
-                className="text-slate-500 hover:text-slate-800 font-bold text-lg leading-none disabled:opacity-40"
+                className="text-lg font-bold leading-none text-slate-500 hover:text-slate-800"
               >
                 +
               </button>
             </div>
+          </div>
 
-            {/* Add To Cart + Buy Now */}
-            <div className="flex w-full gap-3">
-              {/* Add To Cart */}
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={isOutOfStock}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
-                  added
-                    ? "bg-primary-700 text-white"
-                    : isOutOfStock
-                      ? "bg-primary-50 text-slate-400 cursor-not-allowed"
-                      : "bg-primary-600 text-white shadow-[0_0_24px_theme(colors.primary.500/35%)] hover:bg-primary-600 hover:shadow-[0_0_24px_theme(colors.primary.500/75%)] animate-cart-attention"
-                }`}
-              >
-                <ShoppingCart size={18} />
-
-                {added
-                  ? "Added to Cart!"
+          {/* =====================================================
+              ADD TO CART + BUY NOW
+          ===================================================== */}
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+            {/* Add To Cart */}
+            <button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
+                added
+                  ? "bg-green-600 text-white"
                   : isOutOfStock
-                    ? "Out of Stock"
-                    : "Add to Cart"}
-              </button>
-
-              {/* Buy Now */}
-              <button
-                type="button"
-                aria-label={
-                  isOutOfStock
-                    ? "Out of stock"
-                    : "Buy now"
-                }
-                onClick={handleBuyNow}
-                disabled={isOutOfStock || buying}
-                className={`
-                  relative
-                  flex
-                  flex-1
-                  h-12
-                  items-center
-                  justify-center
-                  gap-2
-                  overflow-hidden
-                  rounded-xl
-                  border
-                  px-2
-                  text-sm
-                  font-extrabold
-                  transition-all
-                  duration-150
-
-                  ${
-                    isOutOfStock
-                      ? `
-                        cursor-not-allowed
-                        border-slate-200
-                        bg-slate-100
-                        text-slate-300
-                      `
-                      : buying
-                        ? `
-                          border-amber-500
-                          bg-amber-500
-                          text-slate-950
-                        `
-                        : `
-                          border-amber-400
-                          bg-amber-400
-                          text-slate-950
-                          shadow-[0_0_16px_rgba(251,191,36,0.65)]
-                          hover:bg-amber-300
-                          hover:shadow-[0_0_28px_rgba(251,191,36,0.95)]
-                        `
-                  }
-
-                  ${
-                    !isOutOfStock && !buying
-                      ? "animate-buy-attention"
-                      : ""
-                  }
-                `}
-              >
-                <Zap
-                  size={18}
-                  strokeWidth={2.5}
-                  className="fill-current"
-                />
-
-                <span>
-                  {buying
-                    ? "Processing..."
-                    : "Buy Now"}
-                </span>
-              </button>
-            </div>
-
-            {/* ================= WHATSAPP BUTTON ================= */}
-            <a
-              href={
-                isOutOfStock
-                  ? "#"
-                  : whatsappUrl
-              }
-              onClick={(e) => {
-                if (isOutOfStock) {
-                  e.preventDefault();
-                }
-              }}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-disabled={isOutOfStock}
-              className={`
-                flex
-                w-full
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                py-3
-                text-sm
-                font-bold
-                transition-all
-                duration-300
-
-                ${
-                  isOutOfStock
-                    ? `
-                      cursor-not-allowed
-                      bg-slate-100
-                      text-slate-400
-                    `
-                    : `
-                      bg-[#25D366]
-                      text-white
-                      shadow-[0_0_20px_rgba(37,211,102,0.25)]
-                      hover:bg-[#20bd5a]
-                      hover:-translate-y-0.5
-                      hover:shadow-[0_0_28px_rgba(37,211,102,0.4)]
-                      active:scale-[0.98]
-                    `
-                }
-              `}
+                    ? "cursor-not-allowed bg-primary-50 text-slate-400"
+                    : "bg-primary-600 text-white shadow-[0_0_24px_theme(colors.primary.500/35%)] hover:bg-primary-700"
+              }`}
             >
-              <FaWhatsapp size={20} />
+              <ShoppingCart size={18} />
 
-              {isOutOfStock
+              {added
+                ? "Added to Cart!"
+                : isOutOfStock
+                  ? "Out of Stock"
+                  : "Add to Cart"}
+            </button>
+
+            {/* Buy Now */}
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              disabled={isOutOfStock || buying}
+              className={`relative flex h-12 flex-1 items-center justify-center gap-2 overflow-hidden rounded-xl border px-2 text-sm font-extrabold transition-all duration-150 ${
+                isOutOfStock
+                  ? "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-300"
+                  : buying
+                    ? "border-amber-500 bg-amber-500 text-slate-950"
+                    : "border-amber-400 bg-amber-400 text-slate-950 shadow-[0_0_16px_rgba(251,191,36,0.65)] hover:bg-amber-300 hover:shadow-[0_0_28px_rgba(251,191,36,0.95)]"
+              }`}
+            >
+              <Zap
+                size={18}
+                strokeWidth={2.5}
+                className="fill-current"
+              />
+
+              <span>
+                {buying ? "Processing..." : "Buy Now"}
+              </span>
+            </button>
+          </div>
+
+          {/* =====================================================
+              WHATSAPP ORDER BUTTON
+              Number STORE SETTINGS se aa raha hai
+          ===================================================== */}
+          <button
+            type="button"
+            onClick={handleWhatsAppOrder}
+            disabled={!whatsappNumber || isOutOfStock}
+            className={`mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold text-white transition-all duration-300 ${
+              !whatsappNumber || isOutOfStock
+                ? "cursor-not-allowed bg-slate-300"
+                : "bg-[#25D366] shadow-[0_0_20px_rgba(37,211,102,0.25)] hover:-translate-y-0.5 hover:bg-[#20bd5a] hover:shadow-[0_0_28px_rgba(37,211,102,0.4)] active:scale-[0.98]"
+            }`}
+          >
+            <FaWhatsapp size={21} />
+
+            {!whatsappNumber
+              ? "WhatsApp Number Not Configured"
+              : isOutOfStock
                 ? "Out of Stock"
                 : "Order on WhatsApp"}
-            </a>
-          </div>
+          </button>
 
           {/* Weight */}
           {p.weight && (
@@ -430,21 +423,14 @@ Product ID: ${p._id}`;
             </div>
           )}
 
-          {/* Features */}
+          {/* =====================================================
+              FEATURES
+          ===================================================== */}
           <div className="mt-6 grid grid-cols-3 gap-3 border-t border-primary-100 pt-5">
             {[
-              [
-                Truck,
-                "Free delivery on orders above PKR 2000",
-              ],
-              [
-                Shield,
-                "100% Authentic Products",
-              ],
-              [
-                RotateCcw,
-                "Easy Returns within 7 days",
-              ],
+              [Truck, "Free delivery on orders above PKR 2000"],
+              [Shield, "100% Authentic Products"],
+              [RotateCcw, "Easy Returns within 7 days"],
             ].map(([Icon, txt], i) => (
               <div
                 key={i}
@@ -457,7 +443,7 @@ Product ID: ${p._id}`;
                   />
                 </div>
 
-                <p className="text-[10px] text-slate-500 leading-tight">
+                <p className="text-[10px] leading-tight text-slate-500">
                   {txt}
                 </p>
               </div>
@@ -466,23 +452,29 @@ Product ID: ${p._id}`;
         </div>
       </div>
 
-      {/* ================= DESCRIPTION ================= */}
+      {/* =====================================================
+          DESCRIPTION
+      ===================================================== */}
       {p.description && (
         <div className="mt-10 rounded-2xl border border-slate-100 bg-white p-6">
           <h2 className="mb-3 text-lg font-bold text-slate-800">
             Product Description
           </h2>
 
-          <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-line">
+          <p className="whitespace-pre-line text-sm leading-relaxed text-slate-600">
             {p.description}
           </p>
         </div>
       )}
 
-      {/* ================= REVIEWS ================= */}
+      {/* =====================================================
+          REVIEWS
+      ===================================================== */}
       <ReviewSection productId={id} />
 
-      {/* ================= RELATED PRODUCTS ================= */}
+      {/* =====================================================
+          RELATED PRODUCTS
+      ===================================================== */}
       {data.related?.length > 0 && (
         <div className="mt-12">
           <h2 className="mb-6 text-xl font-bold text-slate-800">
