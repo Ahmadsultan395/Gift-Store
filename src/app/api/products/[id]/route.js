@@ -2,6 +2,8 @@ import connectDB from "@/lib/db";
 import Product from "@/models/Product";
 import Review from "@/models/Review";
 import { ok, notFound, serverError } from "@/lib/apiResponse";
+import Category from "@/models/Category";
+import Brand from "@/models/Brand";
 
 export async function GET(_, { params }) {
   try {
