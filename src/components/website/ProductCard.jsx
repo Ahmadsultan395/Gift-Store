@@ -2,9 +2,16 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Heart, Package, Star, Zap } from "lucide-react";
+import {
+  ShoppingCart,
+  Heart,
+  Package,
+  Star,
+  Zap,
+} from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 
 import { useWebsiteStore } from "@/stores/useWebsiteStore";
 
@@ -45,16 +52,68 @@ function StarRating({ rating = 0, count = 0 }) {
 export default function ProductCard({ product }) {
   const router = useRouter();
 
-  const { addToCart, wishlist, toggleWishlist } = useWebsiteStore();
+  const {
+    addToCart,
+    wishlist,
+    toggleWishlist,
+    storeSettings,
+    fetchStoreSettings,
+  } = useWebsiteStore();
 
   const [added, setAdded] = useState(false);
   const [buying, setBuying] = useState(false);
 
-  const wished = wishlist.some((item) => (item._id || item) === product._id);
+  // Load store settings so WhatsApp number comes from Footer settings
+  useEffect(() => {
+    fetchStoreSettings();
+  }, [fetchStoreSettings]);
+
+  const wished = wishlist.some(
+    (item) => (item._id || item) === product._id
+  );
 
   const image = product.images?.[0]?.url;
 
   const isOutOfStock = product.stock <= 0;
+
+  // ─────────────────────────────────────────
+  // WhatsApp number from store settings
+  // ─────────────────────────────────────────
+  const whatsappNumber =
+    storeSettings?.phone?.replace(/\D/g, "") || "";
+
+  // ─────────────────────────────────────────
+  // WhatsApp Order
+  // ─────────────────────────────────────────
+  function handleWhatsApp(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (isOutOfStock) return;
+
+    if (!whatsappNumber) {
+      alert("WhatsApp number is not configured.");
+      return;
+    }
+
+    const message = `Assalam o Alaikum,
+
+Mujhe ye product order karna hai:
+
+Product: ${product.name}
+Price: PKR ${product.sellingPrice?.toLocaleString()}
+Quantity: 1
+Product ID: ${product._id}
+
+Product Link:
+${window.location.origin}/products/${product._id}`;
+
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+      message
+    )}`;
+
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  }
 
   // ─────────────────────────────────────────
   // Wishlist
@@ -79,9 +138,9 @@ export default function ProductCard({ product }) {
 
     setAdded(true);
 
-    // setTimeout(() => {
-    //   router.push("/cart");
-    // }, 350);
+    setTimeout(() => {
+      setAdded(false);
+    }, 2000);
   }
 
   // ─────────────────────────────────────────
@@ -147,7 +206,11 @@ export default function ProductCard({ product }) {
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
-            <Package size={40} strokeWidth={1.5} className="text-slate-200" />
+            <Package
+              size={40}
+              strokeWidth={1.5}
+              className="text-slate-200"
+            />
           </div>
         )}
 
@@ -229,7 +292,9 @@ export default function ProductCard({ product }) {
         ═════════════════════════════════════ */}
         <button
           type="button"
-          aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+          aria-label={
+            wished ? "Remove from wishlist" : "Add to wishlist"
+          }
           onClick={handleWishlist}
           className="
             absolute
@@ -253,7 +318,11 @@ export default function ProductCard({ product }) {
           <Heart
             size={14}
             strokeWidth={2}
-            className={wished ? "fill-red-500 text-red-500" : "text-slate-400"}
+            className={
+              wished
+                ? "fill-red-500 text-red-500"
+                : "text-slate-400"
+            }
           />
         </button>
       </div>
@@ -262,6 +331,7 @@ export default function ProductCard({ product }) {
           PRODUCT INFO
       ═══════════════════════════════════════ */}
       <div className="flex flex-1 flex-col p-3">
+
         {/* Category */}
         {product.category && (
           <p
@@ -294,12 +364,13 @@ export default function ProductCard({ product }) {
 
         {/* Rating */}
         <div className="mt-1 min-h-[14px]">
-          <StarRating rating={product.avgRating} count={product.reviewCount} />
+          <StarRating
+            rating={product.avgRating}
+            count={product.reviewCount}
+          />
         </div>
 
-        {/* ═════════════════════════════════════
-            PRICE
-        ═════════════════════════════════════ */}
+        {/* Price */}
         <div className="mt-2">
           <p className="text-base font-extrabold text-primary-700">
             PKR {product.sellingPrice?.toLocaleString()}
@@ -320,72 +391,91 @@ export default function ProductCard({ product }) {
         </div>
 
         {/* ═══════════════════════════════════════
-            BOTTOM BUTTONS
+            BUTTONS
         ═══════════════════════════════════════ */}
         <div className="mt-auto pt-3">
-          <div className="grid grid-cols-1 min:[500px]-grid-cols-2 gap-2">
-            {/* ─────────────────────────────────
-                ADD TO CART
-            ───────────────────────────────── */}
-            <button
-              type="button"
-              aria-label={isOutOfStock ? "Out of stock" : "Add to cart"}
-              onClick={handleAddToCart}
-              disabled={isOutOfStock || added}
-              className={`
-                relative
-                flex
-                h-10
-                items-center
-                justify-center
-                gap-1.5
-                overflow-hidden
-                rounded-xl
-                border
-                px-2
-                text-[11px]
-                font-extrabold
-                transition-all
-                duration-150
 
-                ${
-                  added
+          {/* ─────────────────────────────────
+              ADD TO CART
+          ───────────────────────────────── */}
+          <button
+            type="button"
+            aria-label={
+              isOutOfStock ? "Out of stock" : "Add to cart"
+            }
+            onClick={handleAddToCart}
+            disabled={isOutOfStock || added}
+            className={`
+              relative
+              flex
+              h-10
+              w-full
+              items-center
+              justify-center
+              gap-1.5
+              overflow-hidden
+              rounded-xl
+              border
+              px-2
+              text-[11px]
+              font-extrabold
+              transition-all
+              duration-150
+
+              ${
+                added
+                  ? `
+                    border-green-500
+                    bg-green-500
+                    text-white
+                    shadow-[0_0_20px_rgba(34,197,94,0.60)]
+                  `
+                  : isOutOfStock
                     ? `
-                      border-green-500
-                      bg-green-500
-                      text-white
-                      shadow-[0_0_20px_rgba(34,197,94,0.60)]
+                      cursor-not-allowed
+                      border-slate-200
+                      bg-slate-100
+                      text-slate-300
                     `
-                    : isOutOfStock
-                      ? `
-                        cursor-not-allowed
-                        border-slate-200
-                        bg-slate-100
-                        text-slate-300
-                      `
-                      : `
-                        border-primary-500
-                        bg-primary-500
-                        text-white
-                        shadow-[0_0_12px_theme(colors.primary.500/45%)]
-hover:bg-primary-600
-hover:shadow-[0_0_24px_theme(colors.primary.500/75%)]
-                      `
-                }
-                ${!isOutOfStock && !added ? "animate-cart-attention" : ""}
-              `}
-            >
-              <ShoppingCart size={14} strokeWidth={2.5} />
+                    : `
+                      border-primary-500
+                      bg-primary-500
+                      text-white
+                      shadow-[0_0_12px_theme(colors.primary.500/45%)]
+                      hover:bg-primary-600
+                      hover:shadow-[0_0_24px_theme(colors.primary.500/75%)]
+                    `
+              }
 
-              <span>{added ? "Added!" : "Add to Cart"}</span>
-            </button>
+              ${
+                !isOutOfStock && !added
+                  ? "animate-cart-attention"
+                  : ""
+              }
+            `}
+          >
+            <ShoppingCart size={14} strokeWidth={2.5} />
 
-            {/* ─────────────────────────────────
-                BUY NOW
-            ───────────────────────────────── */}
+            <span>
+              {added
+                ? "Added!"
+                : isOutOfStock
+                  ? "Out of Stock"
+                  : "Add to Cart"}
+            </span>
+          </button>
+
+          {/* ─────────────────────────────────
+              BUY NOW + WHATSAPP
+          ───────────────────────────────── */}
+          <div className="mt-2 grid grid-cols-2 gap-2">
+
+            {/* BUY NOW */}
             <button
               type="button"
-              aria-label={isOutOfStock ? "Out of stock" : "Buy now"}
+              aria-label={
+                isOutOfStock ? "Out of stock" : "Buy now"
+              }
               onClick={handleBuyNow}
               disabled={isOutOfStock || buying}
               className={`
@@ -427,13 +517,70 @@ hover:shadow-[0_0_24px_theme(colors.primary.500/75%)]
                         hover:shadow-[0_0_28px_rgba(251,191,36,0.95)]
                       `
                 }
-                ${!isOutOfStock && !buying ? "animate-buy-attention" : ""}
+
+                ${
+                  !isOutOfStock && !buying
+                    ? "animate-buy-attention"
+                    : ""
+                }
               `}
             >
-              <Zap size={14} strokeWidth={2.5} className="fill-current" />
+              <Zap
+                size={14}
+                strokeWidth={2.5}
+                className="fill-current"
+              />
 
-              <span>{buying ? "Processing..." : "Buy Now"}</span>
+              <span>
+                {buying ? "Processing..." : "Buy Now"}
+              </span>
             </button>
+
+            {/* WHATSAPP */}
+            <button
+              type="button"
+              aria-label="Order on WhatsApp"
+              onClick={handleWhatsApp}
+              disabled={isOutOfStock}
+              className={`
+                flex
+                h-10
+                items-center
+                justify-center
+                gap-1.5
+                rounded-xl
+                border
+                px-2
+                text-[11px]
+                font-extrabold
+                transition-all
+                duration-200
+
+                ${
+                  isOutOfStock
+                    ? `
+                      cursor-not-allowed
+                      border-slate-200
+                      bg-slate-100
+                      text-slate-300
+                    `
+                    : `
+                      border-[#25D366]
+                      bg-[#25D366]
+                      text-white
+                      shadow-[0_0_14px_rgba(37,211,102,0.35)]
+                      hover:bg-[#20bd5a]
+                      hover:-translate-y-0.5
+                      hover:shadow-[0_0_24px_rgba(37,211,102,0.55)]
+                    `
+                }
+              `}
+            >
+              <FaWhatsapp size={17} />
+
+              <span>WhatsApp</span>
+            </button>
+
           </div>
         </div>
       </div>
