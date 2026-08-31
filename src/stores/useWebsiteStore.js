@@ -260,10 +260,10 @@ export const useWebsiteStore = create(
       currentProduct: null,
       currentProductLoading: false,
 
-      fetchProductBySlug: async (slug) => {
+      fetchProductBySlug: async (id) => {
         set({ currentProductLoading: true, currentProduct: null });
         try {
-          const data = await productsApi.getBySlug(slug);
+          const data = await productsApi.getBySlug(id);
           set({ currentProduct: data });
         } catch {
         } finally {
